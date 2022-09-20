@@ -1,0 +1,15 @@
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.csproj.AssemblyReference.cache
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.GeneratedMSBuildEditorConfig.editorconfig
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.AssemblyInfoInputs.cache
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.AssemblyInfo.cs
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.csproj.CoreCompileInputs.cache
+/Users/a000/Source/pain/bin/Debug/net6.0/pain
+/Users/a000/Source/pain/bin/Debug/net6.0/pain.deps.json
+/Users/a000/Source/pain/bin/Debug/net6.0/pain.runtimeconfig.json
+/Users/a000/Source/pain/bin/Debug/net6.0/pain.dll
+/Users/a000/Source/pain/bin/Debug/net6.0/pain.pdb
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.dll
+/Users/a000/Source/pain/obj/Debug/net6.0/ref/pain.dll
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.pdb
+/Users/a000/Source/pain/obj/Debug/net6.0/pain.genruntimeconfig.cache
+/Users/a000/Source/pain/obj/Debug/net6.0/refint/pain.dll
