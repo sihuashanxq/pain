@@ -8,12 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="src\Compilers\Statements\" />
     <None Remove="src\Compilers\Expressions\" />
     <None Remove="src\Compilers\Parsers\Definitions\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\Compilers\Statements\" />
     <Folder Include="src\Compilers\Expressions\" />
     <Folder Include="src\Compilers\Parsers\Definitions\" />
   </ItemGroup>

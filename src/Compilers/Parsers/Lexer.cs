@@ -27,7 +27,6 @@ public static class StringExtensions
             _ => false,
         };
     }
-
 }
 
 public class Lexer
@@ -103,7 +102,8 @@ public class Lexer
             break;
         }
 
-        return new Token(TokenType.Identifier, buf.ToString(), position);
+        var token= new Token(TokenType.Identifier, buf.ToString(), position);
+        return CovertKeyword(token);
     }
 
     public Token ScanString()
@@ -494,7 +494,6 @@ public class Lexer
         }
     }
 
-
     private void MoveNext(int count = 1, int line = 0)
     {
         if (count <= 0)
@@ -551,39 +550,6 @@ public class Lexer
         return _source.Slice(_index, count).Span;
     }
 
-    private struct SourceChar
-    {
-        public char Char;
-
-        public bool IsEmpty;
-
-        public SourceChar(char ch, bool isEmpty)
-        {
-            Char = ch;
-            IsEmpty = isEmpty;
-        }
-
-        public bool Is(char ch)
-        {
-            if (IsEmpty)
-            {
-                return false;
-            }
-
-            return ch == Char;
-        }
-
-        public bool Is(Func<char, bool> test)
-        {
-            if (IsEmpty)
-            {
-                return false;
-            }
-
-            return test(Char);
-        }
-    }
-
     private bool IsNumber()
     {
         var chars = Peek(2);
@@ -618,5 +584,55 @@ public class Lexer
     private static bool IsIdentiferPart(char ch)
     {
         return ch == '_' || char.IsLetter(ch) || ch.Between('0', '9');
+    }
+
+    private static Token CovertKeyword(Token token)
+    {
+        switch (token.Value.ToString())
+        {
+            case "if":
+                return new Token(TokenType.If, "if", token.Position);
+            case "else":
+                return new Token(TokenType.Else, "else", token.Position);
+            case "let":
+                return new Token(TokenType.Let, "let", token.Position);
+            case "for":
+                return new Token(TokenType.For, "for", token.Position);
+            default:
+                return token;
+        }
+    }
+
+    private struct SourceChar
+    {
+        public char Char;
+
+        public bool IsEmpty;
+
+        public SourceChar(char ch, bool isEmpty)
+        {
+            Char = ch;
+            IsEmpty = isEmpty;
+        }
+
+        public bool Is(char ch)
+        {
+            if (IsEmpty)
+            {
+                return false;
+            }
+
+            return ch == Char;
+        }
+
+        public bool Is(Func<char, bool> test)
+        {
+            if (IsEmpty)
+            {
+                return false;
+            }
+
+            return test(Char);
+        }
     }
 }

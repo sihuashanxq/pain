@@ -1,7 +1,4 @@
-﻿using System.Diagnostics.Metrics;
-using Pain.Compilers.Expressions;
-using Pain.Compilers.Parsers;
-using static System.Net.Mime.MediaTypeNames;
+﻿using Pain.Compilers.Expressions;
 
 namespace Pain.Compilers.Parsers;
 
@@ -69,7 +66,7 @@ public class Parser
 
     private Syntax ParseBitOrExpresion()
     {
-        var lExpr = Parse(null, ParseBitXorExpresion, ThrowNullErrorMatch(TokenType.BitOr));
+        var lExpr = Parse(null, ParseBitXorExpresion, ThrowNullError(TokenType.BitOr));
         while (Match(TokenType.BitOr))
         {
             var rExpr = Parse(Next, ParseBitXorExpresion, ThrowNullError);
@@ -81,7 +78,7 @@ public class Parser
 
     private Syntax ParseBitXorExpresion()
     {
-        var lExpr = Parse(null, ParseBitAndExpresion, ThrowNullErrorMatch(TokenType.BitXor));
+        var lExpr = Parse(null, ParseBitAndExpresion, ThrowNullError(TokenType.BitXor));
         while (Match(TokenType.BitXor))
         {
             var rExpr = Parse(Next, ParseBitAndExpresion, ThrowNullError);
@@ -93,7 +90,7 @@ public class Parser
 
     private Syntax ParseBitAndExpresion()
     {
-        var lExpr = Parse(null, ParseEqualityExpresion, ThrowNullErrorMatch(TokenType.BitAnd));
+        var lExpr = Parse(null, ParseEqualityExpresion, ThrowNullError(TokenType.BitAnd));
         while (Match(TokenType.BitAnd))
         {
             var rExpr = Parse(Next, ParseEqualityExpresion, ThrowNullError);
@@ -106,7 +103,7 @@ public class Parser
     private Syntax ParseEqualityExpresion()
     {
         var tokens = new[] { TokenType.Equal, TokenType.NotEqual, TokenType.Is };
-        var lExpr = Parse(null, ParseReleationExpresion, ThrowNullErrorMatch(tokens));
+        var lExpr = Parse(null, ParseReleationExpresion, ThrowNullError(tokens));
         while (Match(tokens))
         {
             var token = _token;
@@ -125,7 +122,7 @@ public class Parser
     private Syntax ParseReleationExpresion()
     {
         var tokens = new[] { TokenType.Less, TokenType.LessOrEqual, TokenType.Greater, TokenType.GreaterOrEqual };
-        var lExpr = Parse(null, ParseShiftExpresion, ThrowNullErrorMatch(tokens));
+        var lExpr = Parse(null, ParseShiftExpresion, ThrowNullError(tokens));
         while (Match(tokens))
         {
             var token = _token;
@@ -145,7 +142,7 @@ public class Parser
     private Syntax ParseShiftExpresion()
     {
         var tokens = new[] { TokenType.LeftShift, TokenType.RightShift };
-        var lExpr = Parse(null, ParseAdditiveExpresion, ThrowNullErrorMatch(tokens));
+        var lExpr = Parse(null, ParseAdditiveExpresion, ThrowNullError(tokens));
         while (Match(tokens))
         {
             var token = _token;
@@ -163,7 +160,7 @@ public class Parser
     private Syntax ParseAdditiveExpresion()
     {
         var tokens = new[] { TokenType.Add, TokenType.Subtract };
-        var lExpr = Parse(null, ParseMultiplicativeExpresion, ThrowNullErrorMatch(tokens));
+        var lExpr = Parse(null, ParseMultiplicativeExpresion, ThrowNullError(tokens));
         while (Match(tokens))
         {
             var token = _token;
@@ -181,7 +178,7 @@ public class Parser
     private Syntax ParseMultiplicativeExpresion()
     {
         var tokens = new[] { TokenType.Multiply, TokenType.Divide, TokenType.Modulo };
-        var lExpr = Parse(null, ParseUnaryExpression, ThrowNullErrorMatch(tokens));
+        var lExpr = Parse(null, ParseUnaryExpression, ThrowNullError(tokens));
         while (Match(tokens))
         {
             var token = _token;
@@ -242,21 +239,22 @@ public class Parser
 
     private Syntax ParsePrimaryExpression()
     {
-        switch (_token.Type)
+        var token = _token;
+        switch (token.Type)
         {
             case TokenType.Identifier:
                 Next();
-                return new NameExpression(_token.Value.ToString()!);
+                return new NameExpression(token.Value.ToString()!);
             case TokenType.True:
             case TokenType.False:
                 Next();
-                return new ConstantExpression(_token.Value, SyntaxType.ConstBoolean);
+                return new ConstantExpression(token.Value, SyntaxType.ConstBoolean);
             case TokenType.Number:
                 Next();
-                return new ConstantExpression(_token.Value, SyntaxType.ConstNumber);
+                return new ConstantExpression(token.Value, SyntaxType.ConstNumber);
             case TokenType.Null:
                 Next();
-                return new ConstantExpression(_token.Value, SyntaxType.ConstNull);
+                return new ConstantExpression(token.Value, SyntaxType.ConstNull);
             case TokenType.Super:
                 Next();
                 return new SuperExpression();
@@ -407,7 +405,7 @@ public class Parser
         return list.ToArray();
     }
 
-    private Syntax ParseExpression()
+    public Syntax ParseExpression()
     {
         while (true)
         {
@@ -603,7 +601,7 @@ public class Parser
 
     private Syntax ParseForCondition()
     {
-        var test = ParseUnaryExpression();
+        var test = ParseUnitExpression();
         ThrowError(!Match(TokenType.Semicolon));
         Next();
         return test;
@@ -657,7 +655,7 @@ public class Parser
         return syntax;
     }
 
-    private void Next()
+    public void Next()
     {
         _token = _lexer.ScanNext();
     }
@@ -690,7 +688,7 @@ public class Parser
         ThrowError(syntax == null);
     }
 
-    private Action<Syntax> ThrowNullErrorMatch(params TokenType[] types)
+    private Action<Syntax> ThrowNullError(params TokenType[] types)
     {
         return syntax =>
         {

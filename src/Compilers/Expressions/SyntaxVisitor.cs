@@ -8,6 +8,8 @@ public abstract class SyntaxVisitor<T>
         return syntax.Accept(this);
     }
 
+    protected internal abstract T VisitBinary(BinaryExpression binaryExpression);
+
     protected internal abstract T VisitBlock(BlockExpression blockExpression);
 
     protected internal abstract T VisitBreak(BreakExpression breakExpression);

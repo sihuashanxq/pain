@@ -1,17 +1,17 @@
 ﻿// See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
 
-var code=@" var x=1;
-if x>3&& x>4";
+var code=@"for let i=0;i<10;i=i+1{
+    if i>10{
+        println(i)
+    }else{
+        println(10)
+    }
+}";
 
 var lexer=new Pain.Compilers.Parsers.Lexer("ddd",code);
+var parser=new Pain.Compilers.Parsers.Parser(lexer);
 
-while (true)
-{
-    var token = lexer.ScanNext();
-    if (token.Type == Pain.Compilers.Parsers.TokenType.EOF) {
-        break;
-    }
-
-    Console.WriteLine(token.Value);
-}
+parser.Next();
+var x=parser.ParseExpression();
+Console.WriteLine(x);
