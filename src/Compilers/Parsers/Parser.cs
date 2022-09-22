@@ -1,4 +1,5 @@
 ﻿using Pain.Compilers.Expressions;
+using Pain.Compilers.Parsers.Definitions;
 
 namespace Pain.Compilers.Parsers;
 
@@ -402,6 +403,8 @@ public class Parser
             list.Add(new ParameterExpression(_token.Value.ToString()!, list.Count));
         }
 
+        ThrowError(!Match(TokenType.CloseParen));
+        Next();
         return list.ToArray();
     }
 
@@ -524,9 +527,9 @@ public class Parser
                 continue;
             }
 
-            var name = _token.Value.ToString()!;
+            var name = string.Empty;
             ThrowError(!Match(TokenType.Identifier));
-            Next();
+            Next(token => name = token.Value.ToString());
 
             if (!Match(TokenType.Assign))
             {
@@ -647,6 +650,109 @@ public class Parser
         throw new Exception("Not implemented");
     }
 
+    public ModuleDefinition ParseModule()
+    {
+        Next();
+        var imports = ParseImprots();
+        var classes = ParseClasses();
+        return new ModuleDefinition(classes, imports);
+    }
+
+    private ClassDefinition[] ParseClasses()
+    {
+        var classes = new List<ClassDefinition>();
+        while (Match(TokenType.Class))
+        {
+            var name = string.Empty;
+            var super = string.Empty;
+            var functions = new List<Syntax>();
+
+            Next();
+            ThrowError(!Match(TokenType.Identifier));
+            Next(token => name = token.Value.ToString());
+
+            if (Match(TokenType.Extends))
+            {
+                Next();
+                ThrowError(!Match(TokenType.Identifier));
+                Next(token => super = token.Value.ToString());
+            }
+
+            ThrowError(!Match(TokenType.OpenBrace));
+            Next();
+
+            while (Match(TokenType.Func))
+            {
+                var functionExpr = ParseFunctionExpression();
+                if (functionExpr == null)
+                {
+                    break;
+                }
+
+                functions.Add(functionExpr);
+            }
+
+            ThrowError(!Match(TokenType.CloseBrace));
+            Next();
+            classes.Add(new ClassDefinition(name!, super!, functions.ToArray()));
+        }
+
+        return classes.ToArray();
+    }
+
+    private ImportDefinition[] ParseImprots()
+    {
+        var imports = new List<ImportDefinition>();
+        while (Match(TokenType.Import))
+        {
+            var path = string.Empty;
+            var classes = new List<ImportClass>();
+            Next();
+            ThrowError(!Match(TokenType.OpenBrace));
+            Next();
+
+            while (!Match(TokenType.CloseBrace))
+            {
+                var name = string.Empty;
+                var alias = string.Empty;
+                ThrowError(!Match(TokenType.Identifier));
+                Next(token =>
+                {
+                    name = _token.Value.ToString();
+                    alias = name;
+                });
+
+                if (Match(TokenType.As))
+                {
+                    Next();
+                    ThrowError(!Match(TokenType.Identifier));
+                    Next(token => alias = token.Value.ToString());
+                }
+
+                if (Match(TokenType.Comma))
+                {
+                    Next();
+                }
+                else
+                {
+                    ThrowError(!Match(TokenType.CloseBrace));
+                }
+
+                classes.Add(new ImportClass(name!, alias!));
+            }
+
+            ThrowError(!Match(TokenType.CloseBrace));
+            Next();
+            ThrowError(!Match(TokenType.From));
+            Next();
+            ThrowError(!Match(TokenType.LiteralString));
+            Next(token => path = token.Value.ToString());
+            imports.Add(new ImportDefinition(path!, classes.ToArray()));
+        }
+
+        return imports.ToArray();
+    }
+
     private static Syntax Parse(Action? onParsing, Func<Syntax> parser, Action<Syntax>? onParsed)
     {
         onParsing?.Invoke();
@@ -655,9 +761,22 @@ public class Parser
         return syntax;
     }
 
-    public void Next()
+    private void Next()
     {
         _token = _lexer.ScanNext();
+    }
+
+    private void Next(Action<Token> before)
+    {
+        before?.Invoke(_token);
+        Next();
+    }
+
+    private void Next(Action<Token> before, Action<Token> after)
+    {
+        before?.Invoke(_token);
+        Next();
+        after?.Invoke(_token);
     }
 
     private bool Match(params TokenType[] types)

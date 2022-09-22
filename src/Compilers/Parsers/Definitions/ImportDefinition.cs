@@ -1,5 +1,5 @@
 ﻿using System;
-namespace Pain.Compilers.Parsers.Statements
+namespace Pain.Compilers.Parsers.Definitions
 {
     public class ImportDefinition
     {

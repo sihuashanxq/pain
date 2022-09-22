@@ -103,7 +103,7 @@ public class Lexer
         }
 
         var token= new Token(TokenType.Identifier, buf.ToString(), position);
-        return CovertKeyword(token);
+        return LookupKeyword(token);
     }
 
     public Token ScanString()
@@ -586,18 +586,52 @@ public class Lexer
         return ch == '_' || char.IsLetter(ch) || ch.Between('0', '9');
     }
 
-    private static Token CovertKeyword(Token token)
+    private static Token LookupKeyword(Token token)
     {
         switch (token.Value.ToString())
         {
             case "if":
-                return new Token(TokenType.If, "if", token.Position);
+                return new Token(TokenType.If, token.Value, token.Position);
             case "else":
-                return new Token(TokenType.Else, "else", token.Position);
+                return new Token(TokenType.Else, token.Value, token.Position);
             case "let":
-                return new Token(TokenType.Let, "let", token.Position);
+                return new Token(TokenType.Let, token.Value, token.Position);
             case "for":
-                return new Token(TokenType.For, "for", token.Position);
+                return new Token(TokenType.For, token.Value, token.Position);
+            case "class":
+                return new Token(TokenType.Class, token.Value, token.Position);
+            case "import":
+                return new Token(TokenType.Import, token.Value, token.Position);
+            case "switch":
+                return new Token(TokenType.Switch, token.Value, token.Position);
+            case "case":
+                return new Token(TokenType.Case, token.Value, token.Position);
+            case "and":
+                return new Token(TokenType.And, "&&", token.Position);
+            case "or":
+                return new Token(TokenType.Or, "||", token.Position);
+            case "extends":
+                return new Token(TokenType.Extends, token.Value, token.Position);
+            case "as":
+                return new Token(TokenType.As, token.Value, token.Position);
+            case "from":
+                return new Token(TokenType.From, token.Value, token.Position);
+            case "func":
+                return new Token(TokenType.Func, token.Value, token.Position);
+            case "continue":
+                return new Token(TokenType.Continue, token.Value, token.Position);
+            case "break":
+                return new Token(TokenType.Break, token.Value, token.Position);
+            case "return":
+                return new Token(TokenType.Return, token.Value, token.Position);
+            case "default":
+                return new Token(TokenType.Default, token.Value, token.Position);
+            case "new":
+                return new Token(TokenType.New, token.Value, token.Position);
+            case "super":
+                return new Token(TokenType.Super, token.Value, token.Position);
+            case "this":
+                return new Token(TokenType.This, token.Value, token.Position);
             default:
                 return token;
         }

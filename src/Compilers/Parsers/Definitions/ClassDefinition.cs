@@ -1,20 +1,19 @@
-﻿using System;
-using Pain.Compilers.Expressions;
-namespace Pain.Compilers.Parsers.Statements
+﻿using Pain.Compilers.Expressions;
+namespace Pain.Compilers.Parsers.Definitions
 {
     public class ClassDefinition
     {
         public string Name { get; }
 
-        public FunctionExpression Constructor { get; }
+        public string Super { get; }
 
-        public FunctionExpression[] Functions { get; }
+        public Syntax[] Functions { get; }
 
-        public ClassDefinition(string name,FunctionExpression constructor, FunctionExpression[] functions)
+        public ClassDefinition(string name,string super, Syntax[] functions)
         {
             Name = name;
+            Super = super;
             Functions = functions;
-            Constructor = constructor;
         }
     }
 }

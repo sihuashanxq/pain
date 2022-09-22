@@ -1,12 +1,17 @@
 ﻿<Properties StartupConfiguration="{876799E9-E726-4BE3-9C9A-406EE929160B}|Default">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.ItemProperties.pain PreferredExecutionTarget="MonoDevelop.Default" />
-  <MultiItemStartupConfigurations />
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workbench ActiveDocument="src/Compilers/Expressions/BinaryExpression.cs">
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/a000/Source/pain/Program.cs" relfile="Program.cs" line="17" column="1" />
+      <Breakpoint file="/Users/a000/Source/pain/Program.cs" relfile="Program.cs" line="16" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workbench ActiveDocument="src/Compilers/Parsers/Definitions/ClassDefinition.cs">
     <Files>
       <File FileName="src/Compilers/Expressions/NewExpression.cs" Line="21" Column="2" IsPinned="True" />
-      <File FileName="src/Compilers/Parsers/Definitions/ClassDefinition.cs" Line="1" Column="1" />
-      <File FileName="src/Compilers/Parsers/Parser.cs" Line="603" Column="1" />
+      <File FileName="src/Compilers/Parsers/Definitions/ClassDefinition.cs" Line="24" Column="1" />
+      <File FileName="src/Compilers/Parsers/Parser.cs" Line="546" Column="1" />
       <File FileName="src/Compilers/Expressions/ReturnExpression.cs" Line="11" Column="22" />
       <File FileName="src/Compilers/Expressions/ParameterExpression.cs" Line="3" Column="14" />
       <File FileName="src/Compilers/Expressions/NameExpression.cs" Line="4" Column="19" />
@@ -14,16 +19,18 @@
       <File FileName="src/Compilers/Expressions/ContinueExpression.cs" Line="11" Column="1" />
       <File FileName="src/Compilers/Expressions/EmptyExpression.cs" Line="5" Column="47" />
       <File FileName="src/Compilers/Expressions/SyntaxType.cs" Line="83" Column="10" />
-      <File FileName="src/Compilers/Expressions/SyntaxVisitor.cs" Line="45" Column="79" />
-      <File FileName="src/Compilers/Expressions/BinaryExpression.cs" Line="1" Column="1" />
+      <File FileName="src/Compilers/Expressions/SyntaxVisitor.cs" Line="11" Column="82" />
+      <File FileName="src/Compilers/Expressions/BinaryExpression.cs" Line="18" Column="40" />
+      <File FileName="Program.cs" Line="17" Column="22" />
+      <File FileName="src/Compilers/Parsers/Token.cs" Line="17" Column="6" />
+      <File FileName="src/Compilers/Parsers/TokenType.cs" Line="1" Column="1" />
+      <File FileName="src/Compilers/Parsers/Lexer.cs" Line="107" Column="6" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="pain" expanded="True">
-            <Node name="pain" expanded="True">
-              <Node name="src" selected="True" />
-            </Node>
+            <Node name="pain" expanded="True" />
           </Node>
         </State>
       </Pad>
@@ -32,8 +39,6 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
 </Properties>
