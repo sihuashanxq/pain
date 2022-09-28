@@ -7,13 +7,13 @@
       <Breakpoint file="/Users/a000/Source/pain/Program.cs" relfile="Program.cs" line="16" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MonoDevelop.Ide.Workbench ActiveDocument="src/Compilers/Parsers/Definitions/ClassDefinition.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="src/Compilers/Expressions/ParameterExpression.cs">
     <Files>
       <File FileName="src/Compilers/Expressions/NewExpression.cs" Line="21" Column="2" IsPinned="True" />
-      <File FileName="src/Compilers/Parsers/Definitions/ClassDefinition.cs" Line="24" Column="1" />
-      <File FileName="src/Compilers/Parsers/Parser.cs" Line="546" Column="1" />
+      <File FileName="src/Compilers/Parsers/Definitions/ClassDefinition.cs" Line="10" Column="43" IsPinned="True" />
+      <File FileName="src/Compilers/Parsers/Parser.cs" Line="407" Column="16" />
       <File FileName="src/Compilers/Expressions/ReturnExpression.cs" Line="11" Column="22" />
-      <File FileName="src/Compilers/Expressions/ParameterExpression.cs" Line="3" Column="14" />
+      <File FileName="src/Compilers/Expressions/ParameterExpression.cs" Line="6" Column="1" />
       <File FileName="src/Compilers/Expressions/NameExpression.cs" Line="4" Column="19" />
       <File FileName="src/Compilers/Expressions/MemberExpression.cs" Line="1" Column="1" />
       <File FileName="src/Compilers/Expressions/ContinueExpression.cs" Line="11" Column="1" />
@@ -21,16 +21,22 @@
       <File FileName="src/Compilers/Expressions/SyntaxType.cs" Line="83" Column="10" />
       <File FileName="src/Compilers/Expressions/SyntaxVisitor.cs" Line="11" Column="82" />
       <File FileName="src/Compilers/Expressions/BinaryExpression.cs" Line="18" Column="40" />
-      <File FileName="Program.cs" Line="17" Column="22" />
-      <File FileName="src/Compilers/Parsers/Token.cs" Line="17" Column="6" />
-      <File FileName="src/Compilers/Parsers/TokenType.cs" Line="1" Column="1" />
-      <File FileName="src/Compilers/Parsers/Lexer.cs" Line="107" Column="6" />
+      <File FileName="Program.cs" Line="12" Column="1" />
+      <File FileName="src/Compilers/Parsers/Token.cs" Line="6" Column="19" />
+      <File FileName="src/Compilers/Parsers/TokenType.cs" Line="25" Column="10" />
+      <File FileName="src/Compilers/Parsers/Lexer.cs" Line="591" Column="27" />
+      <File FileName="src/Compilers/Parsers/Definitions/ModuleDefintion.cs" Line="14" Column="6" />
+      <File FileName="src/Compilers/CodeGen/OpCodeType.cs" Line="87" Column="2" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="pain" expanded="True">
-            <Node name="pain" expanded="True" />
+            <Node name="pain" expanded="True">
+              <Node name="src" expanded="True">
+                <Node name="Compilers" expanded="True" />
+              </Node>
+            </Node>
           </Node>
         </State>
       </Pad>

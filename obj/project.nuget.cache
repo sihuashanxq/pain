@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "4P/UnzBWrzrdOadQss5Nt/IySo44ut2b5LsXzUN3wyp7IOrrDJ9GiovmToBdVLoenpbZlq2gJhQUU3cNytS+gw==",
+  "dgSpecHash": "y0KI22CmbY/QQt9/KOp7YXSzBqKEUUDCtTzQ/bZQ9FzmVDJdoW2ghD9FHAA5WAeR6NKacDvFdbc9fviIcaePNQ==",
   "success": true,
   "projectFilePath": "/Users/a000/Source/pain/pain.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/a000/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512"
+  ],
   "logs": []
 }

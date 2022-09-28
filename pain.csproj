@@ -1,18 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-
   <ItemGroup>
-    <None Remove="src\Compilers\Expressions\" />
-    <None Remove="src\Compilers\Parsers\Definitions\" />
+    <None Remove="src\Compilers\Expressions\"/>
+    <None Remove="src\Compilers\Parsers\Definitions\"/>
+    <None Remove="src\Compilers\CodeGen\"/>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="src\Compilers\Expressions\" />
-    <Folder Include="src\Compilers\Parsers\Definitions\" />
+    <Folder Include="src\Compilers\Expressions\"/>
+    <Folder Include="src\Compilers\Parsers\Definitions\"/>
+    <Folder Include="src\Compilers\CodeGen\"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0"/>
   </ItemGroup>
 </Project>
