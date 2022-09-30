@@ -353,7 +353,7 @@ public class Parser
         Next();
         var parameters = ParseFunctionParameters();
         var functionBody = ParseFunctionBodyExpression();
-        return new FunctionExpression(name, false, false, false, parameters, functionBody);
+        return new FunctionExpression(name!, false, false, false, parameters, functionBody);
     }
 
     private Syntax ParseLocalFunctionExpression()
@@ -369,7 +369,7 @@ public class Parser
 
         var parameters = ParseFunctionParameters();
         var functionBody = ParseFunctionBodyExpression();
-        return new FunctionExpression(name, false, false, false, parameters, functionBody);
+        return new FunctionExpression(name!, false, false, false, parameters, functionBody);
     }
 
     private Syntax ParseFunctionBodyExpression()
@@ -514,9 +514,9 @@ public class Parser
         Next();
 
         var variables = new List<VaraibleDefinition>();
-        for (var i = 0; ; i++)
+        for (var comma = false; ; comma = !comma)
         {
-            if (i % 2 != 0)
+            if (comma)
             {
                 if (!Match(TokenType.Comma))
                 {
@@ -575,9 +575,9 @@ public class Parser
         }
 
         var initializers = new List<Syntax>();
-        for (var i = 0; !Match(TokenType.Semicolon); i++)
+        for (var comma = false; !Match(TokenType.Semicolon); comma = !comma)
         {
-            if (i % 2 != 0)
+            if (comma)
             {
                 if (!Match(TokenType.Comma))
                 {
