@@ -37,14 +37,6 @@ public enum OpCodeType : byte
 
     Pop,
 
-    Pop2,
-
-    Pop3,
-
-    Pop4,
-
-    Popn,
-
     Push,
 
     Ldloc,
@@ -79,9 +71,5 @@ public enum OpCodeType : byte
 
     Dup,
 
-    Swap1_2,
-
-    Box,
-
-    Unbox
+    Swap1_2
 }
