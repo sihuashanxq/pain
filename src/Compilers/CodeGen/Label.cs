@@ -11,7 +11,7 @@ public class Label
 
     public const string False = "false";
 
-    public const string Begine = "begin";
+    public const string Begin = "begin";
 
     public const string Break = "break";
 

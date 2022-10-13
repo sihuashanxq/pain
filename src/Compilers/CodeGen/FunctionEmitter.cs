@@ -18,7 +18,7 @@ public class FunctionEmitter
         _function = function;
     }
 
-    public IDisposable EnterScope()
+    public IDisposable NewScope()
     {
         _scope = new Scope(_function.Frame, _scope);
 
@@ -34,9 +34,9 @@ public class FunctionEmitter
         return _scope.GetLabel(name)!;
     }
 
-    public Label GetOrCreateLabel(string name)
+    public Label CreateLabel(string name)
     {
-        return _scope.GetOrCreateLabel(name);
+        return _scope.CreateLabel(name);
     }
 
     public void BindLabel(string name)
@@ -75,7 +75,12 @@ public class FunctionEmitter
         return _scope.GetOrCreateVariable(name);
     }
 
-    public int Emit(OpCodeType opCodeType, Operand operand)
+    public int Emit(OpCodeType opCodeType)
+    {
+        return Emit(opCodeType, null as Operand);
+    }
+
+    public int Emit(OpCodeType opCodeType, Operand? operand)
     {
         var stack = 0;
         var opCode = new OpCode(opCodeType, operand);
@@ -207,7 +212,7 @@ internal class Scope : IDisposable
         return null;
     }
 
-    public Label GetOrCreateLabel(string name)
+    public Label CreateLabel(string name)
     {
         if (_labels.TryGetValue(name, out var label))
         {

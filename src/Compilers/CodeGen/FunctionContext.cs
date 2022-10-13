@@ -2,8 +2,6 @@ namespace Pain.Compilers.CodeGen;
 
 public class FunctionContext
 {
-    public int Token { get; }
-
     public string Name { get; }
 
     public bool Static { get; }
@@ -12,5 +10,5 @@ public class FunctionContext
 
     public FunctionFrame Frame { get; }
 
-    public Dictionary<string, FunctionContext> LocalMethods { get; }
+    public Dictionary<string, FunctionContext> Methods { get; }
 }
