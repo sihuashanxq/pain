@@ -41,6 +41,8 @@ public enum OpCodeType : byte
 
     Ldloc,
 
+    Ldarg,
+
     Ldnull,
 
     Ldundf,

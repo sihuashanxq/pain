@@ -341,7 +341,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitThis(ThisExpression thisExpression)
     {
-        throw new NotImplementedException();
+        return _emitter.Emit(OpCodeType.Ldarg, 0).AreEqual(1);
     }
 
     protected internal override int VisitUnary(UnaryExpression unaryExpression)

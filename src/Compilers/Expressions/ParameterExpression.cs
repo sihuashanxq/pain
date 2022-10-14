@@ -8,6 +8,8 @@ public class ParameterExpression : Syntax
 
     public string Name { get; }
 
+    public bool Captured { get; set; }
+
     public ParameterExpression(string name, int index)
     {
         Name = name;

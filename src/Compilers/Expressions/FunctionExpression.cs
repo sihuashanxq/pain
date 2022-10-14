@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Pain.Compilers.Expressions
 {
-    public class FunctionExpression:Syntax
+    public class FunctionExpression : Syntax
     {
         public override SyntaxType Type => SyntaxType.Function;
 
@@ -16,6 +16,8 @@ namespace Pain.Compilers.Expressions
         public bool IsConstructor { get; }
 
         public Syntax[] Parameters { get; }
+
+        public bool Captured { get; set; }
 
         public FunctionExpression(string name, bool isStatic, bool isNative, bool isConstructor, Syntax[] parameters, Syntax body)
         {
