@@ -5,6 +5,11 @@ public class CallExpressionRewriter : SyntaxVisitor<Syntax>
 {
     private FunctionExpression _function;
 
+    public CallExpressionRewriter(FunctionExpression function)
+    {
+        _function = function;
+    }
+
     protected internal override Syntax VisitBinary(BinaryExpression expression)
     {
         var left = expression.Left.Accept(this);
@@ -82,9 +87,9 @@ public class CallExpressionRewriter : SyntaxVisitor<Syntax>
         return new ReturnExpression(expression.Value?.Accept(this)!);
     }
 
-    protected internal override Syntax VisitSuper(SuperExpression superExpression)
+    protected internal override Syntax VisitSuper(SuperExpression expression)
     {
-        throw new NotImplementedException();
+      return expression;
     }
 
     protected internal override Syntax VisitThis(ThisExpression expression)
@@ -99,6 +104,6 @@ public class CallExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitVariable(VariableExpression variablExpression)
     {
-       return variablExpression;
+        return variablExpression;
     }
 }
