@@ -80,5 +80,9 @@ public enum SyntaxType
     Is,
     Name,
     Switch,
-    Empty
+    Empty,
+
+    JSONObject,
+
+    JSONArray
 }

@@ -3,52 +3,75 @@ namespace Pain.Compilers.Parsers.Rewriters;
 
 public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 {
-    protected internal override Syntax VisitBinary(BinaryExpression binaryExpression)
+    protected internal override Syntax VisitBinary(BinaryExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitBlock(BlockExpression expr)
+    {
+        return new BlockExpression(expr.Statements.Select(i => i.Accept(this)).ToArray());
+    }
+
+    protected internal override Syntax VisitBreak(BreakExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitCall(CallExpression expr)
+    {
+        return new CallExpression(expr.Function.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
+    }
+
+    protected internal override Syntax VisitConstant(ConstantExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitContinue(ContinueExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitEmpty(EmptyExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitFor(ForExpression expr)
+    {
+        return new ForExpression(
+            expr.Initializers?.Select(i => i.Accept(this)).ToArray()!,
+            expr.Test?.Accept(this)!,
+            expr.Initializers?.Select(i => i.Accept(this)).ToArray()!,
+            expr.Body?.Accept(this)!
+        );
+    }
+
+    protected internal override Syntax VisitFunction(FunctionExpression expr)
+    {
+        if (!expr.Captured)
+        {
+            return expr;
+        }
+
+        return new JSONObjectExpression(new Dictionary<string, Syntax>
+        {
+            ["value"] = expr
+        });
+    }
+
+    protected internal override Syntax VisitIf(IfExpression expr)
+    {
+        return new IfExpression(expr.Test?.Accept(this)!, expr.IfTrue?.Accept(this)!, expr.IfFalse?.Accept(this)!);
+    }
+
+    protected internal override Syntax VisitJSONArray(JSONArrayExpression expression)
     {
         throw new NotImplementedException();
     }
 
-    protected internal override Syntax VisitBlock(BlockExpression blockExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitBreak(BreakExpression breakExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitCall(CallExpression callExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitConstant(ConstantExpression constantExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitContinue(ContinueExpression continueExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitEmpty(EmptyExpression emptyExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitFor(ForExpression forExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitFunction(FunctionExpression functionExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override Syntax VisitIf(IfExpression ifExpression)
+    protected internal override Syntax VisitJSONObject(JSONObjectExpression expression)
     {
         throw new NotImplementedException();
     }
@@ -58,43 +81,43 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         throw new NotImplementedException();
     }
 
-    protected internal override Syntax VisitName(NameExpression nameExpression)
+    protected internal override Syntax VisitName(NameExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitNew(NewExpression newExpression)
+    protected internal override Syntax VisitNew(NewExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitParameter(ParameterExpression parameterExpression)
+    protected internal override Syntax VisitParameter(ParameterExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitReturn(ReturnExpression returnExpression)
+    protected internal override Syntax VisitReturn(ReturnExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitSuper(SuperExpression superExpression)
+    protected internal override Syntax VisitSuper(SuperExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitThis(ThisExpression thisExpression)
+    protected internal override Syntax VisitThis(ThisExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitUnary(UnaryExpression unaryExpression)
+    protected internal override Syntax VisitUnary(UnaryExpression expr)
     {
-        throw new NotImplementedException();
+        return new UnaryExpression(expr.Expression.Accept(this), expr.Type);
     }
 
-    protected internal override Syntax VisitVariable(VariableExpression variablExpression)
+    protected internal override Syntax VisitVariable(VariableExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Runtime.Intrinsics.X86;
-using System.Text;
-using Microsoft.VisualBasic;
-
-namespace Pain.Compilers.Expressions;
+﻿namespace Pain.Compilers.Expressions;
 
 public class CallExpression : Syntax
 {
