@@ -88,7 +88,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitNew(NewExpression expr)
     {
-        return expr;
+        return new NewExpression(expr.Class.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
     }
 
     protected internal override Syntax VisitParameter(ParameterExpression expr)
@@ -98,7 +98,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitReturn(ReturnExpression expr)
     {
-        return expr;
+        return new ReturnExpression(expr.Value?.Accept(this)!);
     }
 
     protected internal override Syntax VisitSuper(SuperExpression expr)
