@@ -15,11 +15,10 @@ namespace Pain.Compilers.Expressions
 
         public bool IsConstructor { get; }
 
-        public Syntax[] Parameters { get; }
-
         public bool Captured { get; set; }
+        public ParameterExpression[] Parameters { get; }
 
-        public FunctionExpression(string name, bool isStatic, bool isNative, bool isConstructor, Syntax[] parameters, Syntax body)
+        public FunctionExpression(string name, bool isStatic, bool isNative, bool isConstructor, ParameterExpression[] parameters, Syntax body)
         {
             Name = name;
             Body = body;

@@ -384,11 +384,11 @@ public class Parser
         return ParseExpression();
     }
 
-    private Syntax[] ParseFunctionParameters()
+    private ParameterExpression[] ParseFunctionParameters()
     {
         ThrowError(!Match(TokenType.OpenParen));
         Next();
-        var list = new List<Syntax>();
+        var list = new List<ParameterExpression>();
 
         for (var i = 0; !Match(TokenType.CloseParen); i++)
         {

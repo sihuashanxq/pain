@@ -1,4 +1,5 @@
 using Pain.Compilers.Expressions;
+
 namespace Pain.Compilers.Parsers.Rewriters;
 
 public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
@@ -53,6 +54,27 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         if (!expr.Captured)
         {
             return expr;
+        }
+
+        var body = new List<Syntax>();
+
+        foreach (var parameter in expr.Parameters)
+        {
+            if (parameter.Captured)
+            {
+                body.Add(
+                    new BinaryExpression(
+                        new NameExpression(parameter.Name),
+                        new JSONObjectExpression(
+                            new Dictionary<string, Syntax>
+                            {
+                                ["value"] = expr
+                            }
+                        ),
+                        SyntaxType.Assign
+                    )
+                );
+            }
         }
 
         return new JSONObjectExpression(new Dictionary<string, Syntax>
@@ -120,4 +142,19 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
     {
         return expr;
     }
+
+    private Syntax Capture(Syntax value)
+    {
+        return new JSONObjectExpression(new Dictionary<string, Syntax> { [Constant.CapturedField] = value });
+    }
+
+    private Syntax UnCapture(Syntax value)
+    {
+        return new MemberExpression(value, new ConstantExpression(Constant.CapturedField, SyntaxType.ConstString));
+    }
+}
+
+public static class Constant
+{
+    public const string CapturedField = "value";
 }
