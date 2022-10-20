@@ -6,7 +6,7 @@ public class FunctionContext
 
     public bool Static { get; }
 
-    public TypeContext Type { get; }
+    public object Type { get; }
 
     public FunctionFrame Frame { get; }
 

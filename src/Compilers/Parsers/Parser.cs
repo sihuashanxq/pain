@@ -343,7 +343,7 @@ public class Parser
         return new NewExpression(@class, arguments.ToArray());
     }
 
-    private Syntax ParseFunctionExpression()
+    private FunctionExpression ParseFunctionExpression()
     {
         var name = string.Empty;
         ThrowError(!Match(TokenType.Func));
@@ -392,7 +392,7 @@ public class Parser
 
         for (var i = 0; !Match(TokenType.CloseParen); i++)
         {
-            if (i % 2 == 0)
+            if (i % 2 == 1)
             {
                 ThrowError(!Match(TokenType.Comma));
                 Next();
@@ -401,6 +401,7 @@ public class Parser
 
             ThrowError(!Match(TokenType.Identifier));
             list.Add(new ParameterExpression(_token.Value.ToString()!, list.Count));
+            Next();
         }
 
         ThrowError(!Match(TokenType.CloseParen));
@@ -665,7 +666,7 @@ public class Parser
         {
             var name = string.Empty;
             var super = string.Empty;
-            var functions = new List<Syntax>();
+            var functions = new List<FunctionExpression>();
 
             Next();
             ThrowError(!Match(TokenType.Identifier));

@@ -374,6 +374,16 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     {
         throw new NotImplementedException();
     }
+
+    protected internal override int VisitJSONObject(JSONObjectExpression expression)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected internal override int VisitJSONArray(JSONArrayExpression expression)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 internal static class StackExtensions

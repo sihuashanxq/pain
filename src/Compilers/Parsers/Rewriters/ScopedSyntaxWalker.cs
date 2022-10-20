@@ -8,35 +8,44 @@ public class Scope
 
     public FunctionExpression Function { get; private set; }
 
-    public Dictionary<string, Syntax> Names { get; private set; }
+    public Dictionary<string, object> Names { get; private set; }
+
+    public HashSet<object> Captures { get; private set; }
 
     public Scope(FunctionExpression function)
     {
-        Names = new Dictionary<string, Syntax>();
+        Names = new Dictionary<string, object>();
         Function = function;
+        Captures = new HashSet<object>();
     }
 
-    public void Enter(FunctionExpression function)
+    public IDisposable Enter()
+    {
+        return Enter(Function);
+    }
+
+    public IDisposable Enter(FunctionExpression function)
     {
         var scope = new Scope(Function)
         {
             Names = Names,
-            Parent = Parent
+            Parent = Parent,
+            Captures = Captures
         };
 
-        Names = new Dictionary<string, Syntax>();
+        Names = new Dictionary<string, object>();
         Parent = scope;
         Function = function;
+
+        return new Disposable(() =>
+        {
+            Names = Parent?.Names!;
+            Parent = Parent?.Parent!;
+            Function = Parent?.Function!;
+        });
     }
 
-    public void Exit()
-    {
-        Names = Parent!.Names;
-        Parent = Parent!.Parent;
-        Function = Parent!.Function;
-    }
-
-    public void AddName(string name, Syntax syntax)
+    public void AddName(string name, object syntax)
     {
         if (!string.IsNullOrEmpty(name))
         {
@@ -44,9 +53,9 @@ public class Scope
         }
     }
 
-    public bool Captured(string name, FunctionExpression function)
+    public bool Capture(NameExpression expr, FunctionExpression function)
     {
-        if (Names.TryGetValue(name, out var v))
+        if (Names.TryGetValue(expr.Name, out var v))
         {
             if (Function == function)
             {
@@ -55,22 +64,26 @@ public class Scope
 
             switch (v)
             {
-                case FunctionExpression f:
-                    f.Captured = true;
+                case FunctionExpression item:
+                    Captures.Add(item);
+                    Captures.Add(expr);
                     return true;
-                case ParameterExpression p:
-                    p.Captured = true;
+                case ParameterExpression item:
+                    Captures.Add(item);
+                    Captures.Add(expr);
                     return true;
-                case VariableExpression var:
+                case VaraibleDefinition item:
+                    Captures.Add(item);
+                    Captures.Add(expr);
                     return true;
                 default:
-                    throw new Exception("unknown name syntax type");
+                    return false;
             }
         }
 
         if (Parent != null)
         {
-            return Parent.Captured(name, function);
+            return Parent.Capture(expr, function);
         }
 
         return false;
@@ -79,98 +92,184 @@ public class Scope
 
 public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 {
-    protected internal override Syntax VisitBinary(BinaryExpression binaryExpression)
+    private Scope _scope;
+
+    private FunctionExpression _function;
+
+    public ScopedSyntaxWalker(FunctionExpression function)
     {
-        throw new NotImplementedException();
+        _scope = new Scope(function);
+        _function = function;
     }
 
-    protected internal override Syntax VisitBlock(BlockExpression blockExpression)
+    public HashSet<object> Walk()
     {
-        throw new NotImplementedException();
+        Visit(_function);
+        return _scope.Captures;
     }
 
-    protected internal override Syntax VisitBreak(BreakExpression breakExpression)
+    protected internal override Syntax VisitBinary(BinaryExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Left.Accept(this);
+        expr.Right.Accept(this);
+        return expr;
     }
 
-    protected internal override Syntax VisitCall(CallExpression callExpression)
+    protected internal override Syntax VisitBlock(BlockExpression expr)
     {
-        throw new NotImplementedException();
+        foreach (var item in expr.Statements)
+        {
+            item.Accept(this);
+        }
+        return expr;
     }
 
-    protected internal override Syntax VisitConstant(ConstantExpression constantExpression)
+    protected internal override Syntax VisitBreak(BreakExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitContinue(ContinueExpression continueExpression)
+    protected internal override Syntax VisitCall(CallExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Function.Accept(this);
+        expr.Arguments.ForEach(item => item.Accept(this));
+        return expr;
     }
 
-    protected internal override Syntax VisitEmpty(EmptyExpression emptyExpression)
+    protected internal override Syntax VisitConstant(ConstantExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitFor(ForExpression forExpression)
+    protected internal override Syntax VisitContinue(ContinueExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitFunction(FunctionExpression functionExpression)
+    protected internal override Syntax VisitEmpty(EmptyExpression expr)
     {
-        throw new NotImplementedException();
+        return expr;
     }
 
-    protected internal override Syntax VisitIf(IfExpression ifExpression)
+    protected internal override Syntax VisitFor(ForExpression expr)
     {
-        throw new NotImplementedException();
+        using (_scope.Enter())
+        {
+            expr.Initializers?.ForEach(item => item.Accept(this));
+            expr.Test?.Accept(this);
+            expr.Body?.Accept(this);
+            expr.Iterators?.ForEach(item => item.Accept(this));
+            return expr;
+        }
     }
 
-    protected internal override Syntax VisitMember(MemberExpression memberExpression)
+    protected internal override Syntax VisitFunction(FunctionExpression expr)
     {
-        throw new NotImplementedException();
+        if (expr != _function)
+        {
+            _scope.AddName(expr.Name, expr);
+        }
+
+        using (_scope.Enter(expr))
+        {
+            expr.Parameters.ForEach(item => item.Accept(this));
+            expr.Body.Accept(this);
+        }
+
+        return expr;
     }
 
-    protected internal override Syntax VisitName(NameExpression nameExpression)
+    protected internal override Syntax VisitIf(IfExpression expr)
     {
-        throw new NotImplementedException();
+        using (_scope.Enter())
+        {
+            expr.Test?.Accept(this);
+            expr.IfTrue?.Accept(this);
+            expr.IfFalse?.Accept(this);
+
+            return expr;
+        }
     }
 
-    protected internal override Syntax VisitNew(NewExpression newExpression)
+    protected internal override Syntax VisitJSONArray(JSONArrayExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Items.ForEach(item => item.Accept(this));
+        return expr;
     }
 
-    protected internal override Syntax VisitParameter(ParameterExpression parameterExpression)
+    protected internal override Syntax VisitJSONObject(JSONObjectExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Fields.Values.ForEach(item => item.Accept(this));
+        return expr;
     }
 
-    protected internal override Syntax VisitReturn(ReturnExpression returnExpression)
+    protected internal override Syntax VisitMember(MemberExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Object.Accept(this);
+        expr.Member.Accept(this);
+        return expr;
     }
 
-    protected internal override Syntax VisitSuper(SuperExpression superExpression)
+    protected internal override Syntax VisitName(NameExpression expr)
     {
-        throw new NotImplementedException();
+        _scope.Capture(expr, _scope.Function);
+        return expr;
     }
 
-    protected internal override Syntax VisitThis(ThisExpression thisExpression)
+    protected internal override Syntax VisitNew(NewExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Class.Accept(this);
+        expr.Arguments.ForEach(item => item.Accept(this));
+        return expr;
     }
 
-    protected internal override Syntax VisitUnary(UnaryExpression unaryExpression)
+    protected internal override Syntax VisitParameter(ParameterExpression expr)
     {
-        throw new NotImplementedException();
+        _scope.AddName(expr.Name, expr);
+        return expr;
     }
 
-    protected internal override Syntax VisitVariable(VariableExpression variablExpression)
+    protected internal override Syntax VisitReturn(ReturnExpression expr)
     {
-        throw new NotImplementedException();
+        expr.Value?.Accept(this);
+        return expr;
+    }
+
+    protected internal override Syntax VisitSuper(SuperExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitThis(ThisExpression expr)
+    {
+        return expr;
+    }
+
+    protected internal override Syntax VisitUnary(UnaryExpression expr)
+    {
+        expr.Expression.Accept(this);
+        return expr;
+    }
+
+    protected internal override Syntax VisitVariable(VariableExpression expr)
+    {
+        foreach (var item in expr.Varaibles)
+        {
+            item.Value?.Accept(this);
+            _scope.AddName(item.Name, item);
+        }
+
+        return expr;
+    }
+}
+
+public static class EnumerableExtensions
+{
+    public static void ForEach<T>(this IEnumerable<T> items, Action<T> handler)
+    {
+        foreach (var item in items)
+        {
+            handler(item);
+        }
     }
 }

@@ -23,7 +23,7 @@ public class VaraibleDefinition
 
     public Syntax Value { get; }
 
-    public VaraibleDefinition(string name,Syntax value)
+    public VaraibleDefinition(string name, Syntax value)
     {
         Name = name;
         Value = value;

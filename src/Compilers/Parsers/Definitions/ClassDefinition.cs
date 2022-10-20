@@ -7,9 +7,9 @@ namespace Pain.Compilers.Parsers.Definitions
 
         public string Super { get; }
 
-        public Syntax[] Functions { get; }
+        public FunctionExpression[] Functions { get; }
 
-        public ClassDefinition(string name,string super, Syntax[] functions)
+        public ClassDefinition(string name,string super, FunctionExpression[] functions)
         {
             Name = name;
             Super = super;

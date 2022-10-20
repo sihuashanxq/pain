@@ -143,36 +143,26 @@ public class FunctionEmitter
 
     public int Emit(OpCodeType opCodeType, string v)
     {
+        /*
         var id = _function.Type.Module.Pooling(v);
 
         return Emit(opCodeType, id);
+        */
+        return 0;
     }
 
     public int Emit(OpCodeType opCodeType, double v)
     {
-        var id = _function.Type.Module.Pooling(v);
-        return Emit(opCodeType, id);
+        /* var id = _function.Type.Module.Pooling(v);
+         return Emit(opCodeType, id);
+         */
+        return 0;
     }
 
     public void Emit(OpCode opCode)
     {
         _offset += opCode.Size;
         _codes.Add(opCode);
-    }
-
-    private class Disposable : IDisposable
-    {
-        private readonly Action _disposer;
-
-        public Disposable(Action disposer)
-        {
-            _disposer = disposer;
-        }
-
-        public void Dispose()
-        {
-            _disposer?.Invoke();
-        }
     }
 }
 
