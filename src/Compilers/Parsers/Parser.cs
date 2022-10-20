@@ -338,9 +338,8 @@ public class Parser
     {
         ThrowError(!Match(TokenType.New));
         Next();
-        var @class = Parse(null, ParseUnitExpression, ThrowNullError);
-        var arguments = ParseCallArguments();
-        return new NewExpression(@class, arguments.ToArray());
+        var expr = Parse(null, ParseUnitExpression, ThrowNullError) as CallExpression;
+        return new NewExpression(expr!.Function, expr.Arguments);
     }
 
     private FunctionExpression ParseFunctionExpression()

@@ -7,6 +7,7 @@ var code = @"
     class Abc{
         func say(x){
             let y=func(){
+                let y=new A()();
                 return x+1
             }
 
