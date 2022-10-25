@@ -57,8 +57,6 @@ public enum OpCodeType : byte
 
     Stloc,
 
-    Stobj,
-
     Stfld,
 
     Ret,

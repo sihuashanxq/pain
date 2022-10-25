@@ -55,4 +55,24 @@ public abstract class Syntax
     {
         return new BlockExpression(statements);
     }
+
+    public static ConstantExpression Constant(object value, SyntaxType type)
+    {
+        return new ConstantExpression(value, type);
+    }
+
+    public static CallExpression Call(Syntax function, Syntax[] arguments)
+    {
+        return new CallExpression(function, arguments);
+    }
+
+    public static ContinueExpression Continue()
+    {
+        return new ContinueExpression();
+    }
+
+    public static BreakExpression Break()
+    {
+        return new BreakExpression();
+    }
 }

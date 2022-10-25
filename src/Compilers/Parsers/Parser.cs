@@ -38,27 +38,27 @@ public class Parser
         switch (token.Type)
         {
             case TokenType.Assign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.Assign);
+                return Syntax.Binary(lExpr, rExpr, SyntaxType.Assign);
             case TokenType.AddAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.AddAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.Add), SyntaxType.Assign);
             case TokenType.BitAndAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.BitAndAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.BitAnd), SyntaxType.Assign);
             case TokenType.LeftShiftAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.BitLeftShiftAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.BitLeftShift), SyntaxType.Assign);
             case TokenType.BitOrAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.BitOrAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.BitOr), SyntaxType.Assign);
             case TokenType.RightShiftAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.BitRightShiftAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.BitRightShift), SyntaxType.Assign);
             case TokenType.BitXorAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.BitXorAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.BitXor), SyntaxType.Assign);
             case TokenType.DivideAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.DivideAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.Divide), SyntaxType.Assign);
             case TokenType.ModuloAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.ModuloAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.Modulo), SyntaxType.Assign);
             case TokenType.MultiplyAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.MultiplyAssign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.Multiply), SyntaxType.Assign);
             case TokenType.SubtractAssign:
-                return new BinaryExpression(lExpr, rExpr, SyntaxType.Assign);
+                return Syntax.Binary(lExpr, Syntax.Binary(lExpr, rExpr, SyntaxType.Subtract), SyntaxType.Assign);
             default:
                 ThrowError();
                 throw new Exception();
@@ -71,7 +71,7 @@ public class Parser
         while (Match(TokenType.BitOr))
         {
             var rExpr = Parse(Next, ParseBitXorExpresion, ThrowNullError);
-            lExpr = new BinaryExpression(lExpr, rExpr, SyntaxType.BitOr);
+            lExpr = Syntax.Binary(lExpr, rExpr, SyntaxType.BitOr);
         }
 
         return lExpr;
@@ -83,7 +83,7 @@ public class Parser
         while (Match(TokenType.BitXor))
         {
             var rExpr = Parse(Next, ParseBitAndExpresion, ThrowNullError);
-            lExpr = new BinaryExpression(lExpr, rExpr, SyntaxType.BitXor);
+            lExpr = Syntax.Binary(lExpr, rExpr, SyntaxType.BitXor);
         }
 
         return lExpr;
@@ -95,7 +95,7 @@ public class Parser
         while (Match(TokenType.BitAnd))
         {
             var rExpr = Parse(Next, ParseEqualityExpresion, ThrowNullError);
-            lExpr = new BinaryExpression(lExpr, rExpr, SyntaxType.BitLeftShift);
+            lExpr = Syntax.Binary(lExpr, rExpr, SyntaxType.BitLeftShift);
         }
 
         return lExpr;
@@ -111,9 +111,9 @@ public class Parser
             var rExpr = Parse(Next, ParseReleationExpresion, ThrowNullError);
             lExpr = token.Type switch
             {
-                TokenType.Is => new BinaryExpression(lExpr, rExpr, SyntaxType.Is),
-                TokenType.Equal => new BinaryExpression(lExpr, rExpr, SyntaxType.EqualTo),
-                _ => new BinaryExpression(lExpr, rExpr, SyntaxType.NotEqualTo),
+                TokenType.Is => Syntax.Binary(lExpr, rExpr, SyntaxType.Is),
+                TokenType.Equal => Syntax.Binary(lExpr, rExpr, SyntaxType.EqualTo),
+                _ => Syntax.Binary(lExpr, rExpr, SyntaxType.NotEqualTo),
             };
         }
 
@@ -130,10 +130,10 @@ public class Parser
             var rExpr = Parse(Next, ParseShiftExpresion, ThrowNullError);
             lExpr = token.Type switch
             {
-                TokenType.Less => new BinaryExpression(lExpr, rExpr, SyntaxType.LessThan),
-                TokenType.LessOrEqual => new BinaryExpression(lExpr, rExpr, SyntaxType.LessThanOrEqual),
-                TokenType.Greater => new BinaryExpression(lExpr, rExpr, SyntaxType.GreaterThan),
-                _ => new BinaryExpression(lExpr, rExpr, SyntaxType.GreaterThanOrEqual),
+                TokenType.Less => Syntax.Binary(lExpr, rExpr, SyntaxType.LessThan),
+                TokenType.LessOrEqual => Syntax.Binary(lExpr, rExpr, SyntaxType.LessThanOrEqual),
+                TokenType.Greater => Syntax.Binary(lExpr, rExpr, SyntaxType.GreaterThan),
+                _ => Syntax.Binary(lExpr, rExpr, SyntaxType.GreaterThanOrEqual),
             };
         }
 
@@ -150,8 +150,8 @@ public class Parser
             var rExpr = Parse(Next, ParseAdditiveExpresion, ThrowNullError);
             lExpr = token.Type switch
             {
-                TokenType.LeftShift => new BinaryExpression(lExpr, rExpr, SyntaxType.BitLeftShift),
-                _ => new BinaryExpression(lExpr, rExpr, SyntaxType.BitRightShift),
+                TokenType.LeftShift => Syntax.Binary(lExpr, rExpr, SyntaxType.BitLeftShift),
+                _ => Syntax.Binary(lExpr, rExpr, SyntaxType.BitRightShift),
             };
         }
 
@@ -168,8 +168,8 @@ public class Parser
             var rExpr = Parse(Next, ParseMultiplicativeExpresion, ThrowNullError);
             lExpr = token.Type switch
             {
-                TokenType.Add => new BinaryExpression(lExpr, rExpr, SyntaxType.Add),
-                _ => new BinaryExpression(lExpr, rExpr, SyntaxType.Subtract),
+                TokenType.Add => Syntax.Binary(lExpr, rExpr, SyntaxType.Add),
+                _ => Syntax.Binary(lExpr, rExpr, SyntaxType.Subtract),
             };
         }
 
@@ -186,9 +186,9 @@ public class Parser
             var rExpr = Parse(Next, ParseUnaryExpression, ThrowNullError);
             lExpr = token.Type switch
             {
-                TokenType.Multiply => new BinaryExpression(lExpr, rExpr, SyntaxType.Multiply),
-                TokenType.Divide => new BinaryExpression(lExpr, rExpr, SyntaxType.Divide),
-                _ => new BinaryExpression(lExpr, rExpr, SyntaxType.Modulo),
+                TokenType.Multiply => Syntax.Binary(lExpr, rExpr, SyntaxType.Multiply),
+                TokenType.Divide => Syntax.Binary(lExpr, rExpr, SyntaxType.Divide),
+                _ => Syntax.Binary(lExpr, rExpr, SyntaxType.Modulo),
             };
         }
 
@@ -245,23 +245,23 @@ public class Parser
         {
             case TokenType.Identifier:
                 Next();
-                return new NameExpression(token.Value.ToString()!);
+                return Syntax.Name(token.Value.ToString()!);
             case TokenType.True:
             case TokenType.False:
                 Next();
-                return new ConstantExpression(token.Value, SyntaxType.ConstBoolean);
+                return Syntax.Constant(token.Value, SyntaxType.ConstBoolean);
             case TokenType.Number:
                 Next();
-                return new ConstantExpression(token.Value, SyntaxType.ConstNumber);
+                return Syntax.Constant(token.Value, SyntaxType.ConstNumber);
             case TokenType.Null:
                 Next();
-                return new ConstantExpression(token.Value, SyntaxType.ConstNull);
+                return Syntax.Constant(token.Value, SyntaxType.ConstNull);
             case TokenType.Super:
                 Next();
-                return new SuperExpression();
+                return Syntax.Super();
             case TokenType.This:
                 Next();
-                return new ThisExpression();
+                return Syntax.This();
             case TokenType.Native:
                 Next();
                 return new NameExpression("native");
@@ -285,12 +285,12 @@ public class Parser
             {
                 Next();
                 ThrowError(!Match(TokenType.Identifier));
-                return new MemberExpression(@object, new ConstantExpression(_token.Value.ToString()!, SyntaxType.ConstString));
+                return Syntax.Member(@object, Syntax.Constant(_token.Value, SyntaxType.ConstString));
             }
 
             var member = Parse(Next, ParseUnitExpression, ThrowNullError);
             ThrowError(!Match(TokenType.CloseSquare));
-            return new MemberExpression(@object, member);
+            return Syntax.Member(@object, member);
         }
         finally
         {
@@ -300,7 +300,7 @@ public class Parser
 
     private Syntax ParseCallExpression(Syntax function)
     {
-        return new CallExpression(function, ParseCallArguments().ToArray());
+        return Syntax.Call(function, ParseCallArguments().ToArray());
     }
 
     private List<Syntax> ParseCallArguments()
@@ -339,7 +339,7 @@ public class Parser
         ThrowError(!Match(TokenType.New));
         Next();
         var expr = Parse(null, ParseUnitExpression, ThrowNullError) as CallExpression;
-        return new NewExpression(expr!.Function, expr.Arguments);
+        return Syntax.New(expr!.Function, expr.Arguments);
     }
 
     private FunctionExpression ParseFunctionExpression()
@@ -483,14 +483,14 @@ public class Parser
     {
         ThrowError(!Match(TokenType.Break));
         Next();
-        return new BreakExpression();
+        return Syntax.Break();
     }
 
     private Syntax ParseContinueExpression()
     {
         ThrowError(!Match(TokenType.Continue));
         Next();
-        return new ContinueExpression();
+        return Syntax.Continue();
     }
 
     private Syntax ParseReturnExpression()

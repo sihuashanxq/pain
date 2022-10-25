@@ -2,7 +2,7 @@
 
 public class VariableExpression : Syntax
 {
-    public override SyntaxType Type => SyntaxType.Var;
+    public override SyntaxType Type => SyntaxType.Let;
 
     public VaraibleDefinition[] Varaibles { get; }
 

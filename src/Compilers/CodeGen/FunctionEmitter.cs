@@ -102,10 +102,12 @@ public class FunctionEmitter
             case OpCodeType.Or: //|
             case OpCodeType.And: //&
             case OpCodeType.Ldfld:
-            case OpCodeType.Stloc:
             case OpCodeType.Brtrue:
             case OpCodeType.Brfalse:
                 stack = -1;
+                break;
+            case OpCodeType.Stloc:
+                stack = -3;
                 break;
             case OpCodeType.Call:
             case OpCodeType.New:

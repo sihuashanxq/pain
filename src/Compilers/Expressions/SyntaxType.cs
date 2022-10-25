@@ -18,7 +18,7 @@ public enum SyntaxType
     Break,
     Block,
     Continue,
-    Var,
+    Let,
     Class,
     Function,
     Import,
@@ -26,26 +26,6 @@ public enum SyntaxType
     Parameter,
     // =
     Assign,
-    // +=
-    AddAssign,
-    // -=
-    SubtractAssign,
-    // *=
-    MultiplyAssign,
-    // /=
-    DivideAssign,
-    //  %=
-    ModuloAssign,
-    // <<=
-    BitLeftShiftAssign,
-    // >>=
-    BitRightShiftAssign,
-    // |=
-    BitOrAssign,
-    // &=
-    BitAndAssign,
-    // ^=
-    BitXorAssign,
     // +
     Add,
     // -

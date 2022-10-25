@@ -9,65 +9,68 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     private readonly FunctionEmitter _emitter;
 
+    public FunctionCompiler(FunctionContext function)
+    {
+        _function = function;
+        _emitter = new FunctionEmitter(function);
+    }
 
-    protected internal override int VisitBinary(BinaryExpression binaryExpression)
+    protected internal override int VisitBinary(BinaryExpression expr)
     {
         var stack = 0;
 
-        /*
-                    if (binaryExpression.Token.Type.IsAssign())
-                    {
-                        return VisitAssign(binaryExpression);
-                    }
-    
-        */
-        if (binaryExpression.Type == SyntaxType.Or)
+        if (expr.Type == SyntaxType.Assign)
+        {
+            return VisitAssign(expr);
+        }
+
+        if (expr.Type == SyntaxType.Or)
         {
             using (_emitter.NewScope())
             {
                 var next = _emitter.CreateLabel(Label.Next);
 
-                stack += binaryExpression.Left.Accept(this);
+                stack += expr.Left.Accept(this);
                 stack += _emitter.Emit(OpCodeType.Dup);
                 stack += _emitter.Emit(OpCodeType.Brtrue, next.Target);
                 stack += _emitter.Emit(OpCodeType.Pop);
-                stack += binaryExpression.Right.Accept(this);
+                stack += expr.Right.Accept(this);
 
                 _emitter.BindLabel(next);
                 return stack;
             }
         }
 
-        if (binaryExpression.Type == SyntaxType.And)
+        if (expr.Type == SyntaxType.And)
         {
             using (_emitter.NewScope())
             {
                 var next = _emitter.CreateLabel(Label.Next);
 
-                stack += binaryExpression.Left.Accept(this);
+                stack += expr.Left.Accept(this);
                 stack += _emitter.Emit(OpCodeType.Dup);
                 stack += _emitter.Emit(OpCodeType.Brfalse, next.Target);
                 stack += _emitter.Emit(OpCodeType.Pop);
-                stack += binaryExpression.Right.Accept(this);
+                stack += expr.Right.Accept(this);
 
                 _emitter.BindLabel(next);
                 return stack;
             }
         }
 
-        if (binaryExpression.Type == SyntaxType.LessThan ||
-            binaryExpression.Type == SyntaxType.LessThanOrEqual)
+        if (expr.Type == SyntaxType.LessThan ||
+            expr.Type == SyntaxType.LessThanOrEqual)
         {
-            stack += binaryExpression.Right.Accept(this);
-            stack += binaryExpression.Left.Accept(this);
+            stack += expr.Right.Accept(this);
+            stack += expr.Left.Accept(this);
         }
         else
         {
-            stack += binaryExpression.Left.Accept(this);
-            stack += binaryExpression.Right.Accept(this);
+            stack += expr.Left.Accept(this);
+            stack += expr.Right.Accept(this);
         }
 
-        switch (binaryExpression.Type)
+        switch (expr.Type)
         {
             case SyntaxType.Add:
                 stack += _emitter.Emit(OpCodeType.Add);
@@ -117,6 +120,32 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         return stack;
     }
 
+    protected internal virtual int VisitAssign(BinaryExpression expr)
+    {
+        var stack = 0;
+        using (_emitter.NewScope())
+        {
+            switch (expr.Left.Type)
+            {
+                case SyntaxType.Name:
+                    var name = expr.Left as NameExpression;
+                    stack += expr.Left.Accept(this);
+                    stack += expr.Right.Accept(this);
+                    stack += _emitter.Emit(OpCodeType.Stloc);
+                    return stack.AreEqual(0);
+                case SyntaxType.Member:
+                    var member = expr.Left as MemberExpression;
+                    stack += member!.Object.Accept(this);
+                    stack += member.Member.Accept(this);
+                    stack += expr.Right.Accept(this);
+                    stack += _emitter.Emit(OpCodeType.Stfld);
+                    return stack.AreEqual(0);
+                default:
+                    throw new Exception();
+            }
+        }
+    }
+
     protected internal override int VisitBlock(BlockExpression blockExpression)
     {
         using (_emitter.NewScope())
@@ -133,18 +162,15 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         }
     }
 
-    protected internal override int VisitCall(CallExpression callExpression)
+    protected internal override int VisitCall(CallExpression expr)
     {
         var stack = 0;
-
-        foreach (var argument in callExpression.Arguments)
-        {
-            stack += argument.Accept(this);
-        }
-
-        stack += callExpression.Function.Accept(this);
-        stack += _emitter.Emit(OpCodeType.Call, callExpression.Arguments.Length);
-
+        stack += expr.Function.Accept(this);
+        stack += _emitter.Emit(OpCodeType.Dup);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__target__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += expr.Arguments.Sum(argument => argument.Accept(this));
+        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length + 1);
         return stack.AreEqual(1);
     }
 
@@ -286,9 +312,12 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         }
     }
 
-    protected internal override int VisitMember(MemberExpression memberExpression)
+    protected internal override int VisitMember(MemberExpression expr)
     {
-        throw new NotImplementedException();
+        var stack = expr.Object.Accept(this).AreEqual(1);
+        stack += expr.Member.Accept(this).AreEqual(1);
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        return stack.AreEqual(1);
     }
 
     protected internal override int VisitName(NameExpression nameExpression)
@@ -296,17 +325,17 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         throw new NotImplementedException();
     }
 
-    protected internal override int VisitNew(NewExpression newExpression)
+    protected internal override int VisitNew(NewExpression expr)
     {
         var stack = 0;
-
-        foreach (var argument in newExpression.Arguments)
-        {
-            stack = argument.Accept(this).AreEqual(1);
-        }
-
-        stack += newExpression.Class.Accept(this).AreEqual(1);
-        stack += _emitter.Emit(OpCodeType.New, newExpression.Arguments.Length);
+        stack += expr.Class.Accept(this).AreEqual(1);
+        stack += _emitter.Emit(OpCodeType.Dup);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Swap1_2);
+        stack += _emitter.Emit(OpCodeType.New);
+        stack += expr.Arguments.Sum(argument => argument.Accept(this));
+        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length + 1);
 
         return stack.AreEqual(1);
     }
@@ -334,9 +363,12 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         return stack.AreEqual(0);
     }
 
-    protected internal override int VisitSuper(SuperExpression superExpression)
+    protected internal override int VisitSuper(SuperExpression expr)
     {
-        throw new NotImplementedException();
+        var stack = _emitter.Emit(OpCodeType.Ldarg, 0);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__super__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        return stack;
     }
 
     protected internal override int VisitThis(ThisExpression thisExpression)
@@ -375,14 +407,56 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         throw new NotImplementedException();
     }
 
-    protected internal override int VisitJSONObject(JSONObjectExpression expression)
+    protected internal override int VisitJSONObject(JSONObjectExpression expr)
     {
-        throw new NotImplementedException();
+        var stack = 0;
+        stack += _emitter.Emit(OpCodeType.Ldarg, 0);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "Object");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Dup);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Swap1_2);
+        stack += _emitter.Emit(OpCodeType.New);
+        stack += _emitter.Emit(OpCodeType.Call, 1);
+
+        foreach (var item in expr.Fields)
+        {
+            stack += _emitter.Emit(OpCodeType.Dup);
+            stack += _emitter.Emit(OpCodeType.Ldstr, item.Key);
+            stack += item.Value.Accept(this).AreEqual(1);
+            stack += _emitter.Emit(OpCodeType.Stfld);
+        }
+
+        return stack.AreEqual(1);
     }
 
-    protected internal override int VisitJSONArray(JSONArrayExpression expression)
+    protected internal override int VisitJSONArray(JSONArrayExpression expr)
     {
-        throw new NotImplementedException();
+        var stack = 0;
+        stack += _emitter.Emit(OpCodeType.Ldarg, 0);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "Array");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Dup);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Swap1_2);
+        stack += _emitter.Emit(OpCodeType.New);
+        stack += _emitter.Emit(OpCodeType.Call, 1);
+
+        for (var i = 0; i < expr.Items.Length; i++)
+        {
+            stack += _emitter.Emit(OpCodeType.Dup);
+            stack += _emitter.Emit(OpCodeType.Ldnum, i);
+            stack += expr.Items[0].Accept(this).AreEqual(1);
+            stack += _emitter.Emit(OpCodeType.Stfld);
+        }
+
+        return stack.AreEqual(1);
     }
 }
 
