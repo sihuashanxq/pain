@@ -83,7 +83,7 @@ public class FunctionEmitter
     public int Emit(OpCodeType opCodeType, Operand? operand)
     {
         var stack = 0;
-        var opCode = new OpCode(opCodeType, operand);
+        var opCode = new OpCode(opCodeType, operand!);
 
         switch (opCodeType)
         {
@@ -129,7 +129,7 @@ public class FunctionEmitter
                 stack = 1;
                 break;
             case OpCodeType.Pop:
-                stack = -(int)(operand.GetValue());
+                stack = -(int)(operand!.GetValue());
                 break;
         }
 

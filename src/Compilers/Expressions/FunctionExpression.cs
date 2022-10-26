@@ -5,7 +5,7 @@ namespace Pain.Compilers.Expressions
     {
         public override SyntaxType Type => SyntaxType.Function;
 
-        public string Name { get; }
+        public new string Name { get; }
 
         public bool IsStatic { get; }
 

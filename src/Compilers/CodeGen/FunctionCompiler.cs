@@ -320,8 +320,35 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         return stack.AreEqual(1);
     }
 
-    protected internal override int VisitName(NameExpression nameExpression)
+    protected internal override int VisitName(NameExpression expr)
     {
+        var variable = _emitter.GetVariable(expr.Name);
+        if (variable != null)
+        {
+        }
+
+        if (_function.Type.Functions.TryGetValue(expr.Name, out var function))
+        {
+            var stack = 0;
+            stack += _emitter.Emit(OpCodeType.Ldarg, 0);
+            stack += _emitter.Emit(OpCodeType.Ldstr, "__functions__");
+            stack += _emitter.Emit(OpCodeType.Ldfld);
+            stack += _emitter.Emit(OpCodeType.Ldstr, function.Name);
+            stack += _emitter.Emit(OpCodeType.Ldfld);
+            return stack.AreEqual(1);
+        }
+
+        if (_function.Type.Module.Types.TryGetValue(expr.Name, out var type))
+        {
+            var stack = 0;
+            stack += _emitter.Emit(OpCodeType.Ldarg, 0);
+            stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
+            stack += _emitter.Emit(OpCodeType.Ldfld);
+            stack += _emitter.Emit(OpCodeType.Ldstr, $"{type.Module.Path}.{expr.Name}");
+            stack += _emitter.Emit(OpCodeType.Ldfld);
+            return stack.AreEqual(1);
+        }
+
         throw new NotImplementedException();
     }
 
@@ -413,7 +440,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         stack += _emitter.Emit(OpCodeType.Ldarg, 0);
         stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
         stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "Object");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "@Runtime.Object");
         stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += _emitter.Emit(OpCodeType.Dup);
         stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
@@ -439,7 +466,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         stack += _emitter.Emit(OpCodeType.Ldarg, 0);
         stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
         stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "Array");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "@Runtime.Array");
         stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += _emitter.Emit(OpCodeType.Dup);
         stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");

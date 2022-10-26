@@ -5,7 +5,7 @@ public class NameExpression : Syntax
 {
     public override SyntaxType Type => SyntaxType.Name;
 
-    public string Name { get; }
+    public new string Name { get; }
 
     public NameExpression(string name)
     {

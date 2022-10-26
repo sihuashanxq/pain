@@ -53,11 +53,11 @@ public enum OpCodeType : byte
 
     Ldnum,
 
-    Ldtoken,
-
     Stloc,
 
     Stfld,
+
+    Starg,
 
     Ret,
 

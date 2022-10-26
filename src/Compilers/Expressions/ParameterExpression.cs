@@ -6,7 +6,7 @@ public class ParameterExpression : Syntax
 
     public int Index { get; }
 
-    public string Name { get; }
+    public new string Name { get; }
 
     public ParameterExpression(string name, int index)
     {
