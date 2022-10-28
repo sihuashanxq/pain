@@ -43,6 +43,8 @@ public enum OpCodeType : byte
 
     Ldarg,
 
+    Ldtoken,
+
     Ldnull,
 
     Ldundf,

@@ -64,5 +64,7 @@ public enum SyntaxType
 
     JSONObject,
 
-    JSONArray
+    JSONArray,
+
+    MemberInit
 }

@@ -8,4 +8,9 @@ public class ThisExpression : Syntax
     {
         return visitor.VisitThis(this);
     }
+
+    public override string ToString()
+    {
+        return $" this ";
+    }
 }

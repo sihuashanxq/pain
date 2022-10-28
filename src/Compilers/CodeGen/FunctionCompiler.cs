@@ -327,25 +327,11 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         {
         }
 
-        if (_function.Type.Functions.TryGetValue(expr.Name, out var function))
-        {
-            var stack = 0;
-            stack += _emitter.Emit(OpCodeType.Ldarg, 0);
-            stack += _emitter.Emit(OpCodeType.Ldstr, "__functions__");
-            stack += _emitter.Emit(OpCodeType.Ldfld);
-            stack += _emitter.Emit(OpCodeType.Ldstr, function.Name);
-            stack += _emitter.Emit(OpCodeType.Ldfld);
-            return stack.AreEqual(1);
-        }
-
         if (_function.Type.Module.Types.TryGetValue(expr.Name, out var type))
         {
             var stack = 0;
-            stack += _emitter.Emit(OpCodeType.Ldarg, 0);
-            stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
-            stack += _emitter.Emit(OpCodeType.Ldfld);
             stack += _emitter.Emit(OpCodeType.Ldstr, $"{type.Module.Path}.{expr.Name}");
-            stack += _emitter.Emit(OpCodeType.Ldfld);
+            stack += _emitter.Emit(OpCodeType.Ldtoken);
             return stack.AreEqual(1);
         }
 
@@ -357,7 +343,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         var stack = 0;
         stack += expr.Class.Accept(this).AreEqual(1);
         stack += _emitter.Emit(OpCodeType.Dup);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
         stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += _emitter.Emit(OpCodeType.Swap1_2);
         stack += _emitter.Emit(OpCodeType.New);
@@ -437,11 +423,8 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal override int VisitJSONObject(JSONObjectExpression expr)
     {
         var stack = 0;
-        stack += _emitter.Emit(OpCodeType.Ldarg, 0);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += _emitter.Emit(OpCodeType.Ldstr, "@Runtime.Object");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Ldtoken);
         stack += _emitter.Emit(OpCodeType.Dup);
         stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
         stack += _emitter.Emit(OpCodeType.Ldfld);
@@ -463,11 +446,8 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal override int VisitJSONArray(JSONArrayExpression expr)
     {
         var stack = 0;
-        stack += _emitter.Emit(OpCodeType.Ldarg, 0);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__module__");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += _emitter.Emit(OpCodeType.Ldstr, "@Runtime.Array");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Ldtoken);
         stack += _emitter.Emit(OpCodeType.Dup);
         stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
         stack += _emitter.Emit(OpCodeType.Ldfld);
@@ -480,6 +460,20 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             stack += _emitter.Emit(OpCodeType.Dup);
             stack += _emitter.Emit(OpCodeType.Ldnum, i);
             stack += expr.Items[0].Accept(this).AreEqual(1);
+            stack += _emitter.Emit(OpCodeType.Stfld);
+        }
+
+        return stack.AreEqual(1);
+    }
+
+    protected internal override int VisitMemberInit(MemberInitExpression init)
+    {
+        var stack = init.New.Accept(this).AreEqual(1);
+        foreach (var member in init.Members)
+        {
+            stack += _emitter.Emit(OpCodeType.Dup);
+            stack += _emitter.Emit(OpCodeType.Ldstr, member.Key);
+            stack += member.Value.Accept(this);
             stack += _emitter.Emit(OpCodeType.Stfld);
         }
 

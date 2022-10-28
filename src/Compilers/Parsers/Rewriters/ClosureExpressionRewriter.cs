@@ -1,16 +1,16 @@
 using Pain.Compilers.Expressions;
-
+using Pain.Compilers.Parsers.Definitions;
 namespace Pain.Compilers.Parsers.Rewriters;
 
 public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 {
-    private HashSet<object> _catpures;
+    private ModuleDefinition _module;
 
     private FunctionExpression _function;
 
-    public ClosureExpressionRewriter(FunctionExpression function, HashSet<object> captures)
+    public ClosureExpressionRewriter(FunctionExpression function, ModuleDefinition module)
     {
-        _catpures = captures;
+        _module = module;
         _function = function;
     }
 
@@ -21,12 +21,12 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitBinary(BinaryExpression expr)
     {
-        return new BinaryExpression(expr.Left.Accept(this), expr.Right.Accept(this), expr.Type);
+        return Syntax.MakeBinary(expr.Left.Accept(this), expr.Right.Accept(this), expr.Type);
     }
 
     protected internal override Syntax VisitBlock(BlockExpression expr)
     {
-        return new BlockExpression(expr.Statements.Select(i => i.Accept(this)).ToArray());
+        return Syntax.MakeBlock(expr.Statements.Select(i => i.Accept(this)).ToArray());
     }
 
     protected internal override Syntax VisitBreak(BreakExpression expr)
@@ -36,7 +36,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitCall(CallExpression expr)
     {
-        return new CallExpression(expr.Function.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
+        return Syntax.MakeCall(expr.Function.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
     }
 
     protected internal override Syntax VisitConstant(ConstantExpression expr)
@@ -66,14 +66,39 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitFunction(FunctionExpression expr)
     {
-        var body = new List<Syntax>();
-        expr.Parameters.Where(item => IsCaptured(item)).ForEach(item =>
+        if (expr.IsLocal)
         {
-            body.Add(Syntax.Binary(Syntax.Name(item.Name), Capture(item.Name), SyntaxType.Assign));
-        });
-        body.Add(expr.Body.Accept(this));
-        expr = new FunctionExpression(expr.Name, expr.IsStatic, expr.IsNative, expr.IsConstructor, expr.Parameters, Syntax.Block(body.ToArray()));
-        return IsCaptured(expr) ? Capture(expr) : expr;
+            var rewriter = new ClosureExpressionRewriter(expr, _module);
+            var name = new NameExpression(expr.Name);
+            var @new = Syntax.MakeNew(name, Array.Empty<Syntax>());
+            var members = new Dictionary<string, Syntax>();
+            rewriter.VisitFunctionChildren(expr);
+
+            foreach (var item in expr.CaptureVariables)
+            {
+                if (_function.CapturedVariables.TryGetValue(item.Value, out var _))
+                {
+                    // it's a captured origin local variable
+                    members[item.Key.Name] = Syntax.MakeName(item.Key.Name);
+                }
+                else
+                {
+                    // it's a captured rewrited variable
+                    members[item.Key.Name] = Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeName(item.Key.Name));
+                }
+            }
+
+            _module.Classes.Add(new ClassDefinition(name.Name, string.Empty, new[] { expr }));
+            return Syntax.MakeMember(Syntax.MakeMemberInit(@new, members), Syntax.MakeName(name.Name));
+        }
+
+        return VisitFunctionChildren(expr);
+    }
+
+    protected internal FunctionExpression VisitFunctionChildren(FunctionExpression expr)
+    {
+        expr.Body = expr.Body.Accept(this);
+        return expr;
     }
 
     protected internal override Syntax VisitIf(IfExpression expr)
@@ -105,17 +130,17 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitMember(MemberExpression expr)
     {
-        return Syntax.Member(expr.Object.Accept(this), expr.Member.Accept(this));
+        return Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this));
     }
 
     protected internal override Syntax VisitName(NameExpression expr)
     {
-        return IsCaptured(expr) ? UnCapture(expr) : expr;
+        return UnWrap(expr);
     }
 
     protected internal override Syntax VisitNew(NewExpression expr)
     {
-        return Syntax.New(expr.Class.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
+        return Syntax.MakeNew(expr.Class.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
     }
 
     protected internal override Syntax VisitParameter(ParameterExpression expr)
@@ -125,7 +150,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitReturn(ReturnExpression expr)
     {
-        return Syntax.Return(expr.Value?.Accept(this)!);
+        return Syntax.MakeReturn(expr.Value?.Accept(this)!);
     }
 
     protected internal override Syntax VisitSuper(SuperExpression expr)
@@ -140,45 +165,72 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitUnary(UnaryExpression expr)
     {
-        return Syntax.Unary(expr.Expression.Accept(this), expr.Type);
+        return Syntax.MakeUnary(expr.Expression.Accept(this), expr.Type);
     }
 
     protected internal override Syntax VisitVariable(VariableExpression expr)
     {
-        var items = new List<VaraibleDefinition>();
+        var items = new List<Varaible>();
         foreach (var item in expr.Varaibles)
         {
-            if (IsCaptured(item))
-            {
-                items.Add(new VaraibleDefinition(item.Name, Capture(item.Value!)));
-            }
-            else
-            {
-                items.Add(new VaraibleDefinition(item.Name, item.Value?.Accept(this)!));
-            }
+            items.Add(Wrap(item));
         }
 
         return new VariableExpression(items.ToArray());
     }
 
-    private Syntax Capture(Syntax value)
+    private Syntax Wrap(Syntax value)
     {
         return new JSONObjectExpression(new Dictionary<string, Syntax> { [Constant.CapturedField] = value });
     }
 
-    private Syntax Capture(string name)
+    private Varaible Wrap(Varaible item)
     {
-        return Capture(new NameExpression(name));
+        if (_function.CapturedVariables.Contains(item))
+        {
+            return new Varaible(item.Name, Wrap(item.Value?.Accept(this)!));
+        }
+        else
+        {
+            return new Varaible(item.Name, item.Value?.Accept(this)!);
+        }
     }
 
-    private Syntax UnCapture(Syntax value)
+    private Syntax UnWrap(NameExpression name)
     {
-        return new MemberExpression(value, new ConstantExpression(Constant.CapturedField, SyntaxType.ConstString));
+        if (_function.CaptureVariables.TryGetValue(name, out var _))
+        {
+            if (!_function.IsLocal)
+            {
+                return Syntax.MakeMember(name, Syntax.MakeConstant(Constant.CapturedField, SyntaxType.ConstString));
+            }
+
+            return Syntax.MakeMember(
+                Syntax.MakeMember(
+                    Syntax.MakeThis(),
+                    Syntax.MakeConstant(name, SyntaxType.ConstString)),
+                Syntax.MakeConstant(Constant.CapturedField, SyntaxType.ConstString));
+        }
+
+        if (_function.CapturedVariables.Contains(name))
+        {
+            return Syntax.MakeMember(name, Syntax.MakeConstant(Constant.CapturedField, SyntaxType.ConstString));
+        }
+
+        return name;
     }
 
-    private bool IsCaptured(object expr)
+    protected internal override Syntax VisitMemberInit(MemberInitExpression init)
     {
-        return _catpures.Contains(expr);
+        var @new = init.New.Accept(this);
+        var members = new Dictionary<string, Syntax>();
+
+        foreach (var member in init.Members)
+        {
+            members[member.Key] = member.Value.Accept(this);
+        }
+
+        return new MemberInitExpression(@new, members);
     }
 }
 

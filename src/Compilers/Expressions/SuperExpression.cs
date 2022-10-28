@@ -8,4 +8,9 @@ public class SuperExpression : Syntax
     {
         return visitor.VisitSuper(this);
     }
+
+     public override string ToString()
+    {
+        return $"super ";
+    }
 }

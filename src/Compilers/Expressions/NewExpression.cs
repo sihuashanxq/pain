@@ -18,4 +18,9 @@ public class NewExpression : Syntax
     {
         return visitor.VisitNew(this);
     }
+
+    public override string ToString()
+    {
+        return $"new {Class.ToString()}({string.Join(",", Arguments.Select(i => i.ToString()))})";
+    }
 }

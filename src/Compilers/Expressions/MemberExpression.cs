@@ -18,4 +18,9 @@ public class MemberExpression : Syntax
     {
         return visitor.VisitMember(this);
     }
+
+    public override string ToString()
+    {
+        return $"{Object.ToString()}[\"{Member.ToString()}\"]";
+    }
 }

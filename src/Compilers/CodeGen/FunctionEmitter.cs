@@ -241,7 +241,7 @@ internal class Scope : IDisposable
             return varInfo;
         }
 
-        return _variables[name] = new Variable(name, AllocateSlot(), false, null!);
+        return _variables[name] = new Variable(name, AllocateSlot());
     }
 
     public void AddStack(int n = 1)

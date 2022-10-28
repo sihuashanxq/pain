@@ -6,20 +6,9 @@ public class Variable
 
     public string Name { get; }
 
-    public bool Captured { get;  set; }
-
-    public Variable CapturedVariable { get;  set; }
-
-    public Variable(string name, int slot, bool captured, Variable capturedVariable)
+    public Variable(string name, int slot)
     {
         Name = name;
         Slot = slot;
-        Captured = captured;
-        CapturedVariable = capturedVariable;
-    }
-
-    public Variable Capture()
-    {
-        return new Variable(Name, Slot, true, this);
     }
 }

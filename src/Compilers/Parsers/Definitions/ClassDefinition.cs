@@ -1,4 +1,5 @@
 ﻿using Pain.Compilers.Expressions;
+using System.Text;
 namespace Pain.Compilers.Parsers.Definitions
 {
     public class ClassDefinition
@@ -7,13 +8,26 @@ namespace Pain.Compilers.Parsers.Definitions
 
         public string Super { get; }
 
-        public FunctionExpression[] Functions { get; }
+        public List<FunctionExpression> Functions { get; }
 
-        public ClassDefinition(string name,string super, FunctionExpression[] functions)
+        public ClassDefinition(string name, string super, IEnumerable<FunctionExpression> functions)
         {
             Name = name;
             Super = super;
-            Functions = functions;
+            Functions = new List<FunctionExpression>(functions);
+        }
+
+        public override string ToString()
+        {
+            var buf = new StringBuilder();
+            buf.Append("class ").Append(Name).AppendLine("{");
+            foreach (var item in Functions)
+            {
+                buf.AppendLine(item.ToString());
+            }
+
+            buf.AppendLine("} ");
+            return buf.ToString();
         }
     }
 }

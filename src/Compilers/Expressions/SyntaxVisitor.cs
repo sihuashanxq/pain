@@ -49,4 +49,6 @@ public abstract class SyntaxVisitor<T>
     protected internal abstract T VisitJSONObject(JSONObjectExpression expression);
 
     protected internal abstract T VisitJSONArray(JSONArrayExpression expression);
+
+    protected internal abstract T VisitMemberInit(MemberInitExpression init);
 }

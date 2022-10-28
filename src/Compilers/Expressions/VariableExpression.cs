@@ -4,9 +4,9 @@ public class VariableExpression : Syntax
 {
     public override SyntaxType Type => SyntaxType.Let;
 
-    public VaraibleDefinition[] Varaibles { get; }
+    public Varaible[] Varaibles { get; }
 
-    public VariableExpression(VaraibleDefinition[] varaibles)
+    public VariableExpression(Varaible[] varaibles)
     {
         Varaibles = varaibles;
     }
@@ -15,17 +15,27 @@ public class VariableExpression : Syntax
     {
         return visitor.VisitVariable(this);
     }
+
+    public override string ToString()
+    {
+        return $"let {string.Join(",", Varaibles.Select(i => i.ToString()))}";
+    }
 }
 
-public class VaraibleDefinition
+public class Varaible : ICaptureable
 {
     public string Name { get; }
 
     public Syntax Value { get; }
 
-    public VaraibleDefinition(string name, Syntax value)
+    public Varaible(string name, Syntax value)
     {
         Name = name;
         Value = value;
+    }
+
+    public override string ToString()
+    {
+        return Value == null ? $"{Name}" : $"{Name}={Value}";
     }
 }

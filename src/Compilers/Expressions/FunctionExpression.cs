@@ -1,35 +1,48 @@
 ﻿using System;
+using System.Text;
 namespace Pain.Compilers.Expressions
 {
     public class FunctionExpression : Syntax
     {
         public override SyntaxType Type => SyntaxType.Function;
 
-        public new string Name { get; }
+        public string Name { get; set; }
 
-        public bool IsStatic { get; }
+        public bool IsLocal { get; }
 
-        public bool IsNative { get; }
+        public Syntax Body { get; set; }
 
-        public Syntax Body { get; }
-
-        public bool IsConstructor { get; }
-        
         public ParameterExpression[] Parameters { get; }
 
-        public FunctionExpression(string name, bool isStatic, bool isNative, bool isConstructor, ParameterExpression[] parameters, Syntax body)
+        public HashSet<ICaptureable> CapturedVariables { get; }
+
+        public Dictionary<ICaptureable, ICaptureable> CaptureVariables { get; }
+
+        public FunctionExpression(string name, bool isLocal, ParameterExpression[] parameters, Syntax body)
         {
             Name = name;
             Body = body;
-            IsStatic = isStatic;
-            IsNative = isNative;
+            IsLocal = isLocal;
             Parameters = parameters;
-            IsConstructor = isConstructor;
+            CaptureVariables = new Dictionary<ICaptureable, ICaptureable>();
+            CapturedVariables = new HashSet<ICaptureable>();
         }
 
         public override T Accept<T>(SyntaxVisitor<T> visitor)
         {
             return visitor.VisitFunction(this);
+        }
+
+        public override string ToString()
+        {
+            return new StringBuilder().
+                Append("func  ").
+                Append(Name).
+                Append("(").
+                Append(string.Join(",", Parameters.Select(i => i.Name))).
+                AppendLine("){").
+                AppendLine(Body.ToString()).
+                AppendLine("}").ToString();
         }
     }
 }

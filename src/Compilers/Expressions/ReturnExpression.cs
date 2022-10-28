@@ -2,7 +2,7 @@
 
 public class ReturnExpression : Syntax
 {
-    public override SyntaxType Type => SyntaxType.Member;
+    public override SyntaxType Type => SyntaxType.Return;
 
     public Syntax Value { get; }
 
@@ -14,5 +14,10 @@ public class ReturnExpression : Syntax
     public override T Accept<T>(SyntaxVisitor<T> visitor)
     {
         return visitor.VisitReturn(this);
+    }
+
+    public override string ToString()
+    {
+        return $"return {Value}";
     }
 }

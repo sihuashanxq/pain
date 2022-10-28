@@ -8,15 +8,12 @@ public class Scope
 
     public FunctionExpression Function { get; private set; }
 
-    public Dictionary<string, object> Names { get; private set; }
-
-    public HashSet<object> Captures { get; private set; }
+    public Dictionary<string, Varaible> Names { get; private set; }
 
     public Scope(FunctionExpression function)
     {
-        Names = new Dictionary<string, object>();
+        Names = new Dictionary<string, Varaible>();
         Function = function;
-        Captures = new HashSet<object>();
     }
 
     public IDisposable Enter()
@@ -30,10 +27,9 @@ public class Scope
         {
             Names = Names,
             Parent = Parent,
-            Captures = Captures
         };
 
-        Names = new Dictionary<string, object>();
+        Names = new Dictionary<string, Varaible>();
         Parent = scope;
         Function = function;
 
@@ -45,12 +41,9 @@ public class Scope
         });
     }
 
-    public void AddName(string name, object syntax)
+    public void AddVaribale(Varaible var)
     {
-        if (!string.IsNullOrEmpty(name))
-        {
-            Names[name] = syntax;
-        }
+        Names[var.Name] = var;
     }
 
     public bool Capture(NameExpression expr, FunctionExpression function)
@@ -62,23 +55,9 @@ public class Scope
                 return false;
             }
 
-            switch (v)
-            {
-                case FunctionExpression item:
-                    Captures.Add(item);
-                    Captures.Add(expr);
-                    return true;
-                case ParameterExpression item:
-                    Captures.Add(item);
-                    Captures.Add(expr);
-                    return true;
-                case VaraibleDefinition item:
-                    Captures.Add(item);
-                    Captures.Add(expr);
-                    return true;
-                default:
-                    return false;
-            }
+            Function.CapturedVariables.Add(v);
+            function.CaptureVariables[expr] = v;
+            return true;
         }
 
         if (Parent != null)
@@ -92,20 +71,30 @@ public class Scope
 
 public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 {
-    private Scope _scope;
+    private readonly Scope _scope;
 
-    private FunctionExpression _function;
+    private readonly FunctionExpression _function;
 
-    public ScopedSyntaxWalker(FunctionExpression function)
+    public ScopedSyntaxWalker(FunctionExpression function) : this(function, new Scope(function))
     {
-        _scope = new Scope(function);
+
+    }
+
+    public ScopedSyntaxWalker(FunctionExpression function, Scope scope)
+    {
+        _scope = scope;
         _function = function;
     }
 
-    public HashSet<object> Walk()
+    public void Walk()
     {
         Visit(_function);
-        return _scope.Captures;
+    }
+
+    public static void Walk(FunctionExpression expr, Scope scope)
+    {
+        var walker = new ScopedSyntaxWalker(expr, scope);
+        walker.Walk();
     }
 
     protected internal override Syntax VisitBinary(BinaryExpression expr)
@@ -167,7 +156,8 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
     {
         if (expr != _function)
         {
-            _scope.AddName(expr.Name, expr);
+            Walk(expr, _scope);
+            return expr;
         }
 
         using (_scope.Enter(expr))
@@ -225,7 +215,6 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitParameter(ParameterExpression expr)
     {
-        _scope.AddName(expr.Name, expr);
         return expr;
     }
 
@@ -256,10 +245,17 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
         foreach (var item in expr.Varaibles)
         {
             item.Value?.Accept(this);
-            _scope.AddName(item.Name, item);
+            _scope.AddVaribale(item);
         }
 
         return expr;
+    }
+
+    protected internal override Syntax VisitMemberInit(MemberInitExpression init)
+    {
+        init.New.Accept(this);
+        init.Members.Select(i => i.Value.Accept(this));
+        return init;
     }
 }
 

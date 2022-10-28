@@ -1,11 +1,11 @@
 ﻿namespace Pain.Compilers.Expressions;
 
 
-public class NameExpression : Syntax
+public class NameExpression : Syntax, ICaptureable
 {
     public override SyntaxType Type => SyntaxType.Name;
 
-    public new string Name { get; }
+    public string Name { get; }
 
     public NameExpression(string name)
     {
@@ -15,5 +15,10 @@ public class NameExpression : Syntax
     public override T Accept<T>(SyntaxVisitor<T> visitor)
     {
         return visitor.VisitName(this);
+    }
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

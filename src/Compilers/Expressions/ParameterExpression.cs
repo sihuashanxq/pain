@@ -6,7 +6,7 @@ public class ParameterExpression : Syntax
 
     public int Index { get; }
 
-    public new string Name { get; }
+    public string Name { get; }
 
     public ParameterExpression(string name, int index)
     {
@@ -17,5 +17,10 @@ public class ParameterExpression : Syntax
     public override T Accept<T>(SyntaxVisitor<T> visitor)
     {
         return visitor.VisitParameter(this);
+    }
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

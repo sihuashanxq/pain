@@ -15,4 +15,9 @@ public class JSONArrayExpression : Syntax
     {
         return visitor.VisitJSONArray(this);
     }
+
+    public override string ToString()
+    {
+        return $"new [{string.Join(",\n", Items.Select(i => i.ToString()))}]";
+    }
 }

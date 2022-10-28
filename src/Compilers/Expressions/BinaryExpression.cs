@@ -22,7 +22,6 @@ public class BinaryExpression:Syntax
 
     public override string ToString()
     {
-
         return $"{Left} {Type} {Right}";
     }
 }
