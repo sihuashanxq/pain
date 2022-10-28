@@ -91,10 +91,11 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
         Visit(_function);
     }
 
-    public static void Walk(FunctionExpression expr, Scope scope)
+    public static Dictionary<ICaptureable, ICaptureable> Walk(FunctionExpression expr, Scope scope)
     {
         var walker = new ScopedSyntaxWalker(expr, scope);
         walker.Walk();
+        return expr.CaptureVariables;
     }
 
     protected internal override Syntax VisitBinary(BinaryExpression expr)
@@ -156,7 +157,13 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
     {
         if (expr != _function)
         {
-            Walk(expr, _scope);
+            foreach (var item in Walk(expr, _scope))
+            {
+                if (!_function.CapturedVariables.Contains(item.Value))
+                {
+                    _function.CaptureVariables[item.Key] = item.Value;
+                }
+            }
             return expr;
         }
 

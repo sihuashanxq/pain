@@ -7,7 +7,6 @@ var code = @"
         func say(x){
             let y=func(){
                 let z=2
-                x= x+1
                 return func (){
                     return x+z
                 }

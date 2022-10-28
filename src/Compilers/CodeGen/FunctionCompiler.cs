@@ -342,13 +342,11 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     {
         var stack = 0;
         stack += expr.Class.Accept(this).AreEqual(1);
-        stack += _emitter.Emit(OpCodeType.Dup);
+        stack += _emitter.Emit(OpCodeType.New);
         stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
         stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Swap1_2);
-        stack += _emitter.Emit(OpCodeType.New);
         stack += expr.Arguments.Sum(argument => argument.Accept(this));
-        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length + 1);
+        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length);
 
         return stack.AreEqual(1);
     }
@@ -423,14 +421,12 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal override int VisitJSONObject(JSONObjectExpression expr)
     {
         var stack = 0;
-        stack += _emitter.Emit(OpCodeType.Ldstr, "@Runtime.Object");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "Runtime.Object");
         stack += _emitter.Emit(OpCodeType.Ldtoken);
-        stack += _emitter.Emit(OpCodeType.Dup);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Swap1_2);
         stack += _emitter.Emit(OpCodeType.New);
-        stack += _emitter.Emit(OpCodeType.Call, 1);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Call, 0);
 
         foreach (var item in expr.Fields)
         {
@@ -446,14 +442,13 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal override int VisitJSONArray(JSONArrayExpression expr)
     {
         var stack = 0;
-        stack += _emitter.Emit(OpCodeType.Ldstr, "@Runtime.Array");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "Runtime.Array");
         stack += _emitter.Emit(OpCodeType.Ldtoken);
-        stack += _emitter.Emit(OpCodeType.Dup);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__constructor__");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Swap1_2);
         stack += _emitter.Emit(OpCodeType.New);
-        stack += _emitter.Emit(OpCodeType.Call, 1);
+        stack += _emitter.Emit(OpCodeType.Dup);
+        stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
+        stack += _emitter.Emit(OpCodeType.Ldfld);
+        stack += _emitter.Emit(OpCodeType.Call, 0);
 
         for (var i = 0; i < expr.Items.Length; i++)
         {
