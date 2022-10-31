@@ -351,8 +351,12 @@ public class Parser
         name = _token.Value.ToString();
         Next();
         var parameters = ParseFunctionParameters();
-        var parameterInits = new VariableExpression(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray());
         var functionBody = ParseFunctionBodyExpression();
+        var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
+        if (parameters.Length == 0)
+        {
+            parameterInits = Syntax.MakeEmpty();
+        }
         return Syntax.MakeFunction(name!, false, parameters, Syntax.MakeBlock(parameterInits, functionBody));
     }
 
@@ -362,8 +366,13 @@ public class Parser
         ThrowError(!Match(TokenType.Func));
         Next();
         var parameters = ParseFunctionParameters();
-        var parameterInits = new VariableExpression(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray());
         var functionBody = ParseFunctionBodyExpression();
+        var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
+        if (parameters.Length == 0)
+        {
+            parameterInits = Syntax.MakeEmpty();
+        }
+        
         return Syntax.MakeFunction(name!, true, parameters, Syntax.MakeBlock(parameterInits, functionBody));
     }
 
