@@ -1,19 +1,19 @@
 namespace Pain.Compilers.Expressions;
 
-public class JSONArrayExpression : Syntax
+public class ArrayInitExpression : Syntax
 {
     public Syntax[] Items { get; }
 
-    public override SyntaxType Type => SyntaxType.JSONArray;
+    public override SyntaxType Type => SyntaxType.ArrayInit;
 
-    public JSONArrayExpression(Syntax[] items)
+    public ArrayInitExpression(Syntax[] items)
     {
         Items = items;
     }
 
     public override T Accept<T>(SyntaxVisitor<T> visitor)
     {
-        return visitor.VisitJSONArray(this);
+        return visitor.VisitArrayInit(this);
     }
 
     public override string ToString()

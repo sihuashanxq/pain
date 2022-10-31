@@ -6,7 +6,7 @@ public class MemberExpression : Syntax
 
     public Syntax Object { get; }
 
-    public new Syntax Member { get; }
+    public Syntax Member { get; }
 
     public MemberExpression(Syntax @object, Syntax member)
     {

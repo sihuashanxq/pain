@@ -7,8 +7,11 @@ var code = @"
         func say(x){
             let y=func(){
                 let z=2
+                z=this.z+z
                 return func (){
-                    return x+z
+                    return func(){
+                      return  x+z+this.z+super.x+super.d
+                    }
                 }
             }
 

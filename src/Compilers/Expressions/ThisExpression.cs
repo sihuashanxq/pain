@@ -1,7 +1,9 @@
 ﻿namespace Pain.Compilers.Expressions;
 
-public class ThisExpression : Syntax
+public class ThisExpression : Syntax, ICaptureable
 {
+    public string Name => "this";
+
     public override SyntaxType Type => SyntaxType.This;
 
     public override T Accept<T>(SyntaxVisitor<T> visitor)

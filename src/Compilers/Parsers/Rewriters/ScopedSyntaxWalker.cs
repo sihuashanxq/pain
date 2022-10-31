@@ -8,11 +8,11 @@ public class Scope
 
     public FunctionExpression Function { get; private set; }
 
-    public Dictionary<string, Varaible> Names { get; private set; }
+    public Dictionary<string, ICaptureable> Names { get; private set; }
 
     public Scope(FunctionExpression function)
     {
-        Names = new Dictionary<string, Varaible>();
+        Names = new Dictionary<string, ICaptureable>();
         Function = function;
     }
 
@@ -29,7 +29,7 @@ public class Scope
             Parent = Parent,
         };
 
-        Names = new Dictionary<string, Varaible>();
+        Names = new Dictionary<string, ICaptureable>();
         Parent = scope;
         Function = function;
 
@@ -46,7 +46,19 @@ public class Scope
         Names[var.Name] = var;
     }
 
-    public bool Capture(NameExpression expr, FunctionExpression function)
+    public void AddThis()
+    {
+        var expr = Syntax.MakeThis();
+        Names[expr.Name] = expr;
+    }
+
+    public void AddSuper()
+    {
+        var expr = Syntax.MakeSuper();
+        Names[expr.Name] = expr;
+    }
+
+    public bool Capture(ICaptureable expr, FunctionExpression function)
     {
         if (Names.TryGetValue(expr.Name, out var v))
         {
@@ -169,6 +181,12 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
         using (_scope.Enter(expr))
         {
+            if (!expr.IsLocal)
+            {
+                _scope.AddThis();
+                _scope.AddSuper();
+            }
+
             expr.Parameters.ForEach(item => item.Accept(this));
             expr.Body.Accept(this);
         }
@@ -188,15 +206,9 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
         }
     }
 
-    protected internal override Syntax VisitJSONArray(JSONArrayExpression expr)
+    protected internal override Syntax VisitArrayInit(ArrayInitExpression expr)
     {
         expr.Items.ForEach(item => item.Accept(this));
-        return expr;
-    }
-
-    protected internal override Syntax VisitJSONObject(JSONObjectExpression expr)
-    {
-        expr.Fields.Values.ForEach(item => item.Accept(this));
         return expr;
     }
 
@@ -233,11 +245,21 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitSuper(SuperExpression expr)
     {
+        if (_function.IsLocal)
+        {
+            _scope.Capture(expr, _function);
+        }
+
         return expr;
     }
 
     protected internal override Syntax VisitThis(ThisExpression expr)
     {
+        if (_function.IsLocal)
+        {
+            _scope.Capture(expr, _function);
+        }
+
         return expr;
     }
 

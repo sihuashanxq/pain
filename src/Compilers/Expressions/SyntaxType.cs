@@ -62,9 +62,7 @@ public enum SyntaxType
     Switch,
     Empty,
 
-    JSONObject,
-
-    JSONArray,
+    ArrayInit,
 
     MemberInit
 }

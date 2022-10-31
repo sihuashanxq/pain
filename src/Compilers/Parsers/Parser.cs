@@ -206,10 +206,10 @@ public class Parser
         var expr = Parse(Next, ParseUnaryExpression, ThrowNullError);
         return token.Type switch
         {
-            TokenType.Add => new UnaryExpression(expr, SyntaxType.Add),
-            TokenType.Subtract => new UnaryExpression(expr, SyntaxType.Subtract),
-            TokenType.BitNot => new UnaryExpression(expr, SyntaxType.BitNot),
-            _ => new UnaryExpression(expr, SyntaxType.Not),
+            TokenType.Add => Syntax.MakeUnary(expr, SyntaxType.Add),
+            TokenType.Subtract => Syntax.MakeUnary(expr, SyntaxType.Subtract),
+            TokenType.BitNot => Syntax.MakeUnary(expr, SyntaxType.BitNot),
+            _ => Syntax.MakeUnary(expr, SyntaxType.Not),
         };
     }
 
@@ -353,7 +353,7 @@ public class Parser
         var parameters = ParseFunctionParameters();
         var parameterInits = new VariableExpression(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray());
         var functionBody = ParseFunctionBodyExpression();
-        return new FunctionExpression(name!, false, parameters, Syntax.MakeBlock(parameterInits, functionBody));
+        return Syntax.MakeFunction(name!, false, parameters, Syntax.MakeBlock(parameterInits, functionBody));
     }
 
     private Syntax ParseLocalFunctionExpression()
@@ -364,7 +364,7 @@ public class Parser
         var parameters = ParseFunctionParameters();
         var parameterInits = new VariableExpression(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray());
         var functionBody = ParseFunctionBodyExpression();
-        return new FunctionExpression(name!, true, parameters, Syntax.MakeBlock(parameterInits, functionBody));
+        return Syntax.MakeFunction(name!, true, parameters, Syntax.MakeBlock(parameterInits, functionBody));
     }
 
     private Syntax ParseFunctionBodyExpression()
@@ -455,7 +455,7 @@ public class Parser
 
         ThrowError(!Match(TokenType.CloseBrace));
         Next();
-        return new BlockExpression(expressions.ToArray());
+        return Syntax.MakeBlock(expressions.ToArray());
     }
 
     private Syntax ParseIfExpression()
@@ -472,7 +472,7 @@ public class Parser
             return new IfExpression(test, ifTrue, ifFalse);
         }
 
-        return new IfExpression(test, ifTrue, null!);
+        return Syntax.MakeIf(test, ifTrue, null!);
     }
 
     private Syntax ParseBreakExpression()
@@ -494,14 +494,14 @@ public class Parser
         ThrowError(!Match(TokenType.Return));
         Next();
         var value = ParseUnitExpression();
-        return new ReturnExpression(value);
+        return Syntax.MakeReturn(value);
     }
 
     private Syntax ParseSemicolonExpression()
     {
         ThrowError(!Match(TokenType.Semicolon));
         Next();
-        return new EmptyExpression();
+        return Syntax.MakeEmpty();
     }
 
     private Syntax ParseLetExpression()
@@ -540,7 +540,7 @@ public class Parser
         }
 
         ThrowError(variables.Count == 0);
-        return new VariableExpression(variables.ToArray());
+        return Syntax.MakeVariable(variables.ToArray());
     }
 
     private Syntax ParseForExpression()
@@ -551,7 +551,7 @@ public class Parser
         var condition = ParseForCondition();
         var iterators = ParseForIterators();
         var body = ParseExpression();
-        return new ForExpression(initializers, condition, iterators, body);
+        return Syntax.MakeFor(initializers, condition, iterators, body);
     }
 
     private Syntax[] ParseForInitializers()

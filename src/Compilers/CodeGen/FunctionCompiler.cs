@@ -351,18 +351,18 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         return stack.AreEqual(1);
     }
 
-    protected internal override int VisitParameter(ParameterExpression parameterExpression)
+    protected internal override int VisitParameter(ParameterExpression expr)
     {
-        throw new NotImplementedException();
+        return 0;
     }
 
-    protected internal override int VisitReturn(ReturnExpression returnExpression)
+    protected internal override int VisitReturn(ReturnExpression expr)
     {
         var stack = 0;
 
-        if (returnExpression.Value != null)
+        if (expr.Value != null)
         {
-            stack = returnExpression.Value.Accept(this).AreEqual(1);
+            stack = expr.Value.Accept(this).AreEqual(1);
             stack += _emitter.Emit(OpCodeType.Ret);
         }
         else
@@ -382,15 +382,15 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         return stack;
     }
 
-    protected internal override int VisitThis(ThisExpression thisExpression)
+    protected internal override int VisitThis(ThisExpression expr)
     {
         return _emitter.Emit(OpCodeType.Ldarg, 0).AreEqual(1);
     }
 
-    protected internal override int VisitUnary(UnaryExpression unaryExpression)
+    protected internal override int VisitUnary(UnaryExpression expr)
     {
-        var stack = unaryExpression.Expression.Accept(this);
-        var tokenType = unaryExpression.Type;
+        var stack = expr.Expression.Accept(this);
+        var tokenType = expr.Type;
 
         switch (tokenType)
         {
@@ -413,33 +413,24 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         return stack.AreEqual(1);
     }
 
-    protected internal override int VisitVariable(VariableExpression variablExpression)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected internal override int VisitJSONObject(JSONObjectExpression expr)
+    protected internal override int VisitVariable(VariableExpression expr)
     {
         var stack = 0;
-        stack += _emitter.Emit(OpCodeType.Ldstr, "Runtime.Object");
-        stack += _emitter.Emit(OpCodeType.Ldtoken);
-        stack += _emitter.Emit(OpCodeType.New);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Call, 0);
 
-        foreach (var item in expr.Fields)
+        foreach (var item in expr.Varaibles)
         {
-            stack += _emitter.Emit(OpCodeType.Dup);
-            stack += _emitter.Emit(OpCodeType.Ldstr, item.Key);
-            stack += item.Value.Accept(this).AreEqual(1);
-            stack += _emitter.Emit(OpCodeType.Stfld);
+            var variable = _emitter.CreateVariable(item.Name);
+            if (item.Value != null)
+            {
+                stack += item.Value.Accept(this).AreEqual(1);
+                stack += _emitter.Emit(OpCodeType.Stloc, variable);
+            }
         }
 
-        return stack.AreEqual(1);
+        return stack.AreEqual(0);
     }
 
-    protected internal override int VisitJSONArray(JSONArrayExpression expr)
+    protected internal override int VisitArrayInit(ArrayInitExpression expr)
     {
         var stack = 0;
         stack += _emitter.Emit(OpCodeType.Ldstr, "Runtime.Array");
@@ -454,7 +445,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         {
             stack += _emitter.Emit(OpCodeType.Dup);
             stack += _emitter.Emit(OpCodeType.Ldnum, i);
-            stack += expr.Items[0].Accept(this).AreEqual(1);
+            stack += expr.Items[i].Accept(this).AreEqual(1);
             stack += _emitter.Emit(OpCodeType.Stfld);
         }
 

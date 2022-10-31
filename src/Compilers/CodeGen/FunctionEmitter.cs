@@ -65,6 +65,11 @@ public class FunctionEmitter
         label.Target.Value = target;
     }
 
+    public Variable CreateVariable(string name)
+    {
+        return _scope.CreateVariable(name)!;
+    }
+
     public Variable GetVariable(string name)
     {
         return _scope.GetVariable(name)!;
@@ -141,6 +146,11 @@ public class FunctionEmitter
     public int Emit(OpCodeType opCodeType, int v)
     {
         return Emit(opCodeType, new Operand<int>(v, sizeof(int)));
+    }
+
+    public int Emit(OpCodeType opCodeType, Variable variable)
+    {
+        return Emit(opCodeType, new Operand<int>(variable.Slot, sizeof(int)));
     }
 
     public int Emit(OpCodeType opCodeType, string v)
@@ -234,6 +244,11 @@ internal class Scope : IDisposable
         return null;
     }
 
+    public Variable CreateVariable(string name)
+    {
+        return _variables[name] = new Variable(name, AllocateSlot());
+    }
+
     public Variable GetOrCreateVariable(string name)
     {
         if (_variables.TryGetValue(name, out var varInfo))
@@ -241,7 +256,7 @@ internal class Scope : IDisposable
             return varInfo;
         }
 
-        return _variables[name] = new Variable(name, AllocateSlot());
+        return CreateVariable(name);
     }
 
     public void AddStack(int n = 1)

@@ -78,12 +78,10 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             {
                 if (_function.CapturedVariables.TryGetValue(item.Value, out var _))
                 {
-                    // it's a captured origin local variable
                     members[item.Key.Name] = Syntax.MakeName(item.Key.Name);
                 }
                 else
                 {
-                    // it's a captured rewrited variable
                     members[item.Key.Name] = Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeName(item.Key.Name));
                 }
             }
@@ -103,10 +101,10 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitIf(IfExpression expr)
     {
-        return new IfExpression(expr.Test?.Accept(this)!, expr.IfTrue?.Accept(this)!, expr.IfFalse?.Accept(this)!);
+        return Syntax.MakeIf(expr.Test?.Accept(this)!, expr.IfTrue?.Accept(this)!, expr.IfFalse?.Accept(this)!);
     }
 
-    protected internal override Syntax VisitJSONArray(JSONArrayExpression expr)
+    protected internal override Syntax VisitArrayInit(ArrayInitExpression expr)
     {
         var items = new List<Syntax>();
         foreach (var item in expr.Items)
@@ -114,18 +112,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             items.Add(item.Accept(this));
         }
 
-        return new JSONArrayExpression(items.ToArray());
-    }
-
-    protected internal override Syntax VisitJSONObject(JSONObjectExpression expr)
-    {
-        var fields = new Dictionary<string, Syntax>();
-        foreach (var kv in expr.Fields)
-        {
-            fields[kv.Key] = kv.Value.Accept(this);
-        }
-
-        return new JSONObjectExpression(fields);
+        return Syntax.MakeArray(items.ToArray());
     }
 
     protected internal override Syntax VisitMember(MemberExpression expr)
@@ -155,11 +142,21 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitSuper(SuperExpression expr)
     {
+        if (_function.IsLocal)
+        {
+            return UnWrap(expr);
+        }
+
         return expr;
     }
 
     protected internal override Syntax VisitThis(ThisExpression expr)
     {
+        if (_function.IsLocal)
+        {
+            return UnWrap(expr);
+        }
+
         return expr;
     }
 
@@ -176,19 +173,19 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             items.Add(Wrap(item));
         }
 
-        return new VariableExpression(items.ToArray());
+        return Syntax.MakeVariable(items.ToArray());
     }
 
-    private Syntax Wrap(Syntax value)
+    private Syntax Wrap(Syntax value, string name)
     {
-        return new JSONObjectExpression(new Dictionary<string, Syntax> { [Constant.CapturedField] = value });
+        return new MemberInitExpression(Syntax.MakeNew(Syntax.MakeConstant("Runtime.Object", SyntaxType.ConstString), Array.Empty<Syntax>()), (new Dictionary<string, Syntax> { [name] = value }));
     }
 
     private Varaible Wrap(Varaible item)
     {
         if (_function.CapturedVariables.Contains(item))
         {
-            return new Varaible(item.Name, Wrap(item.Value?.Accept(this)!));
+            return new Varaible(item.Name, Wrap(item.Value?.Accept(this)!, item.Name));
         }
         else
         {
@@ -202,22 +199,52 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         {
             if (!_function.IsLocal)
             {
-                return Syntax.MakeMember(name, Syntax.MakeConstant(Constant.CapturedField, SyntaxType.ConstString));
+                return Syntax.MakeMember(name, Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
             }
 
             return Syntax.MakeMember(
                 Syntax.MakeMember(
                     Syntax.MakeThis(),
                     Syntax.MakeConstant(name, SyntaxType.ConstString)),
-                Syntax.MakeConstant(Constant.CapturedField, SyntaxType.ConstString));
+                Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
         }
 
         if (_function.CapturedVariables.Contains(name))
         {
-            return Syntax.MakeMember(name, Syntax.MakeConstant(Constant.CapturedField, SyntaxType.ConstString));
+            return Syntax.MakeMember(name, Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
         }
 
         return name;
+    }
+
+    private Syntax UnWrap(ThisExpression expr)
+    {
+        if (_function.CaptureVariables.TryGetValue(expr, out var _))
+        {
+            return Syntax.MakeMember(Syntax.MakeName(expr.Name), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
+        }
+
+        if (_function.CapturedVariables.Contains(expr))
+        {
+            return Syntax.MakeMember(Syntax.MakeName(expr.Name), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
+        }
+
+        return expr as Syntax;
+    }
+
+    private Syntax UnWrap(SuperExpression expr)
+    {
+        if (_function.CaptureVariables.TryGetValue(expr, out var _))
+        {
+            return Syntax.MakeMember(Syntax.MakeName("this"), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
+        }
+
+        if (_function.CapturedVariables.Contains(expr))
+        {
+            return Syntax.MakeMember(Syntax.MakeName("this"), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
+        }
+
+        return expr as Syntax;
     }
 
     protected internal override Syntax VisitMemberInit(MemberInitExpression init)
@@ -230,11 +257,6 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             members[member.Key] = member.Value.Accept(this);
         }
 
-        return new MemberInitExpression(@new, members);
+        return Syntax.MakeMemberInit(@new, members);
     }
-}
-
-public static class Constant
-{
-    public const string CapturedField = "value";
 }

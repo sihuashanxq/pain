@@ -1,7 +1,9 @@
 ﻿namespace Pain.Compilers.Expressions;
 
-public class SuperExpression : Syntax
+public class SuperExpression : Syntax, ICaptureable
 {
+    public string Name => "super";
+
     public override SyntaxType Type => SyntaxType.Super;
 
     public override T Accept<T>(SyntaxVisitor<T> visitor)
@@ -9,7 +11,7 @@ public class SuperExpression : Syntax
         return visitor.VisitSuper(this);
     }
 
-     public override string ToString()
+    public override string ToString()
     {
         return $"super ";
     }

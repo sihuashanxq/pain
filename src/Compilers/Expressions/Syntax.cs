@@ -80,4 +80,34 @@ public abstract class Syntax
     {
         return new MemberInitExpression(@new, members);
     }
+
+    public static FunctionExpression MakeFunction(string name, bool isLocal, ParameterExpression[] parameters, Syntax body)
+    {
+        return new FunctionExpression(name, isLocal, parameters, body);
+    }
+
+    public static IfExpression MakeIf(Syntax test, Syntax ifTrue, Syntax ifFalse)
+    {
+        return new IfExpression(test, ifTrue, ifFalse);
+    }
+
+    public static EmptyExpression MakeEmpty()
+    {
+        return new EmptyExpression();
+    }
+
+    public static VariableExpression MakeVariable(Varaible[] varaibles)
+    {
+        return new VariableExpression(varaibles);
+    }
+
+    public static ForExpression MakeFor(Syntax[] initializers, Syntax test, Syntax[] iterators, Syntax body)
+    {
+        return new ForExpression(initializers, test, iterators, body);
+    }
+
+    public static ArrayInitExpression MakeArray(Syntax[] items)
+    {
+        return new ArrayInitExpression(items);
+    }
 }
