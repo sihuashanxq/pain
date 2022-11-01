@@ -10,7 +10,7 @@ var code = @"
                 z=this.z+z
                 return func (){
                     return func(){
-                      return  x+z+this.z+super.x+super.d
+                      return  x+z+this.z+super.x()+super.d()
                     }
                 }
             }
@@ -26,6 +26,6 @@ var parser = new Pain.Compilers.Parsers.Parser(lexer);
 var x = parser.ParseModule();
 var func = x.Classes[0].Functions[0];
 new ScopedSyntaxWalker(func).Walk();
-var r = new Pain.Compilers.Parsers.Rewriters.ClosureExpressionRewriter(func, x).Rewrite();
+var r = new Pain.Compilers.Parsers.Rewriters.ClosureExpressionRewriter(func, x, x.Classes[0]).Rewrite();
 
 Console.WriteLine(x.ToString());

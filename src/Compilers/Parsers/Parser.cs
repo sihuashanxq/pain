@@ -669,7 +669,7 @@ public class Parser
         while (Match(TokenType.Class))
         {
             var name = string.Empty;
-            var super = string.Empty;
+            var super = "Object";
             var functions = new List<FunctionExpression>();
 
             Next();

@@ -4,14 +4,20 @@ namespace Pain.Compilers.Parsers.Rewriters;
 
 public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 {
-    private ModuleDefinition _module;
+    private readonly ClassDefinition _class;
 
-    private FunctionExpression _function;
+    private readonly ModuleDefinition _module;
 
-    public ClosureExpressionRewriter(FunctionExpression function, ModuleDefinition module)
+    private readonly FunctionExpression _function;
+
+    private readonly Syntax _bind;
+
+    public ClosureExpressionRewriter(FunctionExpression function, ModuleDefinition module, ClassDefinition @class)
     {
+        _class = @class;
         _module = module;
         _function = function;
+        _bind = Syntax.MakeConstant("bind", SyntaxType.ConstString);
     }
 
     public Syntax Rewrite()
@@ -68,7 +74,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
     {
         if (expr.IsLocal)
         {
-            var rewriter = new ClosureExpressionRewriter(expr, _module);
+            var rewriter = new ClosureExpressionRewriter(expr, _module, _class);
             var name = new NameExpression(expr.Name);
             var @new = Syntax.MakeNew(name, Array.Empty<Syntax>());
             var members = new Dictionary<string, Syntax>();
@@ -117,7 +123,24 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitMember(MemberExpression expr)
     {
-        return Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this));
+        if (expr.Object.Type != SyntaxType.Super)
+        {
+            return Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this));
+        }
+
+        if (!_function.IsLocal)
+        {
+            return Syntax.MakeCall(
+               Syntax.MakeMember(Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this)), _bind),
+               new[] { Syntax.MakeThis() }
+            );
+        }
+
+        return Syntax.MakeCall(
+            Syntax.MakeMember(Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this)), _bind),
+            new[] { Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeConstant(Syntax.MakeThis().Name, SyntaxType.ConstString)) }
+        );
+
     }
 
     protected internal override Syntax VisitName(NameExpression expr)
@@ -142,12 +165,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitSuper(SuperExpression expr)
     {
-        if (_function.IsLocal)
-        {
-            return UnWrap(expr);
-        }
-
-        return expr;
+        return Syntax.MakeName(_class.Super);
     }
 
     protected internal override Syntax VisitThis(ThisExpression expr)
@@ -227,21 +245,6 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         if (_function.CapturedVariables.Contains(expr))
         {
             return Syntax.MakeMember(Syntax.MakeName(expr.Name), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
-        }
-
-        return expr as Syntax;
-    }
-
-    private Syntax UnWrap(SuperExpression expr)
-    {
-        if (_function.CaptureVariables.TryGetValue(expr, out var _))
-        {
-            return Syntax.MakeMember(Syntax.MakeName("this"), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
-        }
-
-        if (_function.CapturedVariables.Contains(expr))
-        {
-            return Syntax.MakeMember(Syntax.MakeName("this"), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
         }
 
         return expr as Syntax;

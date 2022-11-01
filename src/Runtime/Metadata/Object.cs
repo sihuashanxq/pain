@@ -1,46 +1,58 @@
 namespace Pain.Runtime.Metadata;
 
-public class Type
+public class MetadataType
 {
-    public Type Super { get; }
-
     public string Name { get; }
-
+    
     public string Module { get; }
 
-    public Dictionary<string, Function> Functions { get; }
+    public MetadataType Super { get; }
+
+
+    public FunctionTable FunctionTable { get; }
+
+    public MetadataType(MetadataType super, string name, string module, FunctionTable functionTable)
+    {
+        Name = name;
+        Super = super;
+        Module = module;
+        FunctionTable = functionTable;
+    }
 }
 
 public class Function
 {
-    public Type Type { get; }
-
     public bool Local { get; }
 
     public byte[] OpCodes { get; }
 
     public int MaxStackSize { get; }
 
+    public MetadataType Type { get; }
+
     public int ParameterCount { get; }
+
+    public Function(MetadataType type, bool @local, byte[] opcodes, int maxStackSize, int parameterCount)
+    {
+        Type = type;
+        Local = local;
+        OpCodes = opcodes;
+        MaxStackSize = maxStackSize;
+        ParameterCount = parameterCount;
+    }
 }
 
-public class RuntimeType
+public class FunctionTable
 {
-    public Type Type { get; }
-}
-
-public class RuntimeFunctionTable
-{
-    public Object Target { get; }
-    
-    public RuntimeFunctionTable Super { get; }
-
     public Dictionary<string, Function> Functions { get; }
-}
 
-public class RuntimeFunction
-{
-    public Object Target { get; }
+    public FunctionTable()
+    {
+        Functions = new Dictionary<string, Function>();
+    }
 
-    public Function Function { get; }
+    public Function GetFunction(string name)
+    {
+        return Functions[name];
+    }
 }

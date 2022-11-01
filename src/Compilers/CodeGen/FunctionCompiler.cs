@@ -376,10 +376,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitSuper(SuperExpression expr)
     {
-        var stack = _emitter.Emit(OpCodeType.Ldarg, 0);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__super__");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
-        return stack;
+        throw new Exception("Super");
     }
 
     protected internal override int VisitThis(ThisExpression expr)

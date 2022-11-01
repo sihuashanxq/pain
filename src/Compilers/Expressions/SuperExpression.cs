@@ -1,6 +1,6 @@
 ﻿namespace Pain.Compilers.Expressions;
 
-public class SuperExpression : Syntax, ICaptureable
+public class SuperExpression : Syntax
 {
     public string Name => "super";
 

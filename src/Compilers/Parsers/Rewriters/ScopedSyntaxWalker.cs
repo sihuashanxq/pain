@@ -52,12 +52,6 @@ public class Scope
         Names[expr.Name] = expr;
     }
 
-    public void AddSuper()
-    {
-        var expr = Syntax.MakeSuper();
-        Names[expr.Name] = expr;
-    }
-
     public bool Capture(ICaptureable expr, FunctionExpression function)
     {
         if (Names.TryGetValue(expr.Name, out var v))
@@ -184,7 +178,6 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
             if (!expr.IsLocal)
             {
                 _scope.AddThis();
-                _scope.AddSuper();
             }
 
             expr.Parameters.ForEach(item => item.Accept(this));
@@ -245,11 +238,6 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitSuper(SuperExpression expr)
     {
-        if (_function.IsLocal)
-        {
-            _scope.Capture(expr, _function);
-        }
-
         return expr;
     }
 
