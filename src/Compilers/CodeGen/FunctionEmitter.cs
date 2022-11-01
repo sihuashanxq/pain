@@ -120,7 +120,6 @@ public class FunctionEmitter
                 break;
             case OpCodeType.Br:
             case OpCodeType.Not:
-            case OpCodeType.Nop:
             case OpCodeType.Swap1_2:
                 stack = 0;
                 break;
@@ -128,7 +127,6 @@ public class FunctionEmitter
             case OpCodeType.Push:
             case OpCodeType.Ldloc:
             case OpCodeType.Ldnull:
-            case OpCodeType.Ldundf:
             case OpCodeType.Ldstr:
             case OpCodeType.Ldnum:
                 stack = 1;

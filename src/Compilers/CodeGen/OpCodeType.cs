@@ -33,8 +33,6 @@ public enum OpCodeType : byte
 
     New,
 
-    Nop,
-
     Pop,
 
     Push,
@@ -46,8 +44,6 @@ public enum OpCodeType : byte
     Ldtoken,
 
     Ldnull,
-
-    Ldundf,
 
     Ldfld,
 

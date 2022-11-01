@@ -1,4 +1,4 @@
-namespace Pain.Compilers
+namespace Pain
 {
     public class Disposable : IDisposable
     {
