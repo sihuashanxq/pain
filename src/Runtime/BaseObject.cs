@@ -2,26 +2,45 @@ namespace Pain.Runtime;
 
 public class BaseObject
 {
-    public static NullObject Null = null!;
+    private ClassObject _class { get; }
 
-    public ClassObject Class { get; }
-
-    public Dictionary<BaseObject, BaseObject> Fields { get; }
+    private Dictionary<BaseObject, BaseObject> _fields { get; }
 
     public BaseObject(ClassObject @class)
     {
-        Class = @class;
-        Fields = new Dictionary<BaseObject, BaseObject>();
+        _class = @class;
+        _fields = new Dictionary<BaseObject, BaseObject>();
     }
 
     public virtual BaseObject GetField(BaseObject name)
     {
-        return Fields[name];
+        if (_fields.TryGetValue(name, out var value))
+        {
+            return value;
+        }
+
+        if (_class.FunctionTable.TryGetFunction(name.ToString()!, out var function))
+        {
+            return new FunctionObject(this, function!);
+        }
+
+        var super = _class.Super;
+        while (super != null)
+        {
+            if (super.FunctionTable.TryGetFunction(name.ToString()!, out function))
+            {
+                return new FunctionObject(this, function!);
+            }
+
+            super = super.Super;
+        }
+
+        return Builtin.Null;
     }
 
     public virtual void SetField(BaseObject name, BaseObject value)
     {
-        Fields[name] = value;
+        _fields[name] = value;
     }
 
     public virtual bool IsTrue()
@@ -32,86 +51,86 @@ public class BaseObject
     [Function("__equal__")]
     public virtual BaseObject __Euqal__(BaseObject obj)
     {
-        return this == obj;
+        return this == obj ? Builtin.True : Builtin.Flase;
     }
 
     [Function("__lessThan__")]
     public virtual BaseObject __LessThan__(BaseObject obj)
     {
-        return false;
+        return Builtin.Flase;
     }
 
     public virtual BaseObject __GreaterThan__(BaseObject obj)
     {
-        return false;
+        return Builtin.Flase;
     }
 
-    public virtual BaseObject OperatorLessThanOrEqual(BaseObject obj)
+    public virtual BaseObject __LessThanOrEqual__(BaseObject obj)
     {
-        return false;
+        return Builtin.Flase;
     }
 
-    public virtual BaseObject OperatorGreatherThanOrEqual(BaseObject obj)
+    public virtual BaseObject __GtreaterThanOrEqual__(BaseObject obj)
     {
-        return false;
+        return Builtin.Flase;
     }
 
-    public virtual BaseObject OperatorLeftShfit(BaseObject obj)
+    public virtual BaseObject __LeftShfit__(BaseObject obj)
     {
-        throw new Exception();
+        return Builtin.Flase;
     }
 
-    public virtual BaseObject OperatorRightShfit(BaseObject obj)
+    public virtual BaseObject __RightShfit__(BaseObject obj)
     {
-        throw new Exception();
+        return Builtin.Flase;
     }
 
-    public virtual BaseObject OperatorXor(BaseObject obj)
-    {
-        throw new Exception();
-    }
-
-    public virtual BaseObject OperatorOr(BaseObject obj)
+    public virtual BaseObject __Xor__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorNot()
+    public virtual BaseObject __Or__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorAnd(BaseObject obj)
+    public virtual BaseObject __Not__()
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorAdd(BaseObject obj)
+    public virtual BaseObject __And__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorSub(BaseObject obj)
+    public virtual BaseObject __Add__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorMul(BaseObject obj)
+    public virtual BaseObject __Sub__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorMod(BaseObject obj)
+    public virtual BaseObject __Mul__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorDiv(BaseObject obj)
+    public virtual BaseObject __Mod__(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual BaseObject OperatorCall(BaseObject[] arguments)
+    public virtual BaseObject __Div__(BaseObject obj)
+    {
+        throw new Exception();
+    }
+
+    public virtual BaseObject __Call__(BaseObject[] arguments)
     {
         throw new Exception();
     }
@@ -121,19 +140,25 @@ public class BooleanObject : BaseObject
 {
     private bool _value;
 
-    public BooleanObject(bool value, ClassObject.Metadata type) : base(type)
+    public BooleanObject(bool value) : base(Builtin.BooleanClass)
     {
         _value = value;
-    }
-
-    public override BaseObject GetField(BaseObject name)
-    {
-        throw new Exception();
     }
 
     public override void SetField(BaseObject name, BaseObject value)
     {
         throw new Exception();
+    }
+
+    public override bool IsTrue()
+    {
+        return _value;
+    }
+
+    [Function("__equal__")]
+    public override BaseObject __Euqal__(BaseObject obj)
+    {
+        return this.IsTrue() == obj.IsTrue() ? Builtin.True : Builtin.Flase;
     }
 }
 
@@ -141,14 +166,9 @@ public class NumberObject : BaseObject
 {
     private double _value;
 
-    public NumberObject(double value, ClassObject.Metadata type) : base(type)
+    public NumberObject(double value) : base(Builtin.NumberClass)
     {
         _value = value;
-    }
-
-    public override BaseObject GetField(BaseObject name)
-    {
-        throw new Exception();
     }
 
     public override void SetField(BaseObject name, BaseObject value)
@@ -161,7 +181,7 @@ public class ArrayObject : BaseObject
 {
     private List<BaseObject> _items;
 
-    public ArrayObject(ClassObject.Metadata type) : base(type)
+    public ArrayObject() : base(Builtin.ArrayClass)
     {
         _items = new List<BaseObject>();
     }
@@ -179,8 +199,9 @@ public class ArrayObject : BaseObject
 
 public class NullObject : BaseObject
 {
-    public NullObject(double value, ClassObject.Metadata type) : base(type)
+    public NullObject() : base(Builtin.NullClass)
     {
+        
     }
 
     public override BaseObject GetField(BaseObject name)
@@ -200,7 +221,7 @@ public class FunctionObject : BaseObject
 
     public BaseObject Target { get; }
 
-    public FunctionObject(BaseObject target, Function function) : base(null!)
+    public FunctionObject(BaseObject target, Function function) : base(Builtin.FunctionClass)
     {
         Target = target;
         Function = function;
@@ -244,11 +265,34 @@ public class ClassObject : BaseObject
     }
 }
 
+public class Builtin
+{
+    public static ClassObject ObjectClass;
+
+    public static ClassObject StringClass;
+
+    public static ClassObject FunctionClass;
+
+    public static ClassObject BooleanClass;
+
+    public static ClassObject NumberClass;
+
+    public static ClassObject NullClass;
+
+    public static ClassObject ArrayClass;
+
+    public static NullObject Null = new NullObject();
+
+    public static BooleanObject True = new BooleanObject(true);
+
+    public static BooleanObject Flase = new BooleanObject(false);
+}
+
 public class StringObject : BaseObject
 {
     private string _value;
 
-    public StringObject(string value, ClassObject.Metadata type) : base(type)
+    public StringObject(string value, ClassObject @class) : base(@class)
     {
         _value = value;
     }
@@ -283,19 +327,19 @@ public class StringObject : BaseObject
         return string.CompareOrdinal(_value, obj.ToString()) == 1;
     }
 
-    public override bool OperatorLessThanOrEqual(BaseObject obj)
+    public override bool __LessThanOrEqual__(BaseObject obj)
     {
         return string.CompareOrdinal(_value, obj.ToString()) != 1;
     }
 
-    public override bool OperatorGreatherThanOrEqual(BaseObject obj)
+    public override bool __GtreaterThanOrEqual__(BaseObject obj)
     {
         return string.CompareOrdinal(_value, obj.ToString()) != -1;
     }
 
-    public override BaseObject OperatorAdd(BaseObject obj)
+    public override BaseObject __And__(BaseObject obj)
     {
-        return new RuntimeString(_value + obj.ToString(), Class);
+        return new RuntimeString(_value + obj.ToString(), _class);
     }
 }
 

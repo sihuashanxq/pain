@@ -26,7 +26,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorAdd(v2));
+                            ctx.Stack.Push(v1.__And__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -34,7 +34,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorMod(v2));
+                            ctx.Stack.Push(v1.__Mod__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -42,7 +42,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorMul(v2));
+                            ctx.Stack.Push(v1.__Mul__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -52,7 +52,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorSub(v2));
+                            ctx.Stack.Push(v1.__Sub__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -60,7 +60,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorDiv(v2));
+                            ctx.Stack.Push(v1.__Div__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -68,7 +68,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorLeftShfit(v2));
+                            ctx.Stack.Push(v1.__LeftShfit__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -76,7 +76,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorRightShfit(v2));
+                            ctx.Stack.Push(v1.__RightShfit__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -84,7 +84,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorXor(v2));
+                            ctx.Stack.Push(v1.__Xor__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -92,7 +92,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorOr(v2));
+                            ctx.Stack.Push(v1.__Or__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -100,14 +100,14 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorAnd(v2));
+                            ctx.Stack.Push(v1.__And__(v2));
                             ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Not:
                         {
                             var v1 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorNot());
+                            ctx.Stack.Push(v1.__Not__());
                             ctx.IP += 1;
                         }
                         break;
@@ -123,7 +123,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorGreatherThanOrEqual(v2));
+                            ctx.Stack.Push(v1.__GtreaterThanOrEqual__(v2));
                             ctx.IP += 1;
                         }
                         break;

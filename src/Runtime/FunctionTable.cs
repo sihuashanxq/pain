@@ -2,25 +2,26 @@ namespace Pain.Runtime;
 
 public class FunctionTable
 {
-    public Dictionary<string, Function> Functions { get; }
+    private Dictionary<string, Function> _functions { get; }
 
     public FunctionTable()
     {
-        Functions = new Dictionary<string, Function>();
+        _functions = new Dictionary<string, Function>();
     }
 
-    public Function? GetFunction(string name)
+    public bool TryGetFunction(string name, out Function? function)
     {
-        if (Functions.TryGetValue(name, out var function))
+        if (_functions.TryGetValue(name, out function))
         {
-            return function;
+            return true;
         }
 
-        return null;
+        function = null;
+        return false;
     }
 
     public void AddFunction(string name, Function function)
     {
-        Functions[name] = function;
+        _functions[name] = function;
     }
 }
