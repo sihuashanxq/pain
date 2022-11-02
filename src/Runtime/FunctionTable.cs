@@ -1,4 +1,4 @@
-namespace Pain.Runtime.Metadata;
+namespace Pain.Runtime;
 
 public class FunctionTable
 {

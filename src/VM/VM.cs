@@ -1,16 +1,19 @@
-namespace Pain.VM;
 using Pain.Runtime;
 using Pain.Compilers.CodeGen;
+namespace Pain.VM;
 public class VM
 {
-    private ExecutionContextStack _stack;
+    private readonly ClassLoader _classLoader;
 
-    public VM()
+    private readonly ExecutionContextStack _stack;
+
+    public VM(ClassLoader classLoader)
     {
         _stack = new ExecutionContextStack();
+        _classLoader = classLoader;
     }
 
-    public RuntimeObject Execute(RuntimeFunction function, RuntimeObject[] arguments)
+    public Runtime.BaseObject Execute(FunctionObject function, Runtime.BaseObject[] arguments)
     {
         using (_stack.Push(function, arguments))
         {
@@ -112,7 +115,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorGreatherThan(v2));
+                            ctx.Stack.Push(v1.__GreaterThan__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -128,7 +131,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.OperatorEqual(v2));
+                            ctx.Stack.Push(v1.__Euqal__(v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -158,7 +161,7 @@ public class VM
                         break;
                     case OpCodeType.Ldnull:
                         {
-                            ctx.Stack.Push(RuntimeObject.Null);
+                            ctx.Stack.Push(Runtime.BaseObject.Null);
                             ctx.IP += 1;
                         }
                         break;
@@ -210,17 +213,16 @@ public class VM
                         break;
                     case OpCodeType.Ldtoken:
                         {
-                            var token = ctx.Stack.Pop();
-                            // load metadata type
-                            // ctx.Stack.Push(load metadata type);
+                            var token = ctx.Stack.Pop().ToString()!;
+                            var metadata = _classLoader.Load(token);
+                            ctx.Stack.Push(metadata);
                             ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.New:
                         {
-                            var type = ctx.Stack.Pop();
-                            //  type.New();
-                            // ctx.Stack.Push(type.New())
+                            var metadata = ctx.Stack.Pop() as ClassObject;
+                            ctx.Stack.Push(metadata!.CreateInstance());
                             ctx.IP += 1;
                         }
                         break;
@@ -262,13 +264,13 @@ public class VM
                     case OpCodeType.Call:
                         {
                             var n = ctx.ReadInt32();
-                            var args = new RuntimeObject[n];
+                            var args = new Runtime.BaseObject[n];
                             for (var i = n - 1; i >= 0; i--)
                             {
                                 arguments[i] = ctx.Stack.Pop();
                             }
 
-                            var func = ctx.Stack.Pop() as RuntimeFunction;
+                            var func = ctx.Stack.Pop() as FunctionObject;
                             var value = Execute(func!, new[] { func!.Target }.Concat(args).ToArray());
                             ctx.Stack.Push(value);
                             ctx.IP += 5;
@@ -292,7 +294,7 @@ public class VM
                 }
             }
 
-            return RuntimeObject.Null;
+            return Runtime.BaseObject.Null;
         }
     }
 }
@@ -301,46 +303,46 @@ internal class ExecutionContext
 {
     public int IP { get; internal set; }
 
-    public Stack<RuntimeObject> Stack { get; }
+    public Stack<Runtime.BaseObject> Stack { get; }
 
-    public RuntimeFunction Function { get; }
+    public FunctionObject Function { get; }
 
-    public RuntimeObject[] Arguments { get; }
+    public Runtime.BaseObject[] Arguments { get; }
 
-    public RuntimeObject[] Varaibles { get; }
+    public Runtime.BaseObject[] Varaibles { get; }
 
-    public ExecutionContext(RuntimeFunction function, RuntimeObject[] arguments)
+    public ExecutionContext(FunctionObject function, Runtime.BaseObject[] arguments)
     {
         IP = 0;
-        Stack = new Stack<RuntimeObject>();
+        Stack = new Stack<Runtime.BaseObject>();
         Function = function;
         Arguments = arguments;
-        Varaibles = new RuntimeObject[function.Metadata.MaxStackSize];
+        Varaibles = new Runtime.BaseObject[function.Function.MaxStackSize];
     }
 
     public byte ReadByte()
     {
-        return Function.Metadata.OpCodes[IP];
+        return Function.Function.OpCodes[IP];
     }
 
     public Int32 ReadInt32()
     {
-        return BitConverter.ToInt32(Function.Metadata.OpCodes, IP);
+        return BitConverter.ToInt32(Function.Function.OpCodes, IP);
     }
 
     public Int64 ReadInt64()
     {
-        return BitConverter.ToInt64(Function.Metadata.OpCodes, IP);
+        return BitConverter.ToInt64(Function.Function.OpCodes, IP);
     }
 
     public double ReadDouble()
     {
-        return BitConverter.ToDouble(Function.Metadata.OpCodes, IP);
+        return BitConverter.ToDouble(Function.Function.OpCodes, IP);
     }
 
     public bool CanExecution()
     {
-        return IP < Function.Metadata.OpCodes.Length;
+        return IP < Function.Function.OpCodes.Length;
     }
 }
 
@@ -362,7 +364,7 @@ internal class ExecutionContextStack
         _current = _stack.Pop();
     }
 
-    internal IDisposable Push(RuntimeFunction function, RuntimeObject[] arguments)
+    internal IDisposable Push(FunctionObject function, Runtime.BaseObject[] arguments)
     {
         var ctx = new ExecutionContext(function, arguments);
         _current = ctx;

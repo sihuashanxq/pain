@@ -1,30 +1,25 @@
 namespace Pain.Runtime;
-using Pain.Runtime.Metadata;
 
-public class RuntimeObject
+public class BaseObject
 {
-    public static RuntimeNull Null;
+    public static NullObject Null = null!;
 
-    public static RuntimeBoolean True;
+    public ClassObject Class { get; }
 
-    public static RuntimeBoolean False;
+    public Dictionary<BaseObject, BaseObject> Fields { get; }
 
-    public MetadataType Type { get; }
-
-    public Dictionary<RuntimeObject, RuntimeObject> Fields { get; }
-
-    public RuntimeObject(MetadataType type)
+    public BaseObject(ClassObject @class)
     {
-        Type = type;
-        Fields = new Dictionary<RuntimeObject, RuntimeObject>();
+        Class = @class;
+        Fields = new Dictionary<BaseObject, BaseObject>();
     }
 
-    public virtual RuntimeObject GetField(RuntimeObject name)
+    public virtual BaseObject GetField(BaseObject name)
     {
         return Fields[name];
     }
 
-    public virtual void SetField(RuntimeObject name, RuntimeObject value)
+    public virtual void SetField(BaseObject name, BaseObject value)
     {
         Fields[name] = value;
     }
@@ -35,211 +30,235 @@ public class RuntimeObject
     }
 
     [Function("__equal__")]
-    public virtual RuntimeObject OperatorEqual(RuntimeObject obj)
+    public virtual BaseObject __Euqal__(BaseObject obj)
     {
         return this == obj;
     }
 
     [Function("__lessThan__")]
-    public virtual RuntimeObject OperatorLessThan(RuntimeObject obj)
+    public virtual BaseObject __LessThan__(BaseObject obj)
     {
         return false;
     }
 
-    public virtual RuntimeObject OperatorGreatherThan(RuntimeObject obj)
+    public virtual BaseObject __GreaterThan__(BaseObject obj)
     {
         return false;
     }
 
-    public virtual RuntimeObject OperatorLessThanOrEqual(RuntimeObject obj)
+    public virtual BaseObject OperatorLessThanOrEqual(BaseObject obj)
     {
         return false;
     }
 
-    public virtual RuntimeObject OperatorGreatherThanOrEqual(RuntimeObject obj)
+    public virtual BaseObject OperatorGreatherThanOrEqual(BaseObject obj)
     {
         return false;
     }
 
-    public virtual RuntimeObject OperatorLeftShfit(RuntimeObject obj)
+    public virtual BaseObject OperatorLeftShfit(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorRightShfit(RuntimeObject obj)
+    public virtual BaseObject OperatorRightShfit(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorXor(RuntimeObject obj)
+    public virtual BaseObject OperatorXor(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorOr(RuntimeObject obj)
+    public virtual BaseObject OperatorOr(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorNot()
+    public virtual BaseObject OperatorNot()
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorAnd(RuntimeObject obj)
+    public virtual BaseObject OperatorAnd(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorAdd(RuntimeObject obj)
+    public virtual BaseObject OperatorAdd(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorSub(RuntimeObject obj)
+    public virtual BaseObject OperatorSub(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorMul(RuntimeObject obj)
+    public virtual BaseObject OperatorMul(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorMod(RuntimeObject obj)
+    public virtual BaseObject OperatorMod(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorDiv(RuntimeObject obj)
+    public virtual BaseObject OperatorDiv(BaseObject obj)
     {
         throw new Exception();
     }
 
-    public virtual RuntimeObject OperatorCall(RuntimeObject[] arguments)
+    public virtual BaseObject OperatorCall(BaseObject[] arguments)
     {
         throw new Exception();
     }
 }
 
-public class RuntimeBoolean : RuntimeObject
+public class BooleanObject : BaseObject
 {
     private bool _value;
 
-    public RuntimeBoolean(bool value, MetadataType type) : base(type)
+    public BooleanObject(bool value, ClassObject.Metadata type) : base(type)
     {
         _value = value;
     }
 
-    public override RuntimeObject GetField(RuntimeObject name)
+    public override BaseObject GetField(BaseObject name)
     {
         throw new Exception();
     }
 
-    public override void SetField(RuntimeObject name, RuntimeObject value)
+    public override void SetField(BaseObject name, BaseObject value)
     {
         throw new Exception();
     }
 }
 
-public class RuntimeNumber : RuntimeObject
+public class NumberObject : BaseObject
 {
     private double _value;
 
-    public RuntimeNumber(double value, MetadataType type) : base(type)
+    public NumberObject(double value, ClassObject.Metadata type) : base(type)
     {
         _value = value;
     }
 
-    public override RuntimeObject GetField(RuntimeObject name)
+    public override BaseObject GetField(BaseObject name)
     {
         throw new Exception();
     }
 
-    public override void SetField(RuntimeObject name, RuntimeObject value)
-    {
-        throw new Exception();
-    }
-}
-
-public class RuntimeArray : RuntimeObject
-{
-    private List<RuntimeObject> _items;
-
-    public RuntimeArray(MetadataType type) : base(type)
-    {
-        _items = new List<RuntimeObject>();
-    }
-
-    public override RuntimeObject GetField(RuntimeObject name)
-    {
-        throw new Exception();
-    }
-
-    public override void SetField(RuntimeObject name, RuntimeObject value)
+    public override void SetField(BaseObject name, BaseObject value)
     {
         throw new Exception();
     }
 }
 
-public class RuntimeNull : RuntimeObject
+public class ArrayObject : BaseObject
 {
-    public RuntimeNull(double value, MetadataType type) : base(type)
+    private List<BaseObject> _items;
+
+    public ArrayObject(ClassObject.Metadata type) : base(type)
     {
+        _items = new List<BaseObject>();
     }
 
-    public override RuntimeObject GetField(RuntimeObject name)
+    public override BaseObject GetField(BaseObject name)
     {
         throw new Exception();
     }
 
-    public override void SetField(RuntimeObject name, RuntimeObject value)
+    public override void SetField(BaseObject name, BaseObject value)
     {
         throw new Exception();
     }
 }
 
-public class RuntimeFunction : RuntimeObject
+public class NullObject : BaseObject
 {
-    public Function Metadata { get; }
+    public NullObject(double value, ClassObject.Metadata type) : base(type)
+    {
+    }
 
-    public RuntimeObject Target { get; }
+    public override BaseObject GetField(BaseObject name)
+    {
+        throw new Exception();
+    }
 
-    public MemoryStream OpCodes { get; }
+    public override void SetField(BaseObject name, BaseObject value)
+    {
+        throw new Exception();
+    }
+}
 
-    public RuntimeFunction(RuntimeObject target, Function function) : base(null!)
+public class FunctionObject : BaseObject
+{
+    public Function Function { get; }
+
+    public BaseObject Target { get; }
+
+    public FunctionObject(BaseObject target, Function function) : base(null!)
     {
         Target = target;
-        OpCodes = new MemoryStream(function.OpCodes);
-        Metadata = function;
+        Function = function;
     }
 
-    public override RuntimeObject GetField(RuntimeObject name)
+    public override BaseObject GetField(BaseObject name)
     {
         throw new Exception();
     }
 
-    public override void SetField(RuntimeObject name, RuntimeObject value)
+    public override void SetField(BaseObject name, BaseObject value)
     {
         throw new Exception();
     }
 }
 
-public class RuntimeString : RuntimeObject
+public class ClassObject : BaseObject
+{
+    public string Name { get; }
+
+    public string Module { get; }
+
+    public string Token { get; }
+
+    public ClassObject Super { get; }
+
+    public FunctionTable FunctionTable { get; }
+
+    public ClassObject(ClassObject super, string name, string module, FunctionTable functionTable) : base(null)
+    {
+        Name = name;
+        Super = super;
+        Token = $"{module}.{name}";
+        Module = module;
+        FunctionTable = functionTable;
+    }
+
+    public BaseObject CreateInstance()
+    {
+        return new BaseObject(this);
+    }
+}
+
+public class StringObject : BaseObject
 {
     private string _value;
 
-    public RuntimeString(string value, MetadataType type) : base(type)
+    public StringObject(string value, ClassObject.Metadata type) : base(type)
     {
         _value = value;
     }
 
-    public override RuntimeObject GetField(RuntimeObject name)
+    public override BaseObject GetField(BaseObject name)
     {
         throw new Exception();
     }
 
-    public override void SetField(RuntimeObject name, RuntimeObject value)
+    public override void SetField(BaseObject name, BaseObject value)
     {
         throw new Exception();
     }
@@ -249,34 +268,34 @@ public class RuntimeString : RuntimeObject
         return !string.IsNullOrEmpty(_value);
     }
 
-    public override bool OperatorEqual(RuntimeObject obj)
+    public override bool __Euqal__(BaseObject obj)
     {
         return _value == obj.ToString();
     }
 
-    public override bool OperatorLessThan(RuntimeObject obj)
+    public override bool __LessThan__(BaseObject obj)
     {
         return string.CompareOrdinal(_value, obj.ToString()) == -1;
     }
 
-    public override bool OperatorGreatherThan(RuntimeObject obj)
+    public override bool __GreaterThan__(BaseObject obj)
     {
         return string.CompareOrdinal(_value, obj.ToString()) == 1;
     }
 
-    public override bool OperatorLessThanOrEqual(RuntimeObject obj)
+    public override bool OperatorLessThanOrEqual(BaseObject obj)
     {
         return string.CompareOrdinal(_value, obj.ToString()) != 1;
     }
 
-    public override bool OperatorGreatherThanOrEqual(RuntimeObject obj)
+    public override bool OperatorGreatherThanOrEqual(BaseObject obj)
     {
         return string.CompareOrdinal(_value, obj.ToString()) != -1;
     }
 
-    public override RuntimeObject OperatorAdd(RuntimeObject obj)
+    public override BaseObject OperatorAdd(BaseObject obj)
     {
-        return new RuntimeString(_value + obj.ToString(), Type);
+        return new RuntimeString(_value + obj.ToString(), Class);
     }
 }
 
