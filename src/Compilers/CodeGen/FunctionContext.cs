@@ -1,86 +1,105 @@
 namespace Pain.Compilers.CodeGen;
-
+using Pain.Compilers.Expressions;
+using Pain.Compilers.Parsers.Definitions;
 public class FunctionContext
 {
     public string Name { get; }
 
     public bool Static { get; }
 
-    public TypeContext Type { get; }
+    public ClassContext Class { get; }
 
     public FunctionFrame Frame { get; }
 
-    public Dictionary<string, FunctionContext> Functions { get; }
+    public FunctionExpression Expression { get; }
 
-    public FunctionContext(string name, TypeContext type)
+    public FunctionContext(FunctionExpression expression, ClassContext @class)
     {
-        Name = name;
-        Type = type;
+        Name = expression.Name;
+        Class = @class;
         Frame = new FunctionFrame();
-        Functions = new Dictionary<string, FunctionContext>();
+        Expression = expression;
     }
 }
 
-public class TypeContext
+public class ClassContext
 {
     public string Name { get; }
 
+    public string Token { get; }
+
     public ModuleContext Module { get; }
+
+    public ClassDefinition Definition { get; }
 
     public Dictionary<string, FunctionContext> Functions { get; }
 
-    internal TypeContext(string name, ModuleContext module)
+    internal ClassContext(ClassDefinition definition, ModuleContext module)
     {
-        Name = name;
+        Name = definition.Name;
+        Token = $"{module.Path}.{definition.Name}";
         Module = module;
+        Definition = definition;
         Functions = new Dictionary<string, FunctionContext>();
     }
 
-    public FunctionContext CreateFunction(string name)
+    public FunctionContext CreateFunction(FunctionExpression function)
     {
-        if (Functions.ContainsKey(name))
+        if (Functions.ContainsKey(function.Name))
         {
-            throw new System.Exception($"method {name} has defined!");
+            throw new System.Exception($"method {function.Name} has defined!");
         }
 
-        return Functions[name] = new FunctionContext(name, this);
+        return Functions[function.Name] = new FunctionContext(expression, this);
     }
 }
+
 public class ModuleContext
 {
     public string Path { get; }
 
-    public ConstantPool<string> Strings;
+    public Dictionary<string, ClassContext> Classes { get; }
 
-    public ConstantPool<double> Numbers;
-
-    public Dictionary<string, TypeContext> Types { get; }
+    public Dictionary<string, ImportedClass> ImportedClasses { get; }
 
     internal ModuleContext(string path)
     {
         Path = path;
-        Strings = new ConstantPool<string>();
-        Numbers = new ConstantPool<double>();
-        Types = new Dictionary<string, TypeContext>();
+        Classes = new Dictionary<string, ClassContext>();
+        ImportedClasses = new Dictionary<string, ImportedClass>();
     }
 
-    public int Pooling(string v)
+    public ClassContext AddClass(Pain.Compilers.Parsers.Definitions.ClassDefinition @class)
     {
-        throw new Exception();
-    }
-
-    public int Pooling(double v)
-    {
-        throw new Exception();
-    }
-
-    public TypeContext DefineType(string name)
-    {
-        if (Types.ContainsKey(name))
+        if (Classes.ContainsKey(@class.Name))
         {
-            throw new System.Exception($"type :{name} has defined!");
+            throw new System.Exception($"type :{@class.Name} has defined!");
         }
 
-        return Types[name] = new TypeContext(name, this);
+        return Classes[@class.Name] = new ClassContext(@class, this);
+    }
+
+    public void AddImporedClass(ImportedClass importedClass)
+    {
+        ImportedClasses[importedClass.Alias] = importedClass;
+    }
+}
+
+public class ImportedClass
+{
+    public string Name { get; }
+    public string Token { get; }
+
+    public string Alias { get; }
+
+    public string Module { get; }
+
+
+    public ImportedClass(string module, string name, string alias)
+    {
+        Name = name;
+        Alias = alias;
+        Token = $"{module}.{name}";
+        Module = module;
     }
 }

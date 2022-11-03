@@ -1,6 +1,6 @@
 
 using Pain.Compilers.Expressions;
-
+using Pain.Runtime;
 namespace Pain.Compilers.CodeGen;
 
 public class FunctionCompiler : Expressions.SyntaxVisitor<int>
@@ -9,10 +9,23 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     private readonly FunctionEmitter _emitter;
 
-    public FunctionCompiler(FunctionContext function)
+    public FunctionCompiler(FunctionContext function, Strings strings)
     {
+        _emitter = new FunctionEmitter(function, strings);
         _function = function;
-        _emitter = new FunctionEmitter(function);
+    }
+
+    public Function Compile()
+    {
+        Visit(_function.Expression);
+        var stackSize = _function.Frame.StackSize;
+        var parameterCount = _function.Expression.Parameters.Length;
+        return new Function(_function.Name, false, _emitter.GetBuffer(), stackSize, parameterCount, null!);
+    }
+
+    public static Function CompileFunction(FunctionContext function, Strings strings)
+    {
+        return new FunctionCompiler(function, strings).Compile();
     }
 
     protected internal override int VisitBinary(BinaryExpression expr)
@@ -26,7 +39,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
         if (expr.Type == SyntaxType.Or)
         {
-            using (_emitter.NewScope())
+            using (_emitter.Scope())
             {
                 var next = _emitter.CreateLabel(Label.Next);
 
@@ -43,7 +56,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
         if (expr.Type == SyntaxType.And)
         {
-            using (_emitter.NewScope())
+            using (_emitter.Scope())
             {
                 var next = _emitter.CreateLabel(Label.Next);
 
@@ -123,7 +136,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal virtual int VisitAssign(BinaryExpression expr)
     {
         var stack = 0;
-        using (_emitter.NewScope())
+        using (_emitter.Scope())
         {
             switch (expr.Left.Type)
             {
@@ -148,7 +161,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitBlock(BlockExpression blockExpression)
     {
-        using (_emitter.NewScope())
+        using (_emitter.Scope())
         {
             var stack = 0;
 
@@ -230,7 +243,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitFor(ForExpression forExpression)
     {
-        using (_emitter.NewScope())
+        using (_emitter.Scope())
         {
             var end = _emitter.CreateLabel(Label.Break);
             var next = _emitter.CreateLabel(Label.Continue);
@@ -263,7 +276,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitIf(IfExpression ifExpression)
     {
-        using (_emitter.NewScope())
+        using (_emitter.Scope())
         {
             var stack = 0;
             var ifEnd = _emitter.CreateLabel(Label.End);
@@ -282,7 +295,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             stack += _emitter.Emit(OpCodeType.Brtrue, ifTrue.Target);
             stack += _emitter.Emit(OpCodeType.Br, ifFalse.Target);
 
-            using (_emitter.NewScope())
+            using (_emitter.Scope())
             {
                 _emitter.BindLabel(ifTrue);
 
@@ -293,7 +306,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
             if (ifExpression.IfFalse != null)
             {
-                using (_emitter.NewScope())
+                using (_emitter.Scope())
                 {
                     _emitter.BindLabel(ifFalse);
 
@@ -325,17 +338,26 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         var variable = _emitter.GetVariable(expr.Name);
         if (variable != null)
         {
+            return _emitter.Emit(OpCodeType.Ldloc, variable.Slot).AreEqual(1);
         }
 
-        if (_function.Type.Module.Types.TryGetValue(expr.Name, out var type))
+        if (_function.Class.Module.Classes.TryGetValue(expr.Name, out var @class))
         {
             var stack = 0;
-            stack += _emitter.Emit(OpCodeType.Ldstr, $"{type.Module.Path}.{expr.Name}");
+            stack += _emitter.Emit(OpCodeType.Ldstr, @class.Token);
             stack += _emitter.Emit(OpCodeType.Ldtoken);
             return stack.AreEqual(1);
         }
 
-        throw new NotImplementedException();
+        if (_function.Class.Module.ImportedClasses.TryGetValue(expr.Name, out var importedClass))
+        {
+            var stack = 0;
+            stack += _emitter.Emit(OpCodeType.Ldstr, importedClass.Token);
+            stack += _emitter.Emit(OpCodeType.Ldtoken);
+            return stack.AreEqual(1);
+        }
+
+        throw new Exception($"{expr.Name} was not found");
     }
 
     protected internal override int VisitNew(NewExpression expr)
@@ -343,11 +365,12 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         var stack = 0;
         stack += expr.Class.Accept(this).AreEqual(1);
         stack += _emitter.Emit(OpCodeType.New);
+        stack += _emitter.Emit(OpCodeType.Dup);
         stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
         stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += expr.Arguments.Sum(argument => argument.Accept(this));
-        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length);
-
+        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length + 1);
+        stack += _emitter.Emit(OpCodeType.Pop, 1);
         return stack.AreEqual(1);
     }
 
@@ -436,7 +459,8 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         stack += _emitter.Emit(OpCodeType.Dup);
         stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
         stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Call, 0);
+        stack += _emitter.Emit(OpCodeType.Call, 1);
+        stack += _emitter.Emit(OpCodeType.Pop, 1);
 
         for (var i = 0; i < expr.Items.Length; i++)
         {

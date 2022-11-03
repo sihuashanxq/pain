@@ -1,20 +1,27 @@
-using Pain.Runtime;
 using Pain.Compilers.CodeGen;
-namespace Pain.VM;
-public class VM
+namespace Pain.Runtime.VM;
+public class VirtualMachine
 {
+    private readonly Strings _strings;
+
     private readonly ClassLoader _classLoader;
 
     private readonly ExecutionContextStack _stack;
 
-    public VM(ClassLoader classLoader)
+    public VirtualMachine(ClassLoader classLoader, Strings strings)
     {
         _stack = new ExecutionContextStack();
+        _strings = strings;
         _classLoader = classLoader;
     }
 
-    public Runtime.BaseObject Execute(FunctionObject function, Runtime.BaseObject[] arguments)
+    public IObject? Execute(RuntimeFunction function, IObject[] arguments)
     {
+        if (function.Function.Native)
+        {
+            return function.Function.Method.Invoke(null, arguments.Select(i => i as object).ToArray()) as IObject;
+        }
+
         using (_stack.Push(function, arguments))
         {
             var ctx = _stack.Current!;
@@ -26,7 +33,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__And__(v2));
+                            ctx.Stack.Push(v1.And(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -34,7 +41,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Mod__(v2));
+                            ctx.Stack.Push(v1.Mod(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -42,7 +49,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Mul__(v2));
+                            ctx.Stack.Push(v1.Mul(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -52,7 +59,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Sub__(v2));
+                            ctx.Stack.Push(v1.Sub(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -60,7 +67,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Div__(v2));
+                            ctx.Stack.Push(v1.Div(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -68,7 +75,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__LeftShfit__(v2));
+                            ctx.Stack.Push(v1.LeftShfit(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -76,7 +83,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__RightShfit__(v2));
+                            ctx.Stack.Push(v1.RightShfit(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -84,7 +91,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Xor__(v2));
+                            ctx.Stack.Push(v1.Xor(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -92,7 +99,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Or__(v2));
+                            ctx.Stack.Push(v1.Or(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -100,14 +107,14 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__And__(v2));
+                            ctx.Stack.Push(v1.And(this, v2));
                             ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Not:
                         {
                             var v1 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Not__());
+                            ctx.Stack.Push(v1.Not(this));
                             ctx.IP += 1;
                         }
                         break;
@@ -115,7 +122,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__GreaterThan__(v2));
+                            ctx.Stack.Push(v1.GreaterThan(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -123,7 +130,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__GtreaterThanOrEqual__(v2));
+                            ctx.Stack.Push(v1.GtreaterThanOrEqual(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -131,7 +138,7 @@ public class VM
                         {
                             var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.__Euqal__(v2));
+                            ctx.Stack.Push(v1.Euqal(this, v2));
                             ctx.IP += 1;
                         }
                         break;
@@ -161,7 +168,7 @@ public class VM
                         break;
                     case OpCodeType.Ldnull:
                         {
-                            ctx.Stack.Push(Runtime.BaseObject.Null);
+                            ctx.Stack.Push(RuntimeNull.Null);
                             ctx.IP += 1;
                         }
                         break;
@@ -169,30 +176,23 @@ public class VM
                         {
                             var obj = ctx.Stack.Pop();
                             var name = ctx.Stack.Pop();
-                            ctx.Stack.Push(obj.GetField(name));
+                            ctx.Stack.Push(obj.GetField(this, name));
                             ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Ldstr:
-                        /*
-                            {
-                                var id = codes.ReadInt32();
-                                var v2 = _main.Module.Strings.GetPooling(id);
-                                _stack._stack.Push(v2);
-                                _ip += 5;
-                            }
-                            */
+                        {
+                            var token = ctx.ReadInt32();
+                            var str = _strings.GetString(token);
+                            ctx.Stack.Push(new RuntimeString(str));
+                            ctx.IP += 5;
+                        }
                         break;
                     case OpCodeType.Ldnum:
-                        /*
-                            {
-                                var id = codes.ReadInt32();
-                                var v2 = _main.Module.Numbers.GetPooling(id);
-                                _stack._stack.Push(v2);
-                                _ip += 5;
-                            }
-                            break;
-                            */
+                        {
+                            ctx.Stack.Push(new RuntimeNumber(ctx.ReadDouble()));
+                            ctx.IP += 9;
+                        }
                         break;
                     case OpCodeType.Stloc:
                         {
@@ -207,22 +207,22 @@ public class VM
                             var obj = ctx.Stack.Pop();
                             var name = ctx.Stack.Pop();
                             var value = ctx.Stack.Pop();
-                            obj.SetField(name, value);
+                            obj.SetField(this, name, value);
                             ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Ldtoken:
                         {
                             var token = ctx.Stack.Pop().ToString()!;
-                            var metadata = _classLoader.Load(token);
-                            ctx.Stack.Push(metadata);
+                            var @class = _classLoader.Load(token);
+                            ctx.Stack.Push(@class);
                             ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.New:
                         {
-                            var metadata = ctx.Stack.Pop() as ClassObject;
-                            ctx.Stack.Push(metadata!.CreateInstance());
+                            var @class = ctx.Stack.Pop() as RuntimeClass;
+                            ctx.Stack.Push(@class!.CreateInstance());
                             ctx.IP += 1;
                         }
                         break;
@@ -233,7 +233,7 @@ public class VM
                     case OpCodeType.Brfalse:
                         {
                             var v = ctx.Stack.Pop();
-                            if (!v.IsTrue())
+                            if (!v.ToBoolean(this))
                             {
                                 ctx.IP = ctx.ReadInt32();
                             }
@@ -246,7 +246,7 @@ public class VM
                     case OpCodeType.Brtrue:
                         {
                             var v = ctx.Stack.Pop();
-                            if (v.IsTrue())
+                            if (v.ToBoolean(this))
                             {
                                 ctx.IP = ctx.ReadInt32();
                             }
@@ -264,15 +264,15 @@ public class VM
                     case OpCodeType.Call:
                         {
                             var n = ctx.ReadInt32();
-                            var args = new Runtime.BaseObject[n];
+                            var args = new IObject[n];
                             for (var i = n - 1; i >= 0; i--)
                             {
                                 arguments[i] = ctx.Stack.Pop();
                             }
 
-                            var func = ctx.Stack.Pop() as FunctionObject;
+                            var func = ctx.Stack.Pop() as RuntimeFunction;
                             var value = Execute(func!, new[] { func!.Target }.Concat(args).ToArray());
-                            ctx.Stack.Push(value);
+                            ctx.Stack.Push(value!);
                             ctx.IP += 5;
                         }
                         break;
@@ -294,7 +294,7 @@ public class VM
                 }
             }
 
-            return Runtime.BaseObject.Null;
+            return RuntimeNull.Null;
         }
     }
 }
@@ -303,21 +303,21 @@ internal class ExecutionContext
 {
     public int IP { get; internal set; }
 
-    public Stack<Runtime.BaseObject> Stack { get; }
+    public Stack<IObject> Stack { get; }
 
-    public FunctionObject Function { get; }
+    public RuntimeFunction Function { get; }
 
-    public Runtime.BaseObject[] Arguments { get; }
+    public IObject[] Arguments { get; }
 
-    public Runtime.BaseObject[] Varaibles { get; }
+    public IObject[] Varaibles { get; }
 
-    public ExecutionContext(FunctionObject function, Runtime.BaseObject[] arguments)
+    public ExecutionContext(RuntimeFunction function, IObject[] arguments)
     {
         IP = 0;
-        Stack = new Stack<Runtime.BaseObject>();
+        Stack = new Stack<IObject>();
         Function = function;
         Arguments = arguments;
-        Varaibles = new Runtime.BaseObject[function.Function.MaxStackSize];
+        Varaibles = new IObject[function.Function.MaxStackSize];
     }
 
     public byte ReadByte()
@@ -364,7 +364,7 @@ internal class ExecutionContextStack
         _current = _stack.Pop();
     }
 
-    internal IDisposable Push(FunctionObject function, Runtime.BaseObject[] arguments)
+    internal IDisposable Push(RuntimeFunction function, IObject[] arguments)
     {
         var ctx = new ExecutionContext(function, arguments);
         _current = ctx;

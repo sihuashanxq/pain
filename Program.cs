@@ -22,7 +22,13 @@ var code = @"
 
 var lexer = new Pain.Compilers.Parsers.Lexer("ddd", code);
 var parser = new Pain.Compilers.Parsers.Parser(lexer);
+var strings = new Pain.Strings();
+var classLoader = new Pain.Runtime.ClassLoader(token =>
+{
+    return null;
+});
 
+var vm = new Pain.Runtime.VM.VirtualMachine(classLoader, strings);
 var x = parser.ParseModule();
 var func = x.Classes[0].Functions[0];
 new ScopedSyntaxWalker(func).Walk();

@@ -1,26 +1,24 @@
 namespace Pain.Runtime;
-
+using System.Reflection;
 public class Function
 {
-    public bool Local { get; }
+    public bool Native { get; }
 
     public string Name { get; }
 
-    public byte[] OpCodes { get; }
-    
-    public int MaxStackSize { get; }
+    public MethodInfo Method { get; }
 
-    public ClassObject Class { get; }
+    public byte[] OpCodes { get; }
+
+    public int MaxStackSize { get; }
 
     public int ParameterCount { get; }
 
-
-    public Function(ClassObject @class, string name, bool @local, byte[] opcodes, int maxStackSize, int parameterCount)
+    public Function(string name, bool natvie, byte[] opcodes, int maxStackSize, int parameterCount, MethodInfo methodInfo)
     {
         Name = name;
-        Local = local;
-        Class = @class;
         OpCodes = opcodes;
+        Method = methodInfo;
         MaxStackSize = maxStackSize;
         ParameterCount = parameterCount;
     }

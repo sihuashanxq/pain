@@ -6,19 +6,22 @@ public class FunctionEmitter
 
     internal Scope _scope;
 
+    internal readonly Strings _strings;
+
     internal FunctionContext _function;
 
     internal readonly List<OpCode> _codes;
 
-    public FunctionEmitter(FunctionContext function)
+    public FunctionEmitter(FunctionContext function, Strings strings)
     {
         _offset = 0;
         _codes = new List<OpCode>();
         _scope = new Scope(function.Frame, null!);
+        _strings = strings;
         _function = function;
     }
 
-    public IDisposable NewScope()
+    public IDisposable Scope()
     {
         _scope = new Scope(_function.Frame, _scope);
 
@@ -153,26 +156,32 @@ public class FunctionEmitter
 
     public int Emit(OpCodeType opCodeType, string v)
     {
-        /*
-        var id = _function.Type.Module.Pooling(v);
-
-        return Emit(opCodeType, id);
-        */
-        return 0;
+        var token = _strings.GetString(v);
+        return Emit(opCodeType, token);
     }
 
     public int Emit(OpCodeType opCodeType, double v)
     {
-        /* var id = _function.Type.Module.Pooling(v);
-         return Emit(opCodeType, id);
-         */
-        return 0;
+        return Emit(opCodeType, new Operand<double>(v, sizeof(double)));
     }
 
     public void Emit(OpCode opCode)
     {
         _offset += opCode.Size;
         _codes.Add(opCode);
+    }
+
+    public byte[] GetBuffer()
+    {
+        using (var mem = new MemoryStream())
+        {
+            foreach (var opCode in _codes)
+            {
+                opCode.WriteTo(mem);
+            }
+
+           return mem.ToArray();
+        }
     }
 }
 
