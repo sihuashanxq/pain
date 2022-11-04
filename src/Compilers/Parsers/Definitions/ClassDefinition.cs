@@ -10,11 +10,11 @@ namespace Pain.Compilers.Parsers.Definitions
 
         public List<FunctionExpression> Functions { get; }
 
-        public ClassDefinition(string name, string super, IEnumerable<FunctionExpression> functions)
+        public ClassDefinition(string name, string super)
         {
             Name = name;
             Super = super;
-            Functions = new List<FunctionExpression>(functions);
+            Functions = new List<FunctionExpression>();
         }
 
         public override string ToString()
@@ -28,6 +28,11 @@ namespace Pain.Compilers.Parsers.Definitions
 
             buf.AppendLine("} ");
             return buf.ToString();
+        }
+
+        public void AddFunction(FunctionExpression function)
+        {
+            Functions.Add(function);
         }
     }
 }

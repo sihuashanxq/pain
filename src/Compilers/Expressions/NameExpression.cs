@@ -21,4 +21,19 @@ public class NameExpression : Syntax, ICaptureable
     {
         return Name;
     }
+
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is ICaptureable name)
+        {
+            return name.Name == this.Name;
+        }
+
+        return false;
+    }
 }

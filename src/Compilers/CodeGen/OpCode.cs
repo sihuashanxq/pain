@@ -23,6 +23,19 @@ public class OpCode
 
     public override string ToString()
     {
+        if (Type == OpCodeType.Ldstr)
+        {
+            return $"{Type}  {(ModuleCompiler.Strings.GetString((int)Operand.GetValue()))} \t";
+        }
+        else if (Type == OpCodeType.Ldnum)
+        {
+            return $"{Type} {Operand.GetValue()}";
+        }
+        else if (Type == OpCodeType.Ldfld)
+        {
+             return $"{Type}  {(ModuleCompiler.Strings.GetString((int)Operand.GetValue()))} \t";
+        }
+
         return $"{Type}  {(Operand)} \t";
     }
 }

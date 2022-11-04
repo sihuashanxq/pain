@@ -115,15 +115,19 @@ public class FunctionEmitter
                 stack = -1;
                 break;
             case OpCodeType.Stloc:
+            case OpCodeType.Stfld:
                 stack = -3;
                 break;
             case OpCodeType.Call:
-            case OpCodeType.New:
                 stack = -(operand as Operand<int>)!.Value;
+                break;
+            case OpCodeType.New:
+                stack = 0;
                 break;
             case OpCodeType.Br:
             case OpCodeType.Not:
             case OpCodeType.Swap1_2:
+            case OpCodeType.Ldtoken:
                 stack = 0;
                 break;
             case OpCodeType.Dup:
@@ -132,6 +136,7 @@ public class FunctionEmitter
             case OpCodeType.Ldnull:
             case OpCodeType.Ldstr:
             case OpCodeType.Ldnum:
+            case OpCodeType.Ldarg:
                 stack = 1;
                 break;
             case OpCodeType.Pop:
@@ -156,7 +161,7 @@ public class FunctionEmitter
 
     public int Emit(OpCodeType opCodeType, string v)
     {
-        var token = _strings.GetString(v);
+        var token = _strings.AddString(v);
         return Emit(opCodeType, token);
     }
 
@@ -180,7 +185,7 @@ public class FunctionEmitter
                 opCode.WriteTo(mem);
             }
 
-           return mem.ToArray();
+            return mem.ToArray();
         }
     }
 }

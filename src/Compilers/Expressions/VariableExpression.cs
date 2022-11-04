@@ -38,4 +38,19 @@ public class Varaible : ICaptureable
     {
         return Value == null ? $"{Name}" : $"{Name}={Value}";
     }
+
+    public override int GetHashCode()
+    {
+        return Name.GetHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is ICaptureable name)
+        {
+            return name.Name == this.Name;
+        }
+
+        return false;
+    }
 }

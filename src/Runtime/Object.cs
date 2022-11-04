@@ -1,4 +1,5 @@
 namespace Pain.Runtime;
+using Pain.Runtime.Builtin;
 using Pain.Runtime.VM;
 
 public interface IObject
@@ -11,7 +12,7 @@ public interface IObject
 
     public IObject GetField(VirtualMachine vm, IObject key)
     {
-        return GetClass(vm).GetFunction(this, key) as IObject ?? .Null;
+        return GetClass(vm).GetFunction(this, key) as IObject ?? RuntimeNull.Null;
     }
 
     public void Constructor(VirtualMachine vm, IObject[] arguments)
@@ -22,7 +23,7 @@ public interface IObject
             throw new Exception();
         }
 
-        function.Call(vm, Array.Empty<IObject>());
+        function.Call(vm, new IObject[0]);
     }
 
     public IObject ToString(VirtualMachine vm)
@@ -33,7 +34,7 @@ public interface IObject
             throw new Exception();
         }
 
-        return function.Call(vm, Array.Empty<IObject>());
+        return function.Call(vm, new IObject[0]);
     }
 
     public IObject Euqal(VirtualMachine vm, IObject obj)
@@ -143,7 +144,7 @@ public interface IObject
             throw new Exception();
         }
 
-        return function.Call(vm, Array.Empty<IObject>());
+        return function.Call(vm, new IObject[0]);
     }
 
     public IObject And(VirtualMachine vm, IObject obj)
@@ -310,6 +311,11 @@ public class RuntimeNumber : IObject
     {
         throw new Exception();
     }
+
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
 }
 
 public class RuntimeArray : IObject
@@ -343,13 +349,13 @@ public class RuntimeArray : IObject
             var i = idx.Value;
             if (i < 0 || i >= Items.Length)
             {
-                return Runtime.Null;
+                return RuntimeNull.Null;
             }
 
-            return Items[(int)i] ?? Runtime.Null;
+            return Items[(int)i] ?? RuntimeNull.Null;
         }
 
-        return Runtime.Null;
+        return RuntimeNull.Null;
     }
 
     public void SetField(VirtualMachine vm, IObject index, IObject value)
@@ -360,7 +366,7 @@ public class RuntimeArray : IObject
             if (i < 0 || i >= Items.Length)
             {
                 var items = new IObject[(int)i + 1];
-                Array.Copy(Items, items, Items.Length);
+                System.Array.Copy(Items, items, Items.Length);
                 Items = items;
             }
 
@@ -371,7 +377,7 @@ public class RuntimeArray : IObject
 
 public class RuntimeNull : IObject
 {
-    public static readonly RuntimeNull Null = new RuntimeNull();
+    public static readonly IObject Null = new RuntimeNull();
 
     public RuntimeNull()
     {
@@ -427,7 +433,7 @@ public class RuntimeFunction : IObject
 
     public RuntimeClass GetClass(VirtualMachine vm)
     {
-        return Builtin.Object.Class;
+        return Builtin.FunctionBuiltin.Class;
     }
 
     public void SetField(VirtualMachine vm, IObject key, IObject value)
@@ -459,7 +465,7 @@ public class RuntimeClass : IObject
 
     public IObject GetField(IObject name)
     {
-        return GetFunction(Runtime.Null, name) as IObject ?? Runtime.Null;
+        return GetFunction(RuntimeNull.Null, name) as IObject ?? RuntimeNull.Null;
     }
 
     public RuntimeFunction? GetFunction(IObject target, IObject name)
@@ -579,12 +585,27 @@ public class RuntimeString : IObject
 
     public RuntimeClass GetClass(VirtualMachine vm)
     {
-        throw new NotImplementedException();
+        return Builtin.String.Class;
     }
 
     public void SetField(VirtualMachine vm, IObject key, IObject value)
     {
         throw new NotImplementedException();
+    }
+
+    public override int GetHashCode()
+    {
+        return Value.GetHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is RuntimeString v)
+        {
+            return v.Value == Value;
+        }
+
+        return false;
     }
 }
 

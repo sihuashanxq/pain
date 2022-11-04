@@ -20,13 +20,18 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         _bind = Syntax.MakeConstant("bind", SyntaxType.ConstString);
     }
 
-    public Syntax Rewrite()
+    public FunctionExpression? Rewrite()
     {
-        return Visit(_function);
+        ScopedSyntaxWalker.Walk(_function);
+        return Visit(_function) as FunctionExpression;
     }
 
     protected internal override Syntax VisitBinary(BinaryExpression expr)
     {
+        if (expr.Type == SyntaxType.Assign && !_function.IsLocal)
+        {
+
+        }
         return Syntax.MakeBinary(expr.Left.Accept(this), expr.Right.Accept(this), expr.Type);
     }
 
@@ -42,6 +47,22 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitCall(CallExpression expr)
     {
+        if(expr.Function.Type == SyntaxType.Super)
+        {
+            return Syntax.MakeCall(
+                Syntax.MakeCall(
+                    Syntax.MakeMember(
+                        Syntax.MakeMember(
+                            Syntax.MakeName(_class.Super),
+                            Syntax.MakeConstant("ctor", SyntaxType.ConstString)
+                        ),
+                    Syntax.MakeConstant("bind", SyntaxType.ConstString)
+                    ),
+                    new[] { Syntax.MakeThis() }
+                 ),
+                    expr.Arguments.Select(i => i.Accept(this)).ToArray()
+                );
+        }
         return Syntax.MakeCall(expr.Function.Accept(this), expr.Arguments.Select(i => i.Accept(this)).ToArray());
     }
 
@@ -78,7 +99,9 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             var name = new NameExpression(expr.Name);
             var @new = Syntax.MakeNew(name, Array.Empty<Syntax>());
             var members = new Dictionary<string, Syntax>();
+            var newClass = new ClassDefinition(name.Name, "Runtime.Object");
             rewriter.VisitFunctionChildren(expr);
+            newClass.AddFunction(expr);
 
             foreach (var item in expr.CaptureVariables)
             {
@@ -88,12 +111,12 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
                 }
                 else
                 {
-                    members[item.Key.Name] = Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeName(item.Key.Name));
+                    members[item.Key.Name] = Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
                 }
             }
 
-            _module.Classes.Add(new ClassDefinition(name.Name, string.Empty, new[] { expr }));
-            return Syntax.MakeMember(Syntax.MakeMemberInit(@new, members), Syntax.MakeName(name.Name));
+            _module.Classes.Add(newClass);
+            return Syntax.MakeMember(Syntax.MakeMemberInit(@new, members), Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
         }
 
         return VisitFunctionChildren(expr);
@@ -196,7 +219,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     private Syntax Wrap(Syntax value, string name)
     {
-        return new MemberInitExpression(Syntax.MakeNew(Syntax.MakeConstant("Runtime.Object", SyntaxType.ConstString), Array.Empty<Syntax>()), (new Dictionary<string, Syntax> { [name] = value }));
+        return new MemberInitExpression(Syntax.MakeNew(Syntax.MakeName("Object"), Array.Empty<Syntax>()), (new Dictionary<string, Syntax> { [name] = value }));
     }
 
     private Varaible Wrap(Varaible item)
@@ -239,12 +262,12 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
     {
         if (_function.CaptureVariables.TryGetValue(expr, out var _))
         {
-            return Syntax.MakeMember(Syntax.MakeName(expr.Name), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
+            return Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
         }
 
         if (_function.CapturedVariables.Contains(expr))
         {
-            return Syntax.MakeMember(Syntax.MakeName(expr.Name), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
+            return Syntax.MakeMember(Syntax.MakeThis(), Syntax.MakeConstant(expr.Name, SyntaxType.ConstString));
         }
 
         return expr as Syntax;

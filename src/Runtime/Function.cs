@@ -18,6 +18,7 @@ public class Function
     {
         Name = name;
         OpCodes = opcodes;
+        Native=natvie;
         Method = methodInfo;
         MaxStackSize = maxStackSize;
         ParameterCount = parameterCount;

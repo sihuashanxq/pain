@@ -26,6 +26,6 @@ public class Label
     public Label(string name, Operand<int> target)
     {
         Name = name;
-        Target = target;
+        Target = target ?? new Operand<int>(-1, 4);
     }
 }

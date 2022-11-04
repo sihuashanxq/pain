@@ -50,7 +50,7 @@ public class ClassContext
             throw new System.Exception($"method {function.Name} has defined!");
         }
 
-        return Functions[function.Name] = new FunctionContext(expression, this);
+        return Functions[function.Name] = new FunctionContext(function, this);
     }
 }
 

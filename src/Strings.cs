@@ -18,8 +18,10 @@ public class Strings
     {
         if (!_items.TryGetValue(value, out var item))
         {
-            item = new StringEntry(Interlocked.Increment(ref _id), value);
+            item = new StringEntry(_id, value);
             _items[value] = item;
+            _entries.Add(item);
+            _id++;
         }
 
         return item.Key;

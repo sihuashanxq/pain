@@ -16,8 +16,9 @@ namespace Pain.Runtime.Builtin
 
         public const string Boolean = "Boolean";
 
-        public const string ConstructorFunc = "constructor";
+        public const string Function = "Function";
 
+        public const string ConstructorFunc = "ctor";
         public const string ToStringFunc = "toString";
 
         public const string EqualFunc = "__equal__";

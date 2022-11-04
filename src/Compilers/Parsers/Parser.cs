@@ -253,6 +253,9 @@ public class Parser
             case TokenType.Number:
                 Next();
                 return Syntax.MakeConstant(token.Value, SyntaxType.ConstNumber);
+            case TokenType.LiteralString:
+                Next();
+                return Syntax.MakeConstant(token.Value, SyntaxType.ConstString);
             case TokenType.Null:
                 Next();
                 return Syntax.MakeConstant(token.Value, SyntaxType.ConstNull);
@@ -372,7 +375,7 @@ public class Parser
         {
             parameterInits = Syntax.MakeEmpty();
         }
-        
+
         return Syntax.MakeFunction(name!, true, parameters, Syntax.MakeBlock(parameterInits, functionBody));
     }
 
@@ -657,21 +660,19 @@ public class Parser
 
     public ModuleDefinition ParseModule()
     {
+        var module = new ModuleDefinition(_lexer.FileName);
         Next();
-        var imports = ParseImprots();
-        var classes = ParseClasses();
-        return new ModuleDefinition(classes, imports);
+        ParseImprots(module);
+        ParseClasses(module);
+        return module;
     }
 
-    private ClassDefinition[] ParseClasses()
+    private void ParseClasses(ModuleDefinition module)
     {
-        var classes = new List<ClassDefinition>();
         while (Match(TokenType.Class))
         {
             var name = string.Empty;
-            var super = "Object";
-            var functions = new List<FunctionExpression>();
-
+            var super = "Runtime.Object";
             Next();
             ThrowError(!Match(TokenType.Identifier));
             Next(token => name = token.Value.ToString());
@@ -685,6 +686,7 @@ public class Parser
 
             ThrowError(!Match(TokenType.OpenBrace));
             Next();
+            var @class = new ClassDefinition(name, super);
 
             while (Match(TokenType.Func))
             {
@@ -694,20 +696,19 @@ public class Parser
                     break;
                 }
 
-                functions.Add(functionExpr);
+                var rewriter = new Rewriters.ClosureExpressionRewriter(functionExpr, module, @class);
+                var function = rewriter.Rewrite();
+                @class.AddFunction(function!);
             }
 
             ThrowError(!Match(TokenType.CloseBrace));
             Next();
-            classes.Add(new ClassDefinition(name!, super!, functions.ToArray()));
+            module.AddClass(@class);
         }
-
-        return classes.ToArray();
     }
 
-    private ImportDefinition[] ParseImprots()
+    private void ParseImprots(ModuleDefinition module)
     {
-        var imports = new List<ImportDefinition>();
         while (Match(TokenType.Import))
         {
             var path = string.Empty;
@@ -752,10 +753,8 @@ public class Parser
             Next();
             ThrowError(!Match(TokenType.LiteralString));
             Next(token => path = token.Value.ToString());
-            imports.Add(new ImportDefinition(path!, classes.ToArray()));
+            module.AddImportedClass(new ImportDefinition(path!, classes.ToArray()));
         }
-
-        return imports.ToArray();
     }
 
     private static Syntax Parse(Action? onParsing, Func<Syntax> parser, Action<Syntax>? onParsed)

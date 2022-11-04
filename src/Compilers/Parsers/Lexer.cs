@@ -39,12 +39,12 @@ public class Lexer
 
     private readonly ReadOnlyMemory<char> _source;
 
-    private readonly string _fileName;
+    public string FileName { get; }
 
     public Lexer(string fileName, string source)
     {
         _source = source.AsMemory();
-        _fileName = fileName;
+        FileName = fileName;
     }
 
     public Token ScanNext()
@@ -83,7 +83,7 @@ public class Lexer
     private Token ScanIdentifier()
     {
         var buf = new StringBuilder();
-        var position = new Position(_fileName, _line, _cell);
+        var position = new Position(FileName, _line, _cell);
         while (true)
         {
             var ch = Peek();
@@ -102,7 +102,7 @@ public class Lexer
             break;
         }
 
-        var token= new Token(TokenType.Identifier, buf.ToString(), position);
+        var token = new Token(TokenType.Identifier, buf.ToString(), position);
         return LookupKeyword(token);
     }
 
@@ -145,7 +145,7 @@ public class Lexer
         return new Token(TokenType.LiteralString, buf.ToString(), position);
     }
 
-    private Position Position => new Position(_fileName, _line, _cell);
+    private Position Position => new Position(FileName, _line, _cell);
 
     private bool SkipComments()
     {
@@ -451,7 +451,8 @@ public class Lexer
                 }
             case '^':
                 MoveNext();
-                switch (Peek().Char) {
+                switch (Peek().Char)
+                {
                     case '=':
                         MoveNext();
                         return new Token(TokenType.BitXorAssign, "^=", position);
@@ -616,7 +617,7 @@ public class Lexer
                 return new Token(TokenType.As, token.Value, token.Position);
             case "from":
                 return new Token(TokenType.From, token.Value, token.Position);
-            case "func":
+            case "fn":
                 return new Token(TokenType.Func, token.Value, token.Position);
             case "continue":
                 return new Token(TokenType.Continue, token.Value, token.Position);

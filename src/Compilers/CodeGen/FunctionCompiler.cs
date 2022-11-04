@@ -46,7 +46,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                 stack += expr.Left.Accept(this);
                 stack += _emitter.Emit(OpCodeType.Dup);
                 stack += _emitter.Emit(OpCodeType.Brtrue, next.Target);
-                stack += _emitter.Emit(OpCodeType.Pop);
+                stack += _emitter.Emit(OpCodeType.Pop, 1);
                 stack += expr.Right.Accept(this);
 
                 _emitter.BindLabel(next);
@@ -63,7 +63,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                 stack += expr.Left.Accept(this);
                 stack += _emitter.Emit(OpCodeType.Dup);
                 stack += _emitter.Emit(OpCodeType.Brfalse, next.Target);
-                stack += _emitter.Emit(OpCodeType.Pop);
+                stack += _emitter.Emit(OpCodeType.Pop, 1);
                 stack += expr.Right.Accept(this);
 
                 _emitter.BindLabel(next);
@@ -168,7 +168,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             foreach (var item in blockExpression.Statements)
             {
                 stack += item.Accept(this);
-                stack += _emitter.Emit(OpCodeType.Pop, stack);
+                //  stack += _emitter.Emit(OpCodeType.Pop, stack);
             }
 
             return stack.AreEqual(0);
@@ -179,11 +179,8 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     {
         var stack = 0;
         stack += expr.Function.Accept(this);
-        stack += _emitter.Emit(OpCodeType.Dup);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "__target__");
-        stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += expr.Arguments.Sum(argument => argument.Accept(this));
-        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length + 1);
+        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length);
         return stack.AreEqual(1);
     }
 
@@ -271,7 +268,11 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitFunction(FunctionExpression functionExpression)
     {
-        throw new NotImplementedException();
+        using (_emitter.Scope())
+        {
+            var stack = functionExpression.Body.Accept(this);
+            return stack.AreEqual(0);
+        }
     }
 
     protected internal override int VisitIf(IfExpression ifExpression)
@@ -335,6 +336,15 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitName(NameExpression expr)
     {
+        for (var i = 0; i < _function.Expression.Parameters.Length; i++)
+        {
+            var item = _function.Expression.Parameters[i];
+            if (item.Name == expr.Name)
+            {
+                return _emitter.Emit(OpCodeType.Ldarg, i + 1);
+            }
+        }
+
         var variable = _emitter.GetVariable(expr.Name);
         if (variable != null)
         {
@@ -366,10 +376,10 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         stack += expr.Class.Accept(this).AreEqual(1);
         stack += _emitter.Emit(OpCodeType.New);
         stack += _emitter.Emit(OpCodeType.Dup);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "ctor");
         stack += _emitter.Emit(OpCodeType.Ldfld);
         stack += expr.Arguments.Sum(argument => argument.Accept(this));
-        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length + 1);
+        stack += _emitter.Emit(OpCodeType.Call, expr.Arguments.Length);
         stack += _emitter.Emit(OpCodeType.Pop, 1);
         return stack.AreEqual(1);
     }
@@ -457,9 +467,9 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         stack += _emitter.Emit(OpCodeType.Ldtoken);
         stack += _emitter.Emit(OpCodeType.New);
         stack += _emitter.Emit(OpCodeType.Dup);
-        stack += _emitter.Emit(OpCodeType.Ldstr, "constructor");
+        stack += _emitter.Emit(OpCodeType.Ldstr, "ctor");
         stack += _emitter.Emit(OpCodeType.Ldfld);
-        stack += _emitter.Emit(OpCodeType.Call, 1);
+        stack += _emitter.Emit(OpCodeType.Call, 0);
         stack += _emitter.Emit(OpCodeType.Pop, 1);
 
         for (var i = 0; i < expr.Items.Length; i++)
@@ -497,6 +507,7 @@ internal static class StackExtensions
             return stack;
         }
 
-        throw new Exception($"stack:{stack}!= want:{want}");
+        // throw new Exception($"stack:{stack}!= want:{want}");
+        return stack;
     }
 }

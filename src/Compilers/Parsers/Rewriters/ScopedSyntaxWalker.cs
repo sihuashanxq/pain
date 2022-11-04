@@ -97,6 +97,12 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
         Visit(_function);
     }
 
+    public static void Walk(FunctionExpression function)
+    {
+        var walker = new ScopedSyntaxWalker(function);
+        walker.Walk();
+    }
+
     public static Dictionary<ICaptureable, ICaptureable> Walk(FunctionExpression expr, Scope scope)
     {
         var walker = new ScopedSyntaxWalker(expr, scope);

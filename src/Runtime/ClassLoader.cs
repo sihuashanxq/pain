@@ -2,11 +2,11 @@ namespace Pain.Runtime;
 
 public class ClassLoader
 {
-    private readonly Func<string, RuntimeClass> _compile;
+    private readonly Func<string, IEnumerable<RuntimeClass>> _compile;
 
     private readonly Dictionary<string, RuntimeClass> _items;
 
-    public ClassLoader(Func<string, RuntimeClass> compile)
+    public ClassLoader(Func<string, IEnumerable<RuntimeClass>> compile)
     {
         _items = new Dictionary<string, RuntimeClass>()
         {
@@ -27,13 +27,11 @@ public class ClassLoader
             return rClass;
         }
 
-        var compiledClass = _compile(token);
-        if (compiledClass == null)
+        foreach (var item in _compile(token))
         {
-            throw new Exception();
+            _items[item.Token] = item;
         }
 
-        _items[token] = compiledClass;
-        return compiledClass;
+        return Load(token);
     }
 }

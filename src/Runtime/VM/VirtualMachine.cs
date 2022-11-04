@@ -19,7 +19,7 @@ public class VirtualMachine
     {
         if (function.Function.Native)
         {
-            return function.Function.Method.Invoke(null, arguments.Select(i => i as object).ToArray()) as IObject;
+            return function.Function.Method.Invoke(null, new[] { arguments }) as IObject;
         }
 
         using (_stack.Push(function, arguments))
@@ -27,157 +27,143 @@ public class VirtualMachine
             var ctx = _stack.Current!;
             while (ctx.CanExecution())
             {
-                switch ((OpCodeType)ctx.ReadByte())
+                var opCodeType = (OpCodeType)ctx.ReadByte();
+                ctx.IP++;
+                switch (opCodeType)
                 {
                     case OpCodeType.Add:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
-                            ctx.Stack.Push(v1.And(this, v2));
-                            ctx.IP += 1;
+                            var v1 = ctx.Stack.Pop();
+                            ctx.Stack.Push(v1.Add(this, v2));
                         }
                         break;
                     case OpCodeType.Mod:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Mod(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Mul:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Mul(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Neg:
                         break;
                     case OpCodeType.Sub:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Sub(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Div:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Div(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Shl:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.LeftShfit(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Shr:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.RightShfit(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Xor:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Xor(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Or:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Or(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.And:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.And(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Not:
                         {
                             var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Not(this));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Gt:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.GreaterThan(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Gte:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.GtreaterThanOrEqual(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Eq:
                         {
-                            var v1 = ctx.Stack.Pop();
                             var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1.Euqal(this, v2));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Pop:
                         {
                             var v = ctx.ReadInt32();
-                            for (var i = 0; i < v; i++)
+                            for (var i = 1; i <= v; i++)
                             {
                                 ctx.Stack.Pop();
                             }
-                            ctx.IP += 5;
+                            ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Ldloc:
                         {
                             var v = ctx.Varaibles[ctx.ReadInt32()];
                             ctx.Stack.Push(v);
-                            ctx.IP += 5;
+                            ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Ldarg:
                         {
                             var v = ctx.ReadInt32();
                             ctx.Stack.Push(ctx.Arguments[v]);
-                            ctx.IP += 5;
+                            ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Ldnull:
                         {
                             ctx.Stack.Push(RuntimeNull.Null);
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Ldfld:
                         {
-                            var obj = ctx.Stack.Pop();
                             var name = ctx.Stack.Pop();
+                            var obj = ctx.Stack.Pop();
                             ctx.Stack.Push(obj.GetField(this, name));
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Ldstr:
@@ -185,13 +171,13 @@ public class VirtualMachine
                             var token = ctx.ReadInt32();
                             var str = _strings.GetString(token);
                             ctx.Stack.Push(new RuntimeString(str));
-                            ctx.IP += 5;
+                            ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Ldnum:
                         {
                             ctx.Stack.Push(new RuntimeNumber(ctx.ReadDouble()));
-                            ctx.IP += 9;
+                            ctx.IP += 8;
                         }
                         break;
                     case OpCodeType.Stloc:
@@ -199,16 +185,15 @@ public class VirtualMachine
                             var v = ctx.Stack.Pop();
                             var idx = ctx.ReadInt32();
                             ctx.Varaibles[idx] = v;
-                            ctx.IP += 5;
+                            ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Stfld:
                         {
-                            var obj = ctx.Stack.Pop();
-                            var name = ctx.Stack.Pop();
                             var value = ctx.Stack.Pop();
+                            var name = ctx.Stack.Pop();
+                            var obj = ctx.Stack.Pop();
                             obj.SetField(this, name, value);
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Ldtoken:
@@ -216,14 +201,12 @@ public class VirtualMachine
                             var token = ctx.Stack.Pop().ToString()!;
                             var @class = _classLoader.Load(token);
                             ctx.Stack.Push(@class);
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.New:
                         {
                             var @class = ctx.Stack.Pop() as RuntimeClass;
                             ctx.Stack.Push(@class!.CreateInstance());
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Ret:
@@ -239,7 +222,7 @@ public class VirtualMachine
                             }
                             else
                             {
-                                ctx.IP += 5;
+                                ctx.IP += 4;
                             }
                         }
                         break;
@@ -249,17 +232,13 @@ public class VirtualMachine
                             if (v.ToBoolean(this))
                             {
                                 ctx.IP = ctx.ReadInt32();
+                                break;
                             }
-                            else
-                            {
-                                ctx.IP += 5;
-                            }
+                            ctx.IP += 4;
+                            break;
                         }
-                        break;
                     case OpCodeType.Br:
-                        {
-                            ctx.IP = ctx.ReadInt32();
-                        }
+                        ctx.IP = ctx.ReadInt32();
                         break;
                     case OpCodeType.Call:
                         {
@@ -267,19 +246,18 @@ public class VirtualMachine
                             var args = new IObject[n];
                             for (var i = n - 1; i >= 0; i--)
                             {
-                                arguments[i] = ctx.Stack.Pop();
+                                args[i] = ctx.Stack.Pop();
                             }
 
-                            var func = ctx.Stack.Pop() as RuntimeFunction;
-                            var value = Execute(func!, new[] { func!.Target }.Concat(args).ToArray());
+                            var func = ctx.Stack.Pop();
+                            var value=func.Call(this, args);
                             ctx.Stack.Push(value!);
-                            ctx.IP += 5;
+                            ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Dup:
                         {
                             ctx.Stack.Push(ctx.Stack.Peek());
-                            ctx.IP += 1;
                         }
                         break;
                     case OpCodeType.Swap1_2:
@@ -288,7 +266,6 @@ public class VirtualMachine
                             var v2 = ctx.Stack.Pop();
                             ctx.Stack.Push(v1);
                             ctx.Stack.Push(v2);
-                            ctx.IP += 1;
                         }
                         break;
                 }
@@ -296,6 +273,15 @@ public class VirtualMachine
 
             return RuntimeNull.Null;
         }
+    }
+
+    public IObject? Execute(string module, string @class, string function, IObject[] arguments)
+    {
+        var token = $"{module}.{@class}";
+        var runtimeClass = _classLoader.Load(token);
+        var func = runtimeClass.GetFunction(RuntimeNull.Null, new RuntimeString(function));
+
+        return Execute(func!, arguments);
     }
 }
 
@@ -317,7 +303,7 @@ internal class ExecutionContext
         Stack = new Stack<IObject>();
         Function = function;
         Arguments = arguments;
-        Varaibles = new IObject[function.Function.MaxStackSize];
+        Varaibles = new IObject[1024];
     }
 
     public byte ReadByte()
