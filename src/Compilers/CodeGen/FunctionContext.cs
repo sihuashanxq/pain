@@ -34,6 +34,8 @@ public class ClassContext
 
     public Dictionary<string, FunctionContext> Functions { get; }
 
+    public bool Compiled { get; set; }
+
     internal ClassContext(ClassDefinition definition, ModuleContext module)
     {
         Name = definition.Name;
@@ -60,28 +62,13 @@ public class ModuleContext
 
     public Dictionary<string, ClassContext> Classes { get; }
 
-    public Dictionary<string, ImportedClass> ImportedClasses { get; }
+    public Dictionary<string, ImportDefinition> Imports { get; }
 
-    internal ModuleContext(string path)
+    internal ModuleContext(ModuleDefinition module)
     {
-        Path = path;
-        Classes = new Dictionary<string, ClassContext>();
-        ImportedClasses = new Dictionary<string, ImportedClass>();
-    }
-
-    public ClassContext AddClass(Pain.Compilers.Parsers.Definitions.ClassDefinition @class)
-    {
-        if (Classes.ContainsKey(@class.Name))
-        {
-            throw new System.Exception($"type :{@class.Name} has defined!");
-        }
-
-        return Classes[@class.Name] = new ClassContext(@class, this);
-    }
-
-    public void AddImporedClass(ImportedClass importedClass)
-    {
-        ImportedClasses[importedClass.Alias] = importedClass;
+        Path = module.Path;
+        Classes = module.Classes.ToDictionary(i => i.Key, i => new ClassContext(i.Value, this));
+        Imports = module.Imports.ToDictionary(i => i.Key, i => i.Value);
     }
 }
 
@@ -93,7 +80,6 @@ public class ImportedClass
     public string Alias { get; }
 
     public string Module { get; }
-
 
     public ImportedClass(string module, string name, string alias)
     {

@@ -1,19 +1,19 @@
+import {Test} from "test"
+import {Array as A} from "Runtime"
+
 class program{
     fn main(){
-        let x=1
-        let b=new ddd()
-        let z= fn(d)=>x+d
-        let y= b.test(z)
-        Console.log("Value is :"+y)
+        let d=new ddd()
+        Console.log(d.say())
     }
 }
 
-class ddd {
-    fn say(){
-        return this.test()
-    }
+class ddd extends Test {
+    
+}
 
-    fn test(f){
-        return f(2)
+class ccc {
+    fn test(){
+        return 1
     }
 }

@@ -6,7 +6,7 @@ namespace Pain.Runtime.Builtin
 
         static Console()
         {
-            Class = new RuntimeClass(Object.Class, Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Console)));
+            Class = new RuntimeClass("Console", Object.Token, Const.Runtime, Util.ScanFunctions(typeof(Console)));
         }
 
         [Function("log")]

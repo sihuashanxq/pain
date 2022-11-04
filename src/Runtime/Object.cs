@@ -12,23 +12,12 @@ public interface IObject
 
     public IObject GetField(VirtualMachine vm, IObject key)
     {
-        return GetClass().GetFunction(this, key) as IObject ?? RuntimeNull.Null;
-    }
-
-    public void Constructor(VirtualMachine vm, IObject[] arguments)
-    {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.ConstructorFunc));
-        if (function == null)
-        {
-            throw new Exception();
-        }
-
-        function.Call(vm, new IObject[0]);
+        return GetClass().GetFunction(vm, this, key) as IObject ?? RuntimeNull.Null;
     }
 
     public IObject ToString(VirtualMachine vm)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.ToStringFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.ToStringFunc));
         if (function == null)
         {
             throw new Exception();
@@ -39,7 +28,7 @@ public interface IObject
 
     public IObject Euqal(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.EqualFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.EqualFunc));
         if (function == null)
         {
             throw new Exception();
@@ -50,7 +39,7 @@ public interface IObject
 
     public IObject LessThan(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.LessThanFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.LessThanFunc));
         if (function == null)
         {
             throw new Exception();
@@ -61,7 +50,7 @@ public interface IObject
 
     public IObject GreaterThan(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.GreaterThanFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.GreaterThanFunc));
         if (function == null)
         {
             throw new Exception();
@@ -72,7 +61,7 @@ public interface IObject
 
     public IObject LessThanOrEqual(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.LessThanOrEqualFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.LessThanOrEqualFunc));
         if (function == null)
         {
             throw new Exception();
@@ -83,7 +72,7 @@ public interface IObject
 
     public IObject GtreaterThanOrEqual(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.GtreaterThanOrEqualFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.GtreaterThanOrEqualFunc));
         if (function == null)
         {
             throw new Exception();
@@ -94,7 +83,7 @@ public interface IObject
 
     public IObject LeftShfit(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.LeftShiftFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.LeftShiftFunc));
         if (function == null)
         {
             throw new Exception();
@@ -105,7 +94,7 @@ public interface IObject
 
     public IObject RightShfit(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.RightShiftFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.RightShiftFunc));
         if (function == null)
         {
             throw new Exception();
@@ -116,7 +105,7 @@ public interface IObject
 
     public IObject Xor(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.XOrFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.XOrFunc));
         if (function == null)
         {
             throw new Exception();
@@ -127,7 +116,7 @@ public interface IObject
 
     public IObject Or(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.OrFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.OrFunc));
         if (function == null)
         {
             throw new Exception();
@@ -138,7 +127,7 @@ public interface IObject
 
     public IObject Not(VirtualMachine vm)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.NotFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.NotFunc));
         if (function == null)
         {
             throw new Exception();
@@ -149,7 +138,7 @@ public interface IObject
 
     public IObject And(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.AndFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.AndFunc));
         if (function == null)
         {
             throw new Exception();
@@ -160,7 +149,7 @@ public interface IObject
 
     public IObject Add(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.AddFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.AddFunc));
         if (function == null)
         {
             throw new Exception();
@@ -171,7 +160,7 @@ public interface IObject
 
     public IObject Sub(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.SubFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.SubFunc));
         if (function == null)
         {
             throw new Exception();
@@ -182,7 +171,7 @@ public interface IObject
 
     public IObject Mul(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.MulFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.MulFunc));
         if (function == null)
         {
             throw new Exception();
@@ -193,7 +182,7 @@ public interface IObject
 
     public IObject Mod(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.ModFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.ModFunc));
         if (function == null)
         {
             throw new Exception();
@@ -204,7 +193,7 @@ public interface IObject
 
     public IObject Div(VirtualMachine vm, IObject obj)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.DivFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.DivFunc));
         if (function == null)
         {
             throw new Exception();
@@ -215,7 +204,7 @@ public interface IObject
 
     public IObject Call(VirtualMachine vm, IObject[] arguments)
     {
-        var function = GetClass().GetFunction(this, new RuntimeString(Const.CallFunc));
+        var function = GetClass().GetFunction(vm, this, new RuntimeString(Const.CallFunc));
         if (function == null)
         {
             throw new Exception();
@@ -254,7 +243,7 @@ public class RuntimeObject : IObject
             return value;
         }
 
-        return GetClass().GetFunction(this, key) as IObject ?? RuntimeNull.Null;
+        return GetClass().GetFunction(vm, this, key) as IObject ?? RuntimeNull.Null;
     }
 
     public void SetField(VirtualMachine vm, IObject key, IObject value)
@@ -341,7 +330,7 @@ public class RuntimeArray : IObject
     {
         if (index is RuntimeString str)
         {
-            return GetClass().GetFunction(this, index)!;
+            return GetClass().GetFunction(vm, this, index)!;
         }
 
         if (index is RuntimeNumber idx)
@@ -450,32 +439,37 @@ public class RuntimeClass : IObject
 
     public string Token { get; }
 
-    public RuntimeClass? Super { get; }
+    public string SuperToken { get; }
+
+    public RuntimeClass? Super { get; private set; }
 
     public FunctionTable FunctionTable { get; }
 
-    public RuntimeClass(RuntimeClass? super, string name, string module, FunctionTable functionTable)
+    public RuntimeClass(string name, string superToken, string module, FunctionTable functionTable)
     {
         Name = name;
-        Super = super;
         Token = $"{module}.{name}";
         Module = module;
+        SuperToken = superToken;
         FunctionTable = functionTable;
     }
 
-    public IObject GetField(IObject name)
-    {
-        return GetFunction(RuntimeNull.Null, name) as IObject ?? RuntimeNull.Null;
-    }
-
-    public RuntimeFunction? GetFunction(IObject target, IObject name)
+    public RuntimeFunction? GetFunction(VirtualMachine vm, IObject target, IObject name)
     {
         if (FunctionTable.TryGetFunction(name.ToString()!, out var function))
         {
             return new RuntimeFunction(target, function!);
         }
 
-        return Super?.GetFunction(target, name);
+        if (Super == null)
+        {
+            if (!string.IsNullOrEmpty(SuperToken))
+            {
+                Super = vm.GetClassLoader().Load(SuperToken);
+            }
+        }
+
+        return Super?.GetFunction(vm, target, name);
     }
 
     public virtual IObject CreateInstance()
@@ -501,7 +495,7 @@ public class RuntimeClass : IObject
 
 public class RuntimeBooleanClass : RuntimeClass
 {
-    public RuntimeBooleanClass(string name, string module, FunctionTable functionTable) : base(Builtin.Object.Class, name, module, functionTable)
+    public RuntimeBooleanClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
     {
 
     }
@@ -514,7 +508,7 @@ public class RuntimeBooleanClass : RuntimeClass
 
 public class RuntimeNullClass : RuntimeClass
 {
-    public RuntimeNullClass(string name, string module, FunctionTable functionTable) : base(Builtin.Object.Class, name, module, functionTable)
+    public RuntimeNullClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
     {
 
     }
@@ -527,7 +521,7 @@ public class RuntimeNullClass : RuntimeClass
 
 public class RuntimeStringClass : RuntimeClass
 {
-    public RuntimeStringClass(string name, string module, FunctionTable functionTable) : base(Builtin.Object.Class, name, module, functionTable)
+    public RuntimeStringClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
     {
 
     }
@@ -540,7 +534,7 @@ public class RuntimeStringClass : RuntimeClass
 
 public class RuntimeNumberClass : RuntimeClass
 {
-    public RuntimeNumberClass(string name, string module, FunctionTable functionTable) : base(Builtin.Object.Class, name, module, functionTable)
+    public RuntimeNumberClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
     {
 
     }
@@ -553,7 +547,7 @@ public class RuntimeNumberClass : RuntimeClass
 
 public class RuntimeArrayClass : RuntimeClass
 {
-    public RuntimeArrayClass(string name, string module, FunctionTable functionTable) : base(Builtin.Object.Class, name, module, functionTable)
+    public RuntimeArrayClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
     {
 
     }

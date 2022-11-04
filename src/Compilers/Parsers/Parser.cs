@@ -664,7 +664,7 @@ public class Parser
         Next();
         ParseImprots(module);
         ParseClasses(module);
-        return module;
+        return module.Initialize();
     }
 
     private void ParseClasses(ModuleDefinition module)
@@ -672,7 +672,7 @@ public class Parser
         while (Match(TokenType.Class))
         {
             var name = string.Empty;
-            var super = "Runtime.Object";
+            var super = "Object";
             Next();
             ThrowError(!Match(TokenType.Identifier));
             Next(token => name = token.Value.ToString());
@@ -712,7 +712,7 @@ public class Parser
         while (Match(TokenType.Import))
         {
             var path = string.Empty;
-            var classes = new List<ImportClass>();
+            var classes = new List<KeyValuePair<string, string>>();
             Next();
             ThrowError(!Match(TokenType.OpenBrace));
             Next();
@@ -744,7 +744,7 @@ public class Parser
                     ThrowError(!Match(TokenType.CloseBrace));
                 }
 
-                classes.Add(new ImportClass(name!, alias!));
+                classes.Add(new KeyValuePair<string, string>(name!, alias!));
             }
 
             ThrowError(!Match(TokenType.CloseBrace));
@@ -753,7 +753,7 @@ public class Parser
             Next();
             ThrowError(!Match(TokenType.LiteralString));
             Next(token => path = token.Value.ToString());
-            module.AddImportedClass(new ImportDefinition(path!, classes.ToArray()));
+            module.AddImported(classes.Select(i => new ImportDefinition(i.Key, i.Value, path)).ToArray());
         }
     }
 

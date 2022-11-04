@@ -366,7 +366,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             return stack.AreEqual(1);
         }
 
-        if (_function.Class.Module.ImportedClasses.TryGetValue(expr.Name, out var importedClass))
+        if (_function.Class.Module.Imports.TryGetValue(expr.Name, out var importedClass))
         {
             var stack = 0;
             stack += _emitter.Emit(OpCodeType.Ldstr, importedClass.Token);

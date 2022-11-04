@@ -5,23 +5,22 @@ public class ModuleDefinition
 {
     public string Path { get; }
 
-    public List<ImportDefinition> Imports { get; }
+    public Dictionary<string, ImportDefinition> Imports { get; }
 
-    public List<ClassDefinition> Classes { get; }
+    public Dictionary<string, ClassDefinition> Classes { get; }
 
     public ModuleDefinition(string path)
     {
         Path = path;
-        Classes = new List<ClassDefinition>();
-        Imports = new List<ImportDefinition>(){
-            new ImportDefinition("Runtime",new[]{
-                new ImportClass("Object","Object"),
-                new ImportClass("Array","Array"),
-                new ImportClass("String","String"),
-                new ImportClass("Number","Number"),
-                new ImportClass("Boolean","Boolean"),
-                    new ImportClass("Console","Console"),
-            })
+        Classes = new Dictionary<string, ClassDefinition>();
+        Imports = new Dictionary<string, ImportDefinition>
+        {
+            ["Object"] = new ImportDefinition("Object", "Object", "Runtime"),
+            ["Array"] = new ImportDefinition("Array", "Array", "Runtime"),
+            ["String"] = new ImportDefinition("String", "String", "Runtime"),
+            ["Number"] = new ImportDefinition("Number", "Number", "Runtime"),
+            ["Boolean"] = new ImportDefinition("Boolean", "Boolean", "Runtime"),
+            ["Console"] = new ImportDefinition("Console", "Console", "Runtime"),
         };
     }
 
@@ -30,14 +29,37 @@ public class ModuleDefinition
         return string.Join("\n", Classes.Select(i => i.ToString()));
     }
 
-    public void AddImportedClass(ImportDefinition importDefinition)
+    public void AddImported(params ImportDefinition[] imports)
     {
-        Imports.Add(importDefinition);
+        foreach (var item in imports)
+        {
+            Imports[item.Alias] = item;
+        }
     }
 
-    public void AddClass(ClassDefinition classDefinition)
+    public void AddClass(params ClassDefinition[] classes)
     {
-        Classes.Add(classDefinition);
+        foreach (var item in classes)
+        {
+            Classes[item.Name] = item;
+        }
+    }
+
+    public ModuleDefinition Initialize()
+    {
+        foreach (var item in Classes)
+        {
+            if (Classes.ContainsKey(item.Value.Super))
+            {
+                item.Value.Super = Path + "." + item.Value.Super;
+                continue;
+            }
+
+            var super = Imports[item.Value.Super];
+            item.Value.Super = super.Module + "." + super.Name;
+        }
+
+        return this;
     }
 }
 

@@ -279,9 +279,14 @@ public class VirtualMachine
     {
         var token = $"{module}.{@class}";
         var runtimeClass = _classLoader.Load(token);
-        var func = runtimeClass.GetFunction(RuntimeNull.Null, new RuntimeString(function));
+        var func = runtimeClass.GetFunction(this, RuntimeNull.Null, new RuntimeString(function));
 
         return Execute(func!, arguments);
+    }
+
+    public ClassLoader GetClassLoader()
+    {
+        return _classLoader;
     }
 }
 

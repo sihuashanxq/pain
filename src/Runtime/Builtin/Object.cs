@@ -5,9 +5,11 @@ public static class Object
 {
     public static RuntimeClass Class { get; }
 
+    public const string Token = $"{Const.Runtime}.{Const.Object}";
+
     static Object()
     {
-        Class = new RuntimeClass(null, Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Object)));
+        Class = new RuntimeClass(string.Empty, Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Object)));
     }
 
 

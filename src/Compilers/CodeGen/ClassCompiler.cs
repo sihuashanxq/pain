@@ -5,16 +5,13 @@ namespace Pain.Compilers.CodeGen
     {
         private readonly Strings _strings;
 
-        private readonly RuntimeClass _super;
-
         private readonly ModuleContext _module;
 
         private readonly ClassContext _class;
 
-        public ClassCompiler(ModuleContext module, ClassContext @class, RuntimeClass super, Strings strings)
+        public ClassCompiler(ModuleContext module, ClassContext @class, Strings strings)
         {
             _class = @class;
-            _super = super;
             _module = module;
             _strings = strings;
         }
@@ -27,7 +24,12 @@ namespace Pain.Compilers.CodeGen
                 functionTable.AddFunction(item.Name, item);
             }
 
-            return new RuntimeClass(_super, _class.Name, _class.Module.Path, functionTable);
+            return new RuntimeClass(_class.Name, _class.Definition.Super, _class.Module.Path, functionTable);
+        }
+
+        public static RuntimeClass Compile(ModuleContext module, ClassContext @class, Strings strings)
+        {
+            return new ClassCompiler(module, @class, strings).Compile();
         }
 
         private IEnumerable<Function> CompileFunctions()

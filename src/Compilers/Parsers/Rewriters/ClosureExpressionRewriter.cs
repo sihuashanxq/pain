@@ -115,7 +115,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
                 }
             }
 
-            _module.Classes.Add(newClass);
+            _module.AddClass(newClass!);
             return Syntax.MakeMember(Syntax.MakeMemberInit(@new, members), Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
         }
 

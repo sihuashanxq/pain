@@ -7,7 +7,7 @@ namespace Pain.Runtime.Builtin
 
         static FunctionBuiltin()
         {
-            Class = new RuntimeClass(Object.Class, Const.Runtime, Const.Function, Util.ScanFunctions(typeof(FunctionBuiltin)));
+            Class = new RuntimeClass(Const.Function, Object.Token, Const.Runtime, Util.ScanFunctions(typeof(FunctionBuiltin)));
         }
 
         [Function("bind")]

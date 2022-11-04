@@ -6,7 +6,7 @@ namespace Pain.Compilers.Parsers.Definitions
     {
         public string Name { get; }
 
-        public string Super { get; }
+        public string Super { get; set; }
 
         public List<FunctionExpression> Functions { get; }
 
