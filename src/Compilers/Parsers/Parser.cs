@@ -15,6 +15,11 @@ public class Parser
         _token = null!;
     }
 
+    public static ModuleDefinition Parse(string fileName, string sourceCode)
+    {
+        return new Parser(new Lexer(fileName, sourceCode)).ParseModule();
+    }
+
     private Syntax ParseUnitExpression()
     {
         var lExpr = ParseBitOrExpresion();
@@ -658,7 +663,7 @@ public class Parser
         throw new Exception("Not implemented");
     }
 
-    public ModuleDefinition ParseModule()
+    private ModuleDefinition ParseModule()
     {
         var module = new ModuleDefinition(_lexer.FileName);
         Next();
