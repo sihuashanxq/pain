@@ -384,7 +384,7 @@ public class Parser
         if (Match(TokenType.Arrow))
         {
             Next();
-            return ParseExpression();
+            return Syntax.MakeReturn(ParseExpression());
         }
 
         ThrowError(!Match(TokenType.OpenBrace));

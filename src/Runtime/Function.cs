@@ -6,21 +6,24 @@ public class Function
 
     public string Name { get; }
 
-    public MethodInfo Method { get; }
-
     public byte[] OpCodes { get; }
 
     public int MaxStackSize { get; }
 
     public int ParameterCount { get; }
 
+    public Func<IObject[], IObject> Delegate { get; }
+
     public Function(string name, bool natvie, byte[] opcodes, int maxStackSize, int parameterCount, MethodInfo methodInfo)
     {
         Name = name;
         OpCodes = opcodes;
-        Native=natvie;
-        Method = methodInfo;
+        Native = natvie;
         MaxStackSize = maxStackSize;
         ParameterCount = parameterCount;
+        if (methodInfo != null)
+        {
+            Delegate = (Func<IObject[], IObject>)methodInfo.CreateDelegate(typeof(Func<IObject[], IObject>));
+        }
     }
 }

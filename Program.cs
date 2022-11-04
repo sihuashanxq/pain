@@ -14,3 +14,9 @@ classLoader = new Pain.Runtime.ClassLoader(token =>
 
 var vm = new Pain.Runtime.VM.VirtualMachine(classLoader, strings);
 Console.WriteLine(vm.Execute("program", "program", "main", Array.Empty<Pain.Runtime.IObject>()).ToString());
+
+var st=new System.Diagnostics.Stopwatch();
+st.Start();
+var x=vm.Execute("program", "program", "main", Array.Empty<Pain.Runtime.IObject>()).ToString();
+st.Stop();
+Console.WriteLine(st.ElapsedMilliseconds);

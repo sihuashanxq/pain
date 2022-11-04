@@ -115,6 +115,8 @@ public class FunctionEmitter
                 stack = -1;
                 break;
             case OpCodeType.Stloc:
+                stack = -1;
+                break;
             case OpCodeType.Stfld:
                 stack = -3;
                 break;
@@ -141,11 +143,14 @@ public class FunctionEmitter
                 break;
             case OpCodeType.Pop:
                 stack = -(int)(operand!.GetValue());
+                if (stack == 0)
+                {
+                    return stack;
+                }
                 break;
         }
 
         Emit(opCode);
-
         return stack;
     }
 

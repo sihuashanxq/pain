@@ -142,9 +142,14 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             {
                 case SyntaxType.Name:
                     var name = expr.Left as NameExpression;
+                    var variable = _emitter.GetVariable(name.Name);
+                    if (variable == null)
+                    {
+                        throw new Exception($"{name.Name} was not found");
+                    }
                     stack += expr.Left.Accept(this);
                     stack += expr.Right.Accept(this);
-                    stack += _emitter.Emit(OpCodeType.Stloc);
+                    stack += _emitter.Emit(OpCodeType.Stloc, variable);
                     return stack.AreEqual(0);
                 case SyntaxType.Member:
                     var member = expr.Left as MemberExpression;
@@ -168,7 +173,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             foreach (var item in blockExpression.Statements)
             {
                 stack += item.Accept(this);
-                //  stack += _emitter.Emit(OpCodeType.Pop, stack);
+                stack += _emitter.Emit(OpCodeType.Pop, stack);
             }
 
             return stack.AreEqual(0);
@@ -255,7 +260,6 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             }
 
             stack += forExpression.Body.Accept(this);
-            stack += _emitter.Emit(OpCodeType.Pop, stack);
             _emitter.BindLabel(next);
 
             stack += forExpression.Iterators.Sum(item => item.Accept(this)).AreEqual(0);
@@ -271,6 +275,9 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         using (_emitter.Scope())
         {
             var stack = functionExpression.Body.Accept(this);
+            stack += _emitter.Emit(OpCodeType.Pop, stack);
+            stack += _emitter.Emit(OpCodeType.Ldnull);
+            stack += _emitter.Emit(OpCodeType.Ret);
             return stack.AreEqual(0);
         }
     }
@@ -507,7 +514,7 @@ internal static class StackExtensions
             return stack;
         }
 
-        // throw new Exception($"stack:{stack}!= want:{want}");
+        throw new Exception($"stack:{stack}!= want:{want}");
         return stack;
     }
 }

@@ -86,7 +86,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         return new ForExpression(
             expr.Initializers?.Select(i => i.Accept(this)).ToArray()!,
             expr.Test?.Accept(this)!,
-            expr.Initializers?.Select(i => i.Accept(this)).ToArray()!,
+            expr.Iterators?.Select(i => i.Accept(this)).ToArray()!,
             expr.Body?.Accept(this)!
         );
     }

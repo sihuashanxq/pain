@@ -47,6 +47,17 @@ public static class String
         return new RuntimeBoolean(false);
     }
 
+    [Function(Const.AddFunc)]
+    public static IObject Add(IObject[] arguments)
+    {
+        if (arguments == null || arguments.Length != 2)
+        {
+            return new RuntimeBoolean(false);
+        }
+
+        return new RuntimeString(arguments[0].ToString() + arguments[1].ToString());
+    }
+
     [Function(Const.LessThanFunc)]
     public static IObject LessThan(IObject[] arguments)
     {

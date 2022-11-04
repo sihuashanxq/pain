@@ -10,6 +10,18 @@ public static class Object
         Class = new RuntimeClass(null, Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Object)));
     }
 
+
+    [Function("is")]
+    public static IObject Is(IObject[] arguments)
+    {
+        if (arguments[0].GetClass().Equals(arguments[1].GetClass()))
+        {
+            return new RuntimeBoolean(true);
+        }
+
+        return new RuntimeBoolean(false);
+    }
+
     [Function(Const.ConstructorFunc)]
     public static IObject Constructor(IObject[] arguments)
     {

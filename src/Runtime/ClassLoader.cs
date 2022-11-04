@@ -16,6 +16,7 @@ public class ClassLoader
             [$"{Builtin.Const.Runtime}.{Builtin.Const.String}"] = Builtin.String.Class,
             [$"{Builtin.Const.Runtime}.{Builtin.Const.Number}"] = Builtin.Number.Class,
             [$"{Builtin.Const.Runtime}.{Builtin.Const.Boolean}"] = Builtin.Boolean.Class,
+            [$"{Builtin.Const.Runtime}.Console"] = Builtin.Console.Class,
         };
         _compile = compile;
     }

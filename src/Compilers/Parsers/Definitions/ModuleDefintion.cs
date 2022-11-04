@@ -16,9 +16,11 @@ public class ModuleDefinition
         Imports = new List<ImportDefinition>(){
             new ImportDefinition("Runtime",new[]{
                 new ImportClass("Object","Object"),
+                new ImportClass("Array","Array"),
                 new ImportClass("String","String"),
                 new ImportClass("Number","Number"),
                 new ImportClass("Boolean","Boolean"),
+                    new ImportClass("Console","Console"),
             })
         };
     }

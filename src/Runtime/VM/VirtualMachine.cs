@@ -19,7 +19,7 @@ public class VirtualMachine
     {
         if (function.Function.Native)
         {
-            return function.Function.Method.Invoke(null, new[] { arguments }) as IObject;
+            return function.Function.Delegate(arguments);
         }
 
         using (_stack.Push(function, arguments))
@@ -250,7 +250,7 @@ public class VirtualMachine
                             }
 
                             var func = ctx.Stack.Pop();
-                            var value=func.Call(this, args);
+                            var value = func.Call(this, args);
                             ctx.Stack.Push(value!);
                             ctx.IP += 4;
                         }
@@ -289,7 +289,7 @@ internal class ExecutionContext
 {
     public int IP { get; internal set; }
 
-    public Stack<IObject> Stack { get; }
+    public System.Collections.Generic.Stack<IObject> Stack { get; }
 
     public RuntimeFunction Function { get; }
 
@@ -300,7 +300,7 @@ internal class ExecutionContext
     public ExecutionContext(RuntimeFunction function, IObject[] arguments)
     {
         IP = 0;
-        Stack = new Stack<IObject>();
+        Stack = new System.Collections.Generic.Stack<IObject>();
         Function = function;
         Arguments = arguments;
         Varaibles = new IObject[1024];
