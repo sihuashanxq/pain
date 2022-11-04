@@ -3,7 +3,7 @@ namespace Pain
 {
     public class FileReader
     {
-        private static string _rootPath = "/Users/a000/Source/pain";
+        private static string _rootPath = System.IO.Directory.GetCurrentDirectory();
 
         public static string ReadFile(string path)
         {
@@ -17,6 +17,7 @@ namespace Pain
         {
             var path = string.Empty;
             path = token.Substring(0, token.LastIndexOf(".")).Replace(".", "/");
+
             return ReadFile(_rootPath + "/" + path + ".pp");
         }
     }

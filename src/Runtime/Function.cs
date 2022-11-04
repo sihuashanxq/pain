@@ -8,18 +8,18 @@ public class Function
 
     public byte[] OpCodes { get; }
 
-    public int MaxStackSize { get; }
+    public int MaxSlotSize { get; }
 
     public int ParameterCount { get; }
 
-    public Func<IObject[], IObject> Delegate { get; }
+    public Func<IObject[], IObject>? Delegate { get; }
 
-    public Function(string name, bool natvie, byte[] opcodes, int maxStackSize, int parameterCount, MethodInfo methodInfo)
+    public Function(string name, bool natvie, byte[] opcodes, int maxSlotSize ,int parameterCount, MethodInfo methodInfo)
     {
         Name = name;
         OpCodes = opcodes;
         Native = natvie;
-        MaxStackSize = maxStackSize;
+        MaxSlotSize = maxSlotSize;
         ParameterCount = parameterCount;
         if (methodInfo != null)
         {

@@ -9,7 +9,7 @@ public static class Object
 
     static Object()
     {
-        Class = new RuntimeClass(string.Empty, Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Object)));
+        Class = new RuntimeClass(Const.Object,string.Empty, Const.Runtime,  Util.ScanFunctions(typeof(Object)));
     }
 
 

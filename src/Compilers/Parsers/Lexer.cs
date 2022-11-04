@@ -629,6 +629,8 @@ public class Lexer
                 return new Token(TokenType.Default, token.Value, token.Position);
             case "new":
                 return new Token(TokenType.New, token.Value, token.Position);
+                case "null":
+                return new Token(TokenType.Null,token.Value,token.Position);
             case "super":
                 return new Token(TokenType.Super, token.Value, token.Position);
             case "this":

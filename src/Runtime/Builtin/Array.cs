@@ -1,6 +1,6 @@
 namespace Pain.Runtime.Builtin;
 
-[Class(Const.Runtime, Const.String)]
+[Class(Const.Runtime, Const.Array)]
 public static class Array
 {
     public static RuntimeArrayClass Class { get; }
@@ -13,6 +13,11 @@ public static class Array
     public static bool IsArray(IObject v)
     {
         return v is RuntimeArray;
+    }
+
+    [Function("len")]
+    public static IObject Len(IObject[] arguments){
+        return new RuntimeNumber( (arguments[0] as RuntimeArray).Items.Length!);
     }
 
     [Function(Const.ToStringFunc)]

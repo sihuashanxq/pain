@@ -105,6 +105,7 @@ public class FunctionEmitter
             case OpCodeType.Shr: //>>
             case OpCodeType.Xor: //^
             case OpCodeType.Eq: //==
+            case OpCodeType.Neq:
             case OpCodeType.Gt: //>
             case OpCodeType.Gte: //>=
             case OpCodeType.Or: //|

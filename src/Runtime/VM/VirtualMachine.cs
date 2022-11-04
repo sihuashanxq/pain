@@ -130,6 +130,13 @@ public class VirtualMachine
                             ctx.Stack.Push(v1.Euqal(this, v2));
                         }
                         break;
+                        case OpCodeType.Neq:
+                        {
+                            var v2 = ctx.Stack.Pop();
+                            var v1 = ctx.Stack.Pop();
+                            ctx.Stack.Push(new RuntimeBoolean(!v1.Euqal(this, v2).ToBoolean(this)));
+                        }
+                        break;
                     case OpCodeType.Pop:
                         {
                             var v = ctx.ReadInt32();
@@ -308,7 +315,7 @@ internal class ExecutionContext
         Stack = new System.Collections.Generic.Stack<IObject>();
         Function = function;
         Arguments = arguments;
-        Varaibles = new IObject[1024];
+        Varaibles = new IObject[function.Function.MaxSlotSize];
     }
 
     public byte ReadByte()

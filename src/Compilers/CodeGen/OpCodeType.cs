@@ -31,6 +31,8 @@ public enum OpCodeType : byte
 
     Eq,
 
+       Neq,
+
     New,
 
     Pop,

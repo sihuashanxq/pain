@@ -18,9 +18,9 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     public Function Compile()
     {
         Visit(_function.Expression);
-        var stackSize = _function.Frame.StackSize;
+        var slotSize = _function.Frame.MaxSlot;
         var parameterCount = _function.Expression.Parameters.Length;
-        return new Function(_function.Name, false, _emitter.GetBuffer(), stackSize, parameterCount, null!);
+        return new Function(_function.Name, false, _emitter.GetBuffer(), slotSize, parameterCount, null!);
     }
 
     public static Function CompileFunction(FunctionContext function, Strings strings)
@@ -118,6 +118,9 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             case SyntaxType.EqualTo:
                 stack += _emitter.Emit(OpCodeType.Eq);
                 break;
+            case SyntaxType.NotEqualTo:
+                stack += _emitter.Emit(OpCodeType.Neq);
+                break;
             case SyntaxType.LessThan:
             case SyntaxType.GreaterThan:
                 stack += _emitter.Emit(OpCodeType.Gt);
@@ -127,7 +130,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                 stack += _emitter.Emit(OpCodeType.Gte);
                 break;
             default:
-                throw new Exception($"not supported");
+                throw new Exception($"not supported {expr.Type}");
         }
 
         return stack;
@@ -147,7 +150,6 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                     {
                         throw new Exception($"{name.Name} was not found");
                     }
-                    stack += expr.Left.Accept(this);
                     stack += expr.Right.Accept(this);
                     stack += _emitter.Emit(OpCodeType.Stloc, variable);
                     return stack.AreEqual(0);
