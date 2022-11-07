@@ -13,7 +13,7 @@ namespace Pain.Runtime.Builtin
         public static IObject Log(IObject[] arguments)
         {
             System.Console.WriteLine(arguments[1].ToString());
-            return RuntimeNull.Null;
+            return Null.Const;
         }
     }
 }

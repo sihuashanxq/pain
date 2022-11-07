@@ -18,22 +18,22 @@ public static class Object
     {
         if (arguments[0].GetClass().Equals(arguments[1].GetClass()))
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.ConstructorFunc)]
     public static IObject Constructor(IObject[] arguments)
     {
-        return RuntimeNull.Null;
+        return Null.Const;
     }
 
     [Function(Const.ToStringFunc)]
     public static IObject ToString(IObject[] arguments)
     {
-        return new RuntimeString(string.Empty);
+        return new Runtime.String(string.Empty);
     }
 
     [Function(Const.EqualFunc)]
@@ -41,15 +41,15 @@ public static class Object
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeBoolean(false);
+            return new Runtime.Boolean(false);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.LessThanFunc)]

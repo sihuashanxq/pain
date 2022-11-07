@@ -3,17 +3,17 @@ namespace Pain.Runtime.Builtin
     [Class(Const.Runtime, Const.Null)]
     public class Null
     {
-        public static RuntimeNullClass Class { get; }
+        public static NullClass Class { get; }
 
         static Null()
         {
-            Class = new RuntimeNullClass(Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Object)));
+            Class = new NullClass(Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Object)));
         }
 
         [Function(Const.ToStringFunc)]
         public static IObject ToString(IObject[] arguments)
         {
-            return new RuntimeString("null");
+            return new Runtime.String("null");
         }
 
         [Function(Const.EqualFunc)]
@@ -21,15 +21,15 @@ namespace Pain.Runtime.Builtin
         {
             if (arguments == null || arguments.Length != 2)
             {
-                return new RuntimeBoolean(false);
+                return new Runtime.Boolean(false);
             }
 
             if (arguments[0] == arguments[1])
             {
-                return new RuntimeBoolean(true);
+                return new Runtime.Boolean(true);
             }
 
-            return new RuntimeBoolean(arguments[1] is RuntimeNull);
+            return new Runtime.Boolean(arguments[1] is Null);
         }
     }
 }

@@ -81,9 +81,9 @@ public abstract class Syntax
         return new MemberInitExpression(@new, members);
     }
 
-    public static FunctionExpression MakeFunction(string name, bool isLocal, ParameterExpression[] parameters, Syntax body)
+    public static FunctionExpression MakeFunction(string name, bool native, bool local, ParameterExpression[] parameters, Syntax body)
     {
-        return new FunctionExpression(name, isLocal, parameters, body);
+        return new FunctionExpression(name, native, local, parameters, body);
     }
 
     public static IfExpression MakeIf(Syntax test, Syntax ifTrue, Syntax ifFalse)

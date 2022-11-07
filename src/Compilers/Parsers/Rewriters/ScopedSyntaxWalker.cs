@@ -94,7 +94,10 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
     public void Walk()
     {
-        Visit(_function);
+        if (!_function.Native)
+        {
+            Visit(_function);
+        }
     }
 
     public static void Walk(FunctionExpression function)
@@ -181,7 +184,7 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
         using (_scope.Enter(expr))
         {
-            if (!expr.IsLocal)
+            if (!expr.Local)
             {
                 _scope.AddThis();
             }
@@ -249,7 +252,7 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitThis(ThisExpression expr)
     {
-        if (_function.IsLocal)
+        if (_function.Local)
         {
             _scope.Capture(expr, _function);
         }

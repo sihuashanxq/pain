@@ -32,7 +32,7 @@ namespace Pain.Compilers.CodeGen
             return new ClassCompiler(module, @class, strings).Compile();
         }
 
-        private IEnumerable<Function> CompileFunctions()
+        private IEnumerable<CompiledFunction> CompileFunctions()
         {
             foreach (var item in _class.Definition.Functions)
             {

@@ -22,13 +22,18 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     public FunctionExpression? Rewrite()
     {
+        if (_function.Native)
+        {
+            return _function;
+        }
+        
         ScopedSyntaxWalker.Walk(_function);
         return Visit(_function) as FunctionExpression;
     }
 
     protected internal override Syntax VisitBinary(BinaryExpression expr)
     {
-        if (expr.Type == SyntaxType.Assign && !_function.IsLocal)
+        if (expr.Type == SyntaxType.Assign && !_function.Local)
         {
 
         }
@@ -47,7 +52,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitCall(CallExpression expr)
     {
-        if(expr.Function.Type == SyntaxType.Super)
+        if (expr.Function.Type == SyntaxType.Super)
         {
             return Syntax.MakeCall(
                 Syntax.MakeCall(
@@ -93,13 +98,13 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitFunction(FunctionExpression expr)
     {
-        if (expr.IsLocal)
+        if (expr.Local)
         {
             var rewriter = new ClosureExpressionRewriter(expr, _module, _class);
             var name = new NameExpression(expr.Name);
             var @new = Syntax.MakeNew(name, Array.Empty<Syntax>());
             var members = new Dictionary<string, Syntax>();
-            var newClass = new ClassDefinition(name.Name, "Runtime.Object");
+            var newClass = new ClassDefinition(name.Name, "Object");
             rewriter.VisitFunctionChildren(expr);
             newClass.AddFunction(expr);
 
@@ -151,7 +156,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             return Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this));
         }
 
-        if (!_function.IsLocal)
+        if (!_function.Local)
         {
             return Syntax.MakeCall(
                Syntax.MakeMember(Syntax.MakeMember(expr.Object.Accept(this), expr.Member.Accept(this)), _bind),
@@ -193,7 +198,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitThis(ThisExpression expr)
     {
-        if (_function.IsLocal)
+        if (_function.Local)
         {
             return UnWrap(expr);
         }
@@ -238,7 +243,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
     {
         if (_function.CaptureVariables.TryGetValue(name, out var _))
         {
-            if (!_function.IsLocal)
+            if (!_function.Local)
             {
                 return Syntax.MakeMember(name, Syntax.MakeConstant(name.Name, SyntaxType.ConstString));
             }

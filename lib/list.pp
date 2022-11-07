@@ -1,13 +1,13 @@
 
 class List{
-    fn cotr(){
+    fn ctor(){
        this.head=null
        this.tail=null
     }
 
     fn addFront(value){
         let node=new Node(value)
-        node.next=this.heade
+        node.next=this.head
         this.head=node
 
         if this.tail==null {
@@ -25,8 +25,8 @@ class List{
         let i=0
         let array=new Array()
 
-        for let node=this.head;node!=null;node=node.next{
-            array[i]=node
+        for let node= this.head; node!= null; node= node.next {
+            array[i]=node.value
             i=i+1
         }
 

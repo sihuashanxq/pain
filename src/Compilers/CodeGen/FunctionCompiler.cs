@@ -15,15 +15,15 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         _function = function;
     }
 
-    public Function Compile()
+    public CompiledFunction Compile()
     {
         Visit(_function.Expression);
         var slotSize = _function.Frame.MaxSlot;
         var parameterCount = _function.Expression.Parameters.Length;
-        return new Function(_function.Name, false, _emitter.GetBuffer(), slotSize, parameterCount, null!);
+        return new CompiledFunction(_function.Name, false, _emitter.GetBuffer(), slotSize, parameterCount, null!);
     }
 
-    public static Function CompileFunction(FunctionContext function, Strings strings)
+    public static CompiledFunction CompileFunction(FunctionContext function, Strings strings)
     {
         return new FunctionCompiler(function, strings).Compile();
     }
@@ -206,7 +206,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             case SyntaxType.ConstBoolean:
                 stack += _emitter.Emit(OpCodeType.Ldnum, 0d);
                 stack += _emitter.Emit(OpCodeType.Ldnum, 0d);
-                stack += _emitter.Emit((bool)(constantExpression.Value) ? OpCodeType.Eq : OpCodeType.Gt);
+                stack += _emitter.Emit((constantExpression.Value.ToString()=="true") ? OpCodeType.Eq : OpCodeType.Gt);
                 break;
             case SyntaxType.ConstNull:
                 stack += _emitter.Emit(OpCodeType.Ldnull);

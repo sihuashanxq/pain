@@ -1,11 +1,28 @@
-
 import {List} from "lib.list"
 class Program{
     fn main(){
-        let list=new List()
-        list.addFront(1)
-        list.addFront(2)
-        list.addFront(3)
-        Console.log(list.toArray().toString())
+       if true or false{
+           Console.log(1)
+       }
+
+       if false || true{
+           Console.log(2)
+       }
+
+       if true&&true{
+           Console.log(3)
+       }
+
+       if false&&true{
+           Console.log(4)
+       }
+
+       if true&&false{
+           Console.log(5)
+       }
+
+       if true&&Program{
+           Console.log(6)
+       }
     }
 }

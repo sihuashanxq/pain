@@ -22,7 +22,7 @@ public class Parser
 
     private Syntax ParseUnitExpression()
     {
-        var lExpr = ParseBitOrExpresion();
+        var lExpr = ParseOrExpression();
         var token = _token;
         if (!token.Type.IsAssign())
         {
@@ -39,7 +39,7 @@ public class Parser
             ThrowError();
         }
 
-        var rExpr = Parse(Next, ParseUnitExpression, ThrowNullError);
+        var rExpr = Parse(Next, ParseOrExpression, ThrowNullError);
         switch (token.Type)
         {
             case TokenType.Assign:
@@ -68,6 +68,30 @@ public class Parser
                 ThrowError();
                 throw new Exception();
         }
+    }
+
+    private Syntax ParseOrExpression()
+    {
+        var lExpr = Parse(null, ParseAndExpression, ThrowNullError(TokenType.Or));
+        while (Match(TokenType.Or))
+        {
+            var rExpr = Parse(Next, ParseBitXorExpresion, ThrowNullError);
+            lExpr = Syntax.MakeBinary(lExpr, rExpr, SyntaxType.Or);
+        }
+
+        return lExpr;
+    }
+
+    private Syntax ParseAndExpression()
+    {
+        var lExpr = Parse(null, ParseBitOrExpresion, ThrowNullError(TokenType.And));
+        while (Match(TokenType.And))
+        {
+            var rExpr = Parse(Next, ParseBitXorExpresion, ThrowNullError);
+            lExpr = Syntax.MakeBinary(lExpr, rExpr, SyntaxType.And);
+        }
+
+        return lExpr;
     }
 
     private Syntax ParseBitOrExpresion()
@@ -280,6 +304,14 @@ public class Parser
                 return ParseNewExpression();
             case TokenType.Func:
                 return ParseLocalFunctionExpression();
+            case TokenType.OpenParen:
+                Next();
+                return Parse(null, ParseExpression, i =>
+                {
+                    ThrowNullError(i);
+                    ThrowError(_token.Type != TokenType.CloseParen);
+                    Next();
+                });
             default:
                 return null!;
         }
@@ -353,19 +385,32 @@ public class Parser
     private FunctionExpression ParseFunctionExpression()
     {
         var name = string.Empty;
+        var native = false;
         ThrowError(!Match(TokenType.Func));
         Next();
+        if (Match(TokenType.Native))
+        {
+            native = true;
+            Next();
+        }
         ThrowError(!Match(TokenType.Identifier));
         name = _token.Value.ToString();
         Next();
         var parameters = ParseFunctionParameters();
-        var functionBody = ParseFunctionBodyExpression();
-        var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
-        if (parameters.Length == 0)
+        if (native)
         {
-            parameterInits = Syntax.MakeEmpty();
+            return Syntax.MakeFunction(name!, native, false, parameters, Syntax.MakeBlock());
         }
-        return Syntax.MakeFunction(name!, false, parameters, Syntax.MakeBlock(parameterInits, functionBody));
+        else
+        {
+            var functionBody = ParseFunctionBodyExpression();
+            var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
+            if (parameters.Length == 0)
+            {
+                parameterInits = Syntax.MakeEmpty();
+            }
+            return Syntax.MakeFunction(name!, native, false, parameters, Syntax.MakeBlock(parameterInits, functionBody));
+        }
     }
 
     private Syntax ParseLocalFunctionExpression()
@@ -381,7 +426,7 @@ public class Parser
             parameterInits = Syntax.MakeEmpty();
         }
 
-        return Syntax.MakeFunction(name!, true, parameters, Syntax.MakeBlock(parameterInits, functionBody));
+        return Syntax.MakeFunction(name!, false, true, parameters, Syntax.MakeBlock(parameterInits, functionBody));
     }
 
     private Syntax ParseFunctionBodyExpression()

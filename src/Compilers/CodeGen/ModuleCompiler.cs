@@ -1,5 +1,6 @@
 using Pain.Compilers.Parsers.Definitions;
 using Pain.Runtime;
+using Pain.Compilers.Parsers;
 namespace Pain.Compilers.CodeGen
 {
     public class ModuleCompiler
@@ -26,8 +27,8 @@ namespace Pain.Compilers.CodeGen
 
         public static IEnumerable<RuntimeClass> Compile(string token, Strings strings)
         {
-            var sourceCode = FileReader.ReadModule(token);
-            var module = Pain.Compilers.Parsers.Parser.Parse(token.Substring(0, token.LastIndexOf(".")), sourceCode)!;
+            var sourceCode = ModuleReader.Read(token);
+            var module = Parser.Parse(token.Substring(0, token.LastIndexOf(".")), sourceCode)!;
             return Compile(module, strings);
         }
     }

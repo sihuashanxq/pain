@@ -1,10 +1,10 @@
-namespace Pain.Runtime.Builtin
+namespace Pain.Runtime
 {
     public static class Const
     {
         public const string Number = "Number";
 
-        public const string Runtime = "Runtime";
+        public const string Runtime = "@Runtime";
 
         public const string String = "String";
 

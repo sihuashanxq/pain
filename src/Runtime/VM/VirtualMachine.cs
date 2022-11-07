@@ -15,11 +15,11 @@ public class VirtualMachine
         _classLoader = classLoader;
     }
 
-    public IObject? Execute(RuntimeFunction function, IObject[] arguments)
+    public IObject? Execute(Function function, IObject[] arguments)
     {
-        if (function.Function.Native)
+        if (function.Func.Native)
         {
-            return function.Function.Delegate(arguments);
+            return function.Func.Delegate(arguments);
         }
 
         using (_stack.Push(function, arguments))
@@ -134,7 +134,7 @@ public class VirtualMachine
                         {
                             var v2 = ctx.Stack.Pop();
                             var v1 = ctx.Stack.Pop();
-                            ctx.Stack.Push(new RuntimeBoolean(!v1.Euqal(this, v2).ToBoolean(this)));
+                            ctx.Stack.Push(new Boolean(!v1.Euqal(this, v2).ToBoolean(this)));
                         }
                         break;
                     case OpCodeType.Pop:
@@ -163,7 +163,7 @@ public class VirtualMachine
                         break;
                     case OpCodeType.Ldnull:
                         {
-                            ctx.Stack.Push(RuntimeNull.Null);
+                            ctx.Stack.Push(Null.Const);
                         }
                         break;
                     case OpCodeType.Ldfld:
@@ -177,13 +177,13 @@ public class VirtualMachine
                         {
                             var token = ctx.ReadInt32();
                             var str = _strings.GetString(token);
-                            ctx.Stack.Push(new RuntimeString(str));
+                            ctx.Stack.Push(new String(str));
                             ctx.IP += 4;
                         }
                         break;
                     case OpCodeType.Ldnum:
                         {
-                            ctx.Stack.Push(new RuntimeNumber(ctx.ReadDouble()));
+                            ctx.Stack.Push(new Number(ctx.ReadDouble()));
                             ctx.IP += 8;
                         }
                         break;
@@ -278,7 +278,7 @@ public class VirtualMachine
                 }
             }
 
-            return RuntimeNull.Null;
+            return Null.Const;
         }
     }
 
@@ -286,7 +286,7 @@ public class VirtualMachine
     {
         var token = $"{module}.{@class}";
         var runtimeClass = _classLoader.Load(token);
-        var func = runtimeClass.GetFunction(this, RuntimeNull.Null, new RuntimeString(function));
+        var func = runtimeClass.GetFunction(this, Null.Const, new String(function));
 
         return Execute(func!, arguments);
     }
@@ -303,44 +303,44 @@ internal class ExecutionContext
 
     public System.Collections.Generic.Stack<IObject> Stack { get; }
 
-    public RuntimeFunction Function { get; }
+    public Function Function { get; }
 
     public IObject[] Arguments { get; }
 
     public IObject[] Varaibles { get; }
 
-    public ExecutionContext(RuntimeFunction function, IObject[] arguments)
+    public ExecutionContext(Function function, IObject[] arguments)
     {
         IP = 0;
         Stack = new System.Collections.Generic.Stack<IObject>();
         Function = function;
         Arguments = arguments;
-        Varaibles = new IObject[function.Function.MaxSlotSize];
+        Varaibles = new IObject[function.Func.MaxSlotSize];
     }
 
     public byte ReadByte()
     {
-        return Function.Function.OpCodes[IP];
+        return Function.Func.OpCodes[IP];
     }
 
     public Int32 ReadInt32()
     {
-        return BitConverter.ToInt32(Function.Function.OpCodes, IP);
+        return BitConverter.ToInt32(Function.Func.OpCodes, IP);
     }
 
     public Int64 ReadInt64()
     {
-        return BitConverter.ToInt64(Function.Function.OpCodes, IP);
+        return BitConverter.ToInt64(Function.Func.OpCodes, IP);
     }
 
     public double ReadDouble()
     {
-        return BitConverter.ToDouble(Function.Function.OpCodes, IP);
+        return BitConverter.ToDouble(Function.Func.OpCodes, IP);
     }
 
     public bool CanExecution()
     {
-        return IP < Function.Function.OpCodes.Length;
+        return IP < Function.Func.OpCodes.Length;
     }
 }
 
@@ -362,7 +362,7 @@ internal class ExecutionContextStack
         _current = _stack.Pop();
     }
 
-    internal IDisposable Push(RuntimeFunction function, IObject[] arguments)
+    internal IDisposable Push(Function function, IObject[] arguments)
     {
         var ctx = new ExecutionContext(function, arguments);
         _current = ctx;

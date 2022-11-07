@@ -3,16 +3,16 @@ namespace Pain.Runtime.Builtin;
 [Class(Const.Runtime, Const.Number)]
 public static class Number
 {
-    public static RuntimeNumberClass Class { get; }
+    public static NumberClass Class { get; }
 
     static Number()
     {
-        Class = new RuntimeNumberClass(Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Number)));
+        Class = new NumberClass(Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Number)));
     }
 
     public static bool IsNumber(IObject v2)
     {
-        return v2 is RuntimeNumber;
+        return v2 is Runtime.Number;
     }
 
     [Function(Const.ToStringFunc)]
@@ -23,7 +23,7 @@ public static class Number
             throw new ArgumentException();
         }
 
-        return new RuntimeString(((RuntimeNumber)arguments[0]).Value.ToString());
+        return new Runtime.String(((Runtime.Number)arguments[0]).Value.ToString());
     }
 
     [Function(Const.EqualFunc)]
@@ -31,20 +31,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeBoolean(false);
+            return new Runtime.Boolean(false);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeBoolean(((RuntimeNumber)arguments[0]).Value == ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Boolean(((Runtime.Number)arguments[0]).Value == ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.LessThanFunc)]
@@ -52,20 +52,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeBoolean(false);
+            return new Runtime.Boolean(false);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeBoolean(((RuntimeNumber)arguments[0]).Value < ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Boolean(((Runtime.Number)arguments[0]).Value < ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.GreaterThanFunc)]
@@ -73,20 +73,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeBoolean(false);
+            return new Runtime.Boolean(false);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeBoolean(((RuntimeNumber)arguments[0]).Value > ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Boolean(((Runtime.Number)arguments[0]).Value > ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.LessThanOrEqualFunc)]
@@ -94,20 +94,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeBoolean(false);
+            return new Runtime.Boolean(false);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeBoolean(((RuntimeNumber)arguments[0]).Value <= ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Boolean(((Runtime.Number)arguments[0]).Value <= ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.GtreaterThanOrEqualFunc)]
@@ -115,20 +115,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeBoolean(false);
+            return new Runtime.Boolean(false);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeBoolean(true);
+            return new Runtime.Boolean(true);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeBoolean(((RuntimeNumber)arguments[0]).Value >= ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Boolean(((Runtime.Number)arguments[0]).Value >= ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeBoolean(false);
+        return new Runtime.Boolean(false);
     }
 
     [Function(Const.LeftShiftFunc)]
@@ -136,20 +136,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber((Int64)(((RuntimeNumber)arguments[0]).Value) << (int)((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number((Int64)(((Runtime.Number)arguments[0]).Value) << (int)((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.RightShiftFunc)]
@@ -157,20 +157,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber((Int64)(((RuntimeNumber)arguments[0]).Value) >> (int)((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number((Int64)(((Runtime.Number)arguments[0]).Value) >> (int)((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.XOrFunc)]
@@ -178,20 +178,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber((Int64)(((RuntimeNumber)arguments[0]).Value) ^ (Int64)((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number((Int64)(((Runtime.Number)arguments[0]).Value) ^ (Int64)((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.OrFunc)]
@@ -199,20 +199,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber((Int64)(((RuntimeNumber)arguments[0]).Value) | (Int64)((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number((Int64)(((Runtime.Number)arguments[0]).Value) | (Int64)((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.NotFunc)]
@@ -220,10 +220,10 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 1)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
-        return new RuntimeNumber(~(Int64)(((RuntimeNumber)arguments[0]).Value));
+        return new Runtime.Number(~(Int64)(((Runtime.Number)arguments[0]).Value));
     }
 
     [Function(Const.AndFunc)]
@@ -231,20 +231,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber((Int64)(((RuntimeNumber)arguments[0]).Value) & (Int64)((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number((Int64)(((Runtime.Number)arguments[0]).Value) & (Int64)((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.AddFunc)]
@@ -252,20 +252,24 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber(((RuntimeNumber)arguments[0]).Value + ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number(((Runtime.Number)arguments[0]).Value + ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
+    }
+    public static IObject Add(IObject v1, IObject v2)
+    {
+        return new Runtime.Number(((Runtime.Number)v1).Value + ((Runtime.Number)v2).Value);
     }
 
     [Function(Const.SubFunc)]
@@ -273,20 +277,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber(((RuntimeNumber)arguments[0]).Value - ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number(((Runtime.Number)arguments[0]).Value - ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.MulFunc)]
@@ -294,20 +298,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber(((RuntimeNumber)arguments[0]).Value * ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number(((Runtime.Number)arguments[0]).Value * ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.ModFunc)]
@@ -315,20 +319,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber(((RuntimeNumber)arguments[0]).Value % ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number(((Runtime.Number)arguments[0]).Value % ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.DivFunc)]
@@ -336,20 +340,20 @@ public static class Number
     {
         if (arguments == null || arguments.Length != 2)
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (arguments[0] == arguments[1])
         {
-            return new RuntimeNumber(double.NaN);
+            return new Runtime.Number(double.NaN);
         }
 
         if (IsNumber(arguments[1]))
         {
-            return new RuntimeNumber(((RuntimeNumber)arguments[0]).Value / ((RuntimeNumber)arguments[1]).Value);
+            return new Runtime.Number(((Runtime.Number)arguments[0]).Value / ((Runtime.Number)arguments[1]).Value);
         }
 
-        return new RuntimeNumber(double.NaN);
+        return new Runtime.Number(double.NaN);
     }
 
     [Function(Const.CallFunc)]

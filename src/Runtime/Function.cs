@@ -1,6 +1,6 @@
 namespace Pain.Runtime;
 using System.Reflection;
-public class Function
+public class CompiledFunction
 {
     public bool Native { get; }
 
@@ -14,7 +14,7 @@ public class Function
 
     public Func<IObject[], IObject>? Delegate { get; }
 
-    public Function(string name, bool natvie, byte[] opcodes, int maxSlotSize ,int parameterCount, MethodInfo methodInfo)
+    public CompiledFunction(string name, bool natvie, byte[] opcodes, int maxSlotSize ,int parameterCount, MethodInfo methodInfo)
     {
         Name = name;
         OpCodes = opcodes;

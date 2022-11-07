@@ -8,9 +8,11 @@ namespace Pain.Compilers.Expressions
 
         public string Name { get; set; }
 
-        public bool IsLocal { get; }
+        public bool Local { get; }
 
         public Syntax Body { get; set; }
+
+        public bool Native { get; }
 
         public ParameterExpression[] Parameters { get; }
 
@@ -18,11 +20,12 @@ namespace Pain.Compilers.Expressions
 
         public Dictionary<ICaptureable, ICaptureable> CaptureVariables { get; }
 
-        public FunctionExpression(string name, bool isLocal, ParameterExpression[] parameters, Syntax body)
+        public FunctionExpression(string name, bool native, bool local, ParameterExpression[] parameters, Syntax body)
         {
             Name = name;
             Body = body;
-            IsLocal = isLocal;
+            Local = local;
+            Native = native;
             Parameters = parameters;
             CaptureVariables = new Dictionary<ICaptureable, ICaptureable>();
             CapturedVariables = new HashSet<ICaptureable>();

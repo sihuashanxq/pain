@@ -1,5 +1,5 @@
 using System.Reflection;
-namespace Pain.Runtime.Builtin;
+namespace Pain.Runtime;
 
 public static class Util
 {
@@ -15,7 +15,7 @@ public static class Util
                 continue;
             }
 
-            var function = new Function(name, true, null!, 0, method.GetParameters().Length, method);
+            var function = new CompiledFunction(name, true, null!, 0, method.GetParameters().Length, method);
             functionTable.AddFunction(name, function);
         }
 

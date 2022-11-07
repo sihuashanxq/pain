@@ -1,19 +1,19 @@
 namespace Pain.Runtime.Builtin
 {
     [Class(Const.Runtime, Const.Function)]
-    public static class FunctionBuiltin
+    public static class Func
     {
         public static RuntimeClass Class { get; }
 
-        static FunctionBuiltin()
+        static Func()
         {
-            Class = new RuntimeClass(Const.Function, Object.Token, Const.Runtime, Util.ScanFunctions(typeof(FunctionBuiltin)));
+            Class = new RuntimeClass(Const.Function, Object.Token, Const.Runtime, Util.ScanFunctions(typeof(Func)));
         }
 
         [Function("bind")]
         public static IObject ToString(IObject[] arguments)
         {
-            return new RuntimeFunction(arguments[1], (arguments[0] as RuntimeFunction).Function);
+            return new Function(arguments[1], (arguments[0] as Function).Func);
         }
     }
 }
