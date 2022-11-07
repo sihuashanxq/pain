@@ -1,4 +1,6 @@
 using Pain.Runtime;
+using RuntimeType = Pain.Runtime.Types.Type;
+using Pain.Runtime.Types;
 namespace Pain.Compilers.CodeGen
 {
     public class ClassCompiler
@@ -16,18 +18,25 @@ namespace Pain.Compilers.CodeGen
             _strings = strings;
         }
 
-        public RuntimeClass Compile()
+        public RuntimeType Compile()
         {
-            var functionTable = new Pain.Runtime.FunctionTable();
+            var table = new FunctionTable();
             foreach (var item in CompileFunctions())
             {
-                functionTable.AddFunction(item.Name, item);
+                table.Add(item.Name, item);
             }
 
-            return new RuntimeClass(_class.Name, _class.Definition.Super, _class.Module.Path, functionTable);
+            var builtin = Runtime.Types.Builtin.GetType(_class.Token);
+            if (builtin != null)
+            {
+                builtin.FunctionTable.Add(table);
+                return builtin;
+            }
+
+            return new RuntimeType(_class.Token, _class.Super, table);
         }
 
-        public static RuntimeClass Compile(ModuleContext module, ClassContext @class, Strings strings)
+        public static RuntimeType Compile(ModuleContext module, ClassContext @class, Strings strings)
         {
             return new ClassCompiler(module, @class, strings).Compile();
         }

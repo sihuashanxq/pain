@@ -130,8 +130,10 @@ public class FunctionEmitter
             case OpCodeType.Br:
             case OpCodeType.Not:
             case OpCodeType.Swap1_2:
-            case OpCodeType.Ldtoken:
                 stack = 0;
+                break;
+            case OpCodeType.Ldtoken:
+                stack=-1;
                 break;
             case OpCodeType.Dup:
             case OpCodeType.Push:

@@ -9,7 +9,35 @@ public class FunctionTable
         _functions = new Dictionary<string, CompiledFunction>();
     }
 
-    public bool TryGetFunction(string name, out CompiledFunction? function)
+    public void Add(string name, CompiledFunction function)
+    {
+        _functions[name] = function;
+    }
+
+    public void Add(FunctionTable table)
+    {
+        foreach (var item in table)
+        {
+            if (item.Native)
+            {
+                if (!TryGet(item.Name, out var exists) || !exists!.Native)
+                {
+                    throw new Exception();
+                }
+            }
+            else
+            {
+                if (TryGet(item.Name, out var _))
+                {
+                    continue;
+                }
+
+                Add(item.Name, item);
+            }
+        }
+    }
+
+    public bool TryGet(string name, out CompiledFunction? function)
     {
         if (_functions.TryGetValue(name, out function))
         {
@@ -20,8 +48,8 @@ public class FunctionTable
         return false;
     }
 
-    public void AddFunction(string name, CompiledFunction function)
+    public IEnumerator<CompiledFunction> GetEnumerator()
     {
-        _functions[name] = function;
+        return _functions.Values.GetEnumerator();
     }
 }

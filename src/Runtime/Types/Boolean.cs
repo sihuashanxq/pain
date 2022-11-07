@@ -1,21 +1,24 @@
 using Pain.Runtime.VM;
-namespace Pain.Runtime
+namespace Pain.Runtime.Types
 {
     public class Boolean : IObject
     {
-        public static readonly Boolean True;
+        public static ModuleToken Token { get; }
 
-        public static readonly Boolean Flase;
+        public static Boolean True { get; }
 
-        public readonly static BooleanType Type;
+        public static Boolean False { get; }
+
+        public static BooleanType Type { get; }
 
         public bool Value { get; private set; }
 
         static Boolean()
         {
-            Type = new BooleanType(Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Boolean)));
+            Token = new ModuleToken(Const.Runtime, Const.Boolean);
+            Type = new BooleanType(Util.ScanFunctions(typeof(Boolean)));
             True = new Boolean(true);
-            Flase = new Boolean(false);
+            False = new Boolean(false);
         }
 
         public Boolean(bool value)
@@ -23,9 +26,9 @@ namespace Pain.Runtime
             Value = value;
         }
 
-        public RuntimeClass GetClass()
+        public Type GetType(VirtualMachine vm)
         {
-            return Builtin.Boolean.Class;
+            return Builtin.BooleanType;
         }
 
         public bool ToBoolean(VirtualMachine vm)
@@ -38,36 +41,45 @@ namespace Pain.Runtime
             throw new NotImplementedException();
         }
 
-        public static bool IsBoolean(IObject v)
-        {
-            return v is Runtime.Boolean;
-        }
-
         [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] arguments)
+        public static IObject ToString(IObject[] args)
         {
-            return new Runtime.String(arguments[0].ToString()!);
+            return new String(args[0].ToString()!);
         }
 
         [Function(Const.EqualFunc)]
-        public static IObject Euqal(IObject[] arguments)
+        public static IObject Euqal(IObject[] args)
         {
-            if (arguments == null || arguments.Length != 2)
+            if (args == null || args.Length != 2)
             {
-                return new Runtime.Boolean(false);
+                return Boolean.False;
             }
 
-            if (arguments[0] == arguments[1])
+            if (args[0] == args[1])
             {
-                return new Runtime.Boolean(true);
+                return Boolean.True;
             }
 
-            if (IsBoolean(arguments[1]))
+            if (args[0] is Boolean v1 && args[1] is Boolean v2)
             {
-                return new Runtime.Boolean(((Runtime.Boolean)(arguments[0])).Value && ((Runtime.Boolean)(arguments[1])).Value);
+                return v1.Value == v2.Value ? Boolean.True : Boolean.False;
             }
 
-            return new Runtime.Boolean(false);
+            return Boolean.False;
+        }
+    }
+
+
+    public class BooleanType : Type
+    {
+        public BooleanType(FunctionTable table) : base(Builtin.Boolean, Builtin.Object, table)
+        {
+
+        }
+
+        public override IObject CreateInstance()
+        {
+            return new Boolean(false);
         }
     }
 }

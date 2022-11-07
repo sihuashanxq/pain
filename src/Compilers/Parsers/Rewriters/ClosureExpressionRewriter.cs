@@ -4,15 +4,15 @@ namespace Pain.Compilers.Parsers.Rewriters;
 
 public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 {
-    private readonly ClassDefinition _class;
+    private readonly Class _class;
 
-    private readonly ModuleDefinition _module;
+    private readonly Module _module;
 
     private readonly FunctionExpression _function;
 
     private readonly Syntax _bind;
 
-    public ClosureExpressionRewriter(FunctionExpression function, ModuleDefinition module, ClassDefinition @class)
+    public ClosureExpressionRewriter(FunctionExpression function, Module module, Class @class)
     {
         _class = @class;
         _module = module;
@@ -104,7 +104,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
             var name = new NameExpression(expr.Name);
             var @new = Syntax.MakeNew(name, Array.Empty<Syntax>());
             var members = new Dictionary<string, Syntax>();
-            var newClass = new ClassDefinition(name.Name, "Object");
+            var newClass = new Class(name.Name, "Object");
             rewriter.VisitFunctionChildren(expr);
             newClass.AddFunction(expr);
 

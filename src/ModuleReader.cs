@@ -7,16 +7,16 @@ namespace Pain
 
         internal static string Project = Directory.GetCurrentDirectory();
 
-        public static string Read(string token)
+        public static string Read(ModuleToken token)
         {
             var path = string.Empty;
-            if (token.StartsWith("@"))
+            if (token.Module.StartsWith("@"))
             {
-                path = $"{Runtime}/{token.Substring(0, token.LastIndexOf(".")).Replace(".", "/")}.pp";
+                path = $"{Runtime}/{token.Module.Substring(1).Replace(".", "/")}.pp";
             }
             else
             {
-                path = $"{Project}/{token.Substring(0, token.LastIndexOf(".")).Replace(".", "/")}.pp";
+                path = $"{Project}/{token.Module.Replace(".", "/")}.pp";
             }
 
             using (var sw = new StreamReader(path))

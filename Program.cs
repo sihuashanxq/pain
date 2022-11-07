@@ -11,7 +11,7 @@ namespace Pain
             var strings = new Strings();
             var classLoader = new ClassLoader(token => ModuleCompiler.Compile(token, strings));
             var vm = new VirtualMachine(classLoader, strings);
-            vm.Execute("program", "Program", "main", Array.Empty<Pain.Runtime.IObject>());
+            Console.WriteLine(vm.Execute(new ModuleToken("program", "Program"), "main", Array.Empty<Pain.Runtime.Types.IObject>()));
         }
     }
 }

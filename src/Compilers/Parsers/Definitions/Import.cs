@@ -1,7 +1,7 @@
 ﻿using System;
 namespace Pain.Compilers.Parsers.Definitions
 {
-    public class ImportDefinition
+    public class Import
     {
         public string Name { get; }
 
@@ -9,13 +9,10 @@ namespace Pain.Compilers.Parsers.Definitions
 
         public string Module { get; }
 
-        public string Token { get; }
-
-        public ImportDefinition(string name, string alias, string module)
+        public Import(string name, string alias, string module)
         {
             Name = name;
             Alias = alias;
-            Token=$"{module}.{name}";
             Module = module;
         }
     }

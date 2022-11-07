@@ -2,7 +2,7 @@
 using System.Text;
 namespace Pain.Compilers.Parsers.Definitions
 {
-    public class ClassDefinition
+    public class Class
     {
         public string Name { get; }
 
@@ -10,7 +10,7 @@ namespace Pain.Compilers.Parsers.Definitions
 
         public List<FunctionExpression> Functions { get; }
 
-        public ClassDefinition(string name, string super)
+        public Class(string name, string super)
         {
             Name = name;
             Super = super;

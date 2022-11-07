@@ -15,7 +15,7 @@ public class Parser
         _token = null!;
     }
 
-    public static ModuleDefinition Parse(string fileName, string sourceCode)
+    public static Module Parse(string fileName, string sourceCode)
     {
         return new Parser(new Lexer(fileName, sourceCode)).ParseModule();
     }
@@ -708,16 +708,16 @@ public class Parser
         throw new Exception("Not implemented");
     }
 
-    private ModuleDefinition ParseModule()
+    private Module ParseModule()
     {
-        var module = new ModuleDefinition(_lexer.FileName);
+        var module = new Module(_lexer.FileName);
         Next();
         ParseImprots(module);
         ParseClasses(module);
-        return module.Initialize();
+        return module;
     }
 
-    private void ParseClasses(ModuleDefinition module)
+    private void ParseClasses(Module module)
     {
         while (Match(TokenType.Class))
         {
@@ -736,7 +736,7 @@ public class Parser
 
             ThrowError(!Match(TokenType.OpenBrace));
             Next();
-            var @class = new ClassDefinition(name, super);
+            var @class = new Class(name, super);
 
             while (Match(TokenType.Func))
             {
@@ -757,7 +757,7 @@ public class Parser
         }
     }
 
-    private void ParseImprots(ModuleDefinition module)
+    private void ParseImprots(Module module)
     {
         while (Match(TokenType.Import))
         {
@@ -803,7 +803,7 @@ public class Parser
             Next();
             ThrowError(!Match(TokenType.LiteralString));
             Next(token => path = token.Value.ToString());
-            module.AddImported(classes.Select(i => new ImportDefinition(i.Key, i.Value, path)).ToArray());
+            module.AddImported(classes.Select(i => new Import(i.Key, i.Value, path)).ToArray());
         }
     }
 

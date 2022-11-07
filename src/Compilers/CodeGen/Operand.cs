@@ -14,7 +14,7 @@ public class Operand<TValue> : Operand where TValue : struct
 {
     public override int Size => ValueSize;
 
-    public virtual TValue Value { get; set;}
+    public virtual TValue Value { get; set; }
 
     protected virtual int ValueSize { get; }
 
@@ -35,21 +35,21 @@ public class Operand<TValue> : Operand where TValue : struct
     }
 }
 
-  public static class StreamExtensions
+public static class StreamExtensions
+{
+    public unsafe static void Write<TValue>(this Stream stream, TValue value, int valueSize) where TValue : struct
     {
-        public unsafe static void Write<TValue>(this Stream stream, TValue value, int valueSize) where TValue : struct
+        if (stream == null)
         {
-            if (stream == null)
-            {
-                throw new ArgumentNullException(nameof(stream));
-            }
-
-            if (value is int i)
-            {
-                stream.Write(BitConverter.GetBytes(i));
-                return;
-            }
-
-            stream.Write(new Span<byte>(Unsafe.AsPointer(ref value), valueSize));
+            throw new ArgumentNullException(nameof(stream));
         }
+
+        if (value is int i)
+        {
+            stream.Write(BitConverter.GetBytes(i));
+            return;
+        }
+
+        stream.Write(new Span<byte>(Unsafe.AsPointer(ref value), valueSize));
     }
+}

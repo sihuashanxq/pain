@@ -2,6 +2,7 @@ namespace Pain.Runtime.Builtin
 {
     public static class Console
     {
+        /*
         public static RuntimeClass Class { get; }
 
         static Console()
@@ -15,5 +16,6 @@ namespace Pain.Runtime.Builtin
             System.Console.WriteLine(arguments[1].ToString());
             return Null.Const;
         }
+        */
     }
 }

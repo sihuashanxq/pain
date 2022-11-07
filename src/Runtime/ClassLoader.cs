@@ -1,27 +1,18 @@
 namespace Pain.Runtime;
-
+using RuntimeType = Pain.Runtime.Types.Type;
 public class ClassLoader
 {
-    private readonly Func<string, IEnumerable<RuntimeClass>> _compile;
+    private readonly Dictionary<ModuleToken, RuntimeType> _items;
 
-    private readonly Dictionary<string, RuntimeClass> _items;
+    private readonly Func<ModuleToken, IEnumerable<RuntimeType>> _compile;
 
-    public ClassLoader(Func<string, IEnumerable<RuntimeClass>> compile)
+    public ClassLoader(Func<ModuleToken, IEnumerable<RuntimeType>> compile)
     {
-        _items = new Dictionary<string, RuntimeClass>()
-        {
-            [$"{Builtin.Const.Runtime}.{Builtin.Const.Null}"] = Builtin.Null.Class,
-            [$"{Builtin.Const.Runtime}.{Builtin.Const.Array}"] = Builtin.Array.Class,
-            [$"{Builtin.Const.Runtime}.{Builtin.Const.Object}"] = Builtin.Object.Class,
-            [$"{Builtin.Const.Runtime}.{Builtin.Const.String}"] = Builtin.String.Class,
-            [$"{Builtin.Const.Runtime}.{Builtin.Const.Number}"] = Builtin.Number.Class,
-            [$"{Builtin.Const.Runtime}.{Builtin.Const.Boolean}"] = Builtin.Boolean.Class,
-            [$"{Builtin.Const.Runtime}.Console"] = Builtin.Console.Class,
-        };
+        _items = new Dictionary<ModuleToken, RuntimeType>();
         _compile = compile;
     }
 
-    public RuntimeClass Load(string token)
+    public RuntimeType Load(ModuleToken token)
     {
         if (_items.TryGetValue(token, out var rClass))
         {

@@ -1,5 +1,5 @@
 using Pain.Runtime.VM;
-namespace Pain.Runtime
+namespace Pain.Runtime.Types
 {
     public class Function : IObject
     {
@@ -23,9 +23,9 @@ namespace Pain.Runtime
             return true;
         }
 
-        public RuntimeClass GetClass()
+        public Type GetType(VirtualMachine vm)
         {
-            return Builtin.Func.Class;
+            return Builtin.FunctionType;
         }
 
         public void SetField(VirtualMachine vm, IObject key, IObject value)

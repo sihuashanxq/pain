@@ -5,7 +5,7 @@ public class FunctionContext
 {
     public string Name { get; }
 
-    public bool Static { get; }
+    public bool Native { get; }
 
     public ClassContext Class { get; }
 
@@ -17,6 +17,7 @@ public class FunctionContext
     {
         Name = expression.Name;
         Class = @class;
+        Native = expression.Native;
         Frame = new FunctionFrame();
         Expression = expression;
     }
@@ -26,21 +27,22 @@ public class ClassContext
 {
     public string Name { get; }
 
-    public string Token { get; }
+    public ModuleToken Token { get; }
+
+    public ModuleToken Super { get; }
 
     public ModuleContext Module { get; }
 
-    public ClassDefinition Definition { get; }
+    public Class Definition { get; }
 
     public Dictionary<string, FunctionContext> Functions { get; }
 
-    public bool Compiled { get; set; }
-
-    internal ClassContext(ClassDefinition definition, ModuleContext module)
+    internal ClassContext(Class definition, ModuleToken super, ModuleContext module)
     {
         Name = definition.Name;
-        Token = $"{module.Path}.{definition.Name}";
+        Token = new ModuleToken(module.Path, definition.Name);
         Module = module;
+        Super = super;
         Definition = definition;
         Functions = new Dictionary<string, FunctionContext>();
     }
@@ -62,12 +64,28 @@ public class ModuleContext
 
     public Dictionary<string, ClassContext> Classes { get; }
 
-    public Dictionary<string, ImportDefinition> Imports { get; }
+    public Dictionary<string, Import> Imports { get; }
 
-    internal ModuleContext(ModuleDefinition module)
+    internal ModuleContext(Module module)
     {
         Path = module.Path;
-        Classes = module.Classes.ToDictionary(i => i.Key, i => new ClassContext(i.Value, this));
+        Classes = module.Classes.ToDictionary(i => i.Key, i =>
+        {
+            if (module.Classes.ContainsKey(i.Value.Super))
+            {
+                var super = new ModuleToken(Path, i.Value.Super, i.Value.Super);
+                return new ClassContext(i.Value, super, this);
+            }
+
+            if (module.Imports.TryGetValue(i.Value.Super, out var item))
+            {
+                var super = new ModuleToken(item.Module, item.Name, i.Value.Super);
+                return new ClassContext(i.Value, super, this);
+            }
+
+            throw new Exception($"super was not found {i.Value.Super}");
+        });
+
         Imports = module.Imports.ToDictionary(i => i.Key, i => i.Value);
     }
 }
@@ -75,7 +93,8 @@ public class ModuleContext
 public class ImportedClass
 {
     public string Name { get; }
-    public string Token { get; }
+
+    public ModuleToken Token { get; }
 
     public string Alias { get; }
 
@@ -85,7 +104,7 @@ public class ImportedClass
     {
         Name = name;
         Alias = alias;
-        Token = $"{module}.{name}";
+        Token = new ModuleToken(module, name);
         Module = module;
     }
 }

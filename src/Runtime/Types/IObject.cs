@@ -1,23 +1,22 @@
 using Pain.Runtime.VM;
-using Pain.Runtime.Builtin;
-namespace Pain.Runtime
+namespace Pain.Runtime.Types
 {
     public interface IObject
     {
         public bool ToBoolean(VirtualMachine vm);
 
-        public RuntimeClass GetClass();
+        public Type GetType(VirtualMachine vm);
 
         public void SetField(VirtualMachine vm, IObject key, IObject value);
 
         public IObject GetField(VirtualMachine vm, IObject key)
         {
-            return GetClass().GetFunction(vm, this, key) as IObject ?? Null.Const;
+            return GetType(vm).GetFunction(vm, this, key) as IObject ?? Null.Value;
         }
 
         public IObject ToString(VirtualMachine vm)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.ToStringFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.ToStringFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -28,7 +27,7 @@ namespace Pain.Runtime
 
         public IObject Euqal(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.EqualFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.EqualFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -39,7 +38,7 @@ namespace Pain.Runtime
 
         public IObject LessThan(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.LessThanFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.LessThanFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -50,7 +49,7 @@ namespace Pain.Runtime
 
         public IObject GreaterThan(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.GreaterThanFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.GreaterThanFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -61,7 +60,7 @@ namespace Pain.Runtime
 
         public IObject LessThanOrEqual(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.LessThanOrEqualFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.LessThanOrEqualFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -72,7 +71,7 @@ namespace Pain.Runtime
 
         public IObject GtreaterThanOrEqual(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.GtreaterThanOrEqualFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.GtreaterThanOrEqualFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -83,7 +82,7 @@ namespace Pain.Runtime
 
         public IObject LeftShfit(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.LeftShiftFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.LeftShiftFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -94,7 +93,7 @@ namespace Pain.Runtime
 
         public IObject RightShfit(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.RightShiftFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.RightShiftFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -105,7 +104,7 @@ namespace Pain.Runtime
 
         public IObject Xor(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.XOrFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.XOrFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -116,7 +115,7 @@ namespace Pain.Runtime
 
         public IObject Or(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.OrFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.OrFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -127,7 +126,7 @@ namespace Pain.Runtime
 
         public IObject Not(VirtualMachine vm)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.NotFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.NotFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -138,7 +137,7 @@ namespace Pain.Runtime
 
         public IObject And(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.AndFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.AndFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -149,7 +148,7 @@ namespace Pain.Runtime
 
         public IObject Add(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.AddFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.AddFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -160,7 +159,7 @@ namespace Pain.Runtime
 
         public IObject Sub(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.SubFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.SubFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -171,7 +170,7 @@ namespace Pain.Runtime
 
         public IObject Mul(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.MulFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.MulFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -182,7 +181,7 @@ namespace Pain.Runtime
 
         public IObject Mod(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.ModFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.ModFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -193,7 +192,7 @@ namespace Pain.Runtime
 
         public IObject Div(VirtualMachine vm, IObject obj)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.DivFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.DivFunc));
             if (function == null)
             {
                 throw new Exception();
@@ -204,13 +203,13 @@ namespace Pain.Runtime
 
         public IObject Call(VirtualMachine vm, IObject[] arguments)
         {
-            var function = GetClass().GetFunction(vm, this, new String(Const.CallFunc));
+            var function = GetType(vm).GetFunction(vm, this, new String(Const.CallFunc));
             if (function == null)
             {
                 throw new Exception();
             }
 
-            return vm.Execute(function!, new[] { this }.Concat(arguments).ToArray()) as IObject ?? Null.Const;
+            return vm.Execute(function!, new[] { this }.Concat(arguments).ToArray()) as IObject ?? Null.Value;
         }
     }
 }

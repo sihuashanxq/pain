@@ -1,21 +1,21 @@
-namespace Pain.Runtime;
+namespace Pain.Runtime.Types;
 using Pain.Runtime.VM;
 
-public class RuntimeObject : IObject
+public class Object : IObject
 {
-    public RuntimeClass Class { get; }
+    public Type Type { get; }
 
     public Dictionary<IObject, IObject> Fields { get; }
 
-    public RuntimeObject(RuntimeClass @class)
+    public Object(Type type)
     {
-        Class = @class;
+        Type = type;
         Fields = new Dictionary<IObject, IObject>();
     }
 
-    public virtual RuntimeClass GetClass()
+    public virtual Type GetType(VirtualMachine vm)
     {
-        return Class;
+        return Type;
     }
 
     public bool ToBoolean(VirtualMachine vm)
@@ -30,139 +30,148 @@ public class RuntimeObject : IObject
             return value;
         }
 
-        return GetClass().GetFunction(vm, this, key) as IObject ?? Null.Const;
+        return GetType(vm).GetFunction(vm, this, key) as IObject ?? Null.Value;
     }
 
     public void SetField(VirtualMachine vm, IObject key, IObject value)
     {
         Fields[key] = value;
     }
-}
 
-public class RuntimeClass : IObject
-{
-    public string Name { get; }
-
-    public string Module { get; }
-
-    public string Token { get; }
-
-    public string SuperToken { get; }
-
-    public RuntimeClass? Super { get; private set; }
-
-    public FunctionTable FunctionTable { get; }
-
-    public RuntimeClass(string name, string superToken, string module, FunctionTable functionTable)
+    [Function("is")]
+    public static IObject Is(IObject[] arguments)
     {
-        Name = name;
-        Token = $"{module}.{name}";
-        Module = module;
-        SuperToken = superToken;
-        FunctionTable = functionTable;
-    }
-
-    public Function? GetFunction(VirtualMachine vm, IObject target, IObject name)
-    {
-        if (FunctionTable.TryGetFunction(name.ToString()!, out var function))
+        if (arguments[0].GetType() == arguments[1].GetType())
         {
-            return new Function(target, function!);
+            return Boolean.True;
         }
 
-        if (Super == null)
-        {
-            if (!string.IsNullOrEmpty(SuperToken))
-            {
-                Super = vm.GetClassLoader().Load(SuperToken);
-            }
-        }
-
-        return Super?.GetFunction(vm, target, name);
+        return Boolean.False;
     }
 
-    public virtual IObject CreateInstance()
+    [Function(Const.ConstructorFunc)]
+    public static IObject Constructor(IObject[] arguments)
     {
-        return new RuntimeObject(this);
+        return Null.Value;
     }
 
-    public bool ToBoolean(VirtualMachine vm)
-    {
-        return true;
-    }
-
-    public virtual RuntimeClass GetClass()
-    {
-        return this;
-    }
-
-    public void SetField(VirtualMachine vm, IObject key, IObject value)
-    {
-        throw new NotImplementedException();
-    }
-}
-
-public class BooleanType : RuntimeClass
-{
-    public BooleanType(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
-    {
-        
-    }
-
-    public override IObject CreateInstance()
-    {
-        return new Boolean(false);
-    }
-}
-
-public class NullClass : RuntimeClass
-{
-    public NullClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
-    {
-
-    }
-
-    public override IObject CreateInstance()
-    {
-        return new Boolean(false);
-    }
-}
-
-public class RuntimeStringClass : RuntimeClass
-{
-    public RuntimeStringClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
-    {
-
-    }
-
-    public override IObject CreateInstance()
+    [Function(Const.ToStringFunc)]
+    public static IObject ToString(IObject[] arguments)
     {
         return new String(string.Empty);
     }
-}
 
-public class NumberClass : RuntimeClass
-{
-    public NumberClass(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
+    [Function(Const.EqualFunc)]
+    public static IObject Euqal(IObject[] args)
     {
+        if (args == null || args.Length != 2)
+        {
+            return Boolean.False;
+        }
 
+        if (args[0] == args[1])
+        {
+            return Boolean.True;
+        }
+
+        return Boolean.False;
     }
 
-    public override IObject CreateInstance()
+    [Function(Const.LessThanFunc)]
+    public static IObject LessThan(IObject[] arguments)
     {
-        return new Number(0d);
-    }
-}
-
-public class ArrayType : RuntimeClass
-{
-    public ArrayType(string name, string module, FunctionTable functionTable) : base(name, Builtin.Object.Token, module, functionTable)
-    {
-
+        throw new Exception();
     }
 
-    public override IObject CreateInstance()
+    [Function(Const.GreaterThanFunc)]
+    public static IObject GreaterThan(IObject[] arguments)
     {
-        return new Array();
+        throw new Exception();
+    }
+
+    [Function(Const.LessThanOrEqualFunc)]
+    public static IObject LessThanOrEqual(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.GtreaterThanOrEqualFunc)]
+    public static IObject GtreaterThanOrEqual(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.LeftShiftFunc)]
+    public static IObject LeftShfit(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.RightShiftFunc)]
+    public static IObject RightShift(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.XOrFunc)]
+    public static IObject Xor(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.OrFunc)]
+    public static IObject Or(IObject[] arguments)
+    {
+
+        throw new Exception();
+    }
+
+    [Function(Const.NotFunc)]
+    public static IObject Not(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.AndFunc)]
+    public static IObject And(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.AddFunc)]
+    public static IObject Add(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.SubFunc)]
+    public static IObject Sub(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.MulFunc)]
+    public static IObject Mul(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.ModFunc)]
+    public static IObject Mod(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.DivFunc)]
+    public static IObject Div(IObject[] arguments)
+    {
+        throw new Exception();
+    }
+
+    [Function(Const.CallFunc)]
+    public static IObject Call(IObject[] arguments)
+    {
+        throw new Exception();
     }
 }
 
@@ -174,19 +183,5 @@ public class FunctionAttribute : Attribute
     public FunctionAttribute(string name)
     {
         Name = name;
-    }
-}
-
-[AttributeUsage(AttributeTargets.Class)]
-public class ClassAttribute : Attribute
-{
-    public string Name { get; }
-
-    public string Module { get; }
-
-    public ClassAttribute(string module, string name)
-    {
-        Name = name;
-        Module = module;
     }
 }

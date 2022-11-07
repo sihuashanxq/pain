@@ -1,4 +1,4 @@
-namespace Pain.Runtime
+namespace Pain.Runtime.Types
 {
     public static class Const
     {
@@ -12,13 +12,14 @@ namespace Pain.Runtime
 
         public const string Array = "Array";
 
-        public const string Null = "null";
+        public const string Null = "Null";
 
         public const string Boolean = "Boolean";
 
         public const string Function = "Function";
 
         public const string ConstructorFunc = "ctor";
+
         public const string ToStringFunc = "toString";
 
         public const string EqualFunc = "__equal__";

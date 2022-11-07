@@ -17,10 +17,13 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     public CompiledFunction Compile()
     {
+        if (_function.Native)
+        {
+            return new CompiledFunction(_function.Name, _function.Native, null!, 0, null!);
+        }
+
         Visit(_function.Expression);
-        var slotSize = _function.Frame.MaxSlot;
-        var parameterCount = _function.Expression.Parameters.Length;
-        return new CompiledFunction(_function.Name, false, _emitter.GetBuffer(), slotSize, parameterCount, null!);
+        return new CompiledFunction(_function.Name, false, _emitter.GetBuffer(), _function.Frame.MaxSlot, null!);
     }
 
     public static CompiledFunction CompileFunction(FunctionContext function, Strings strings)
@@ -206,7 +209,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             case SyntaxType.ConstBoolean:
                 stack += _emitter.Emit(OpCodeType.Ldnum, 0d);
                 stack += _emitter.Emit(OpCodeType.Ldnum, 0d);
-                stack += _emitter.Emit((constantExpression.Value.ToString()=="true") ? OpCodeType.Eq : OpCodeType.Gt);
+                stack += _emitter.Emit((constantExpression.Value.ToString() == "true") ? OpCodeType.Eq : OpCodeType.Gt);
                 break;
             case SyntaxType.ConstNull:
                 stack += _emitter.Emit(OpCodeType.Ldnull);
@@ -363,7 +366,8 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         if (_function.Class.Module.Classes.TryGetValue(expr.Name, out var @class))
         {
             var stack = 0;
-            stack += _emitter.Emit(OpCodeType.Ldstr, @class.Token);
+            stack += _emitter.Emit(OpCodeType.Ldstr, @class.Token.Module);
+            stack += _emitter.Emit(OpCodeType.Ldstr, @class.Token.Name);
             stack += _emitter.Emit(OpCodeType.Ldtoken);
             return stack.AreEqual(1);
         }
@@ -371,7 +375,8 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         if (_function.Class.Module.Imports.TryGetValue(expr.Name, out var importedClass))
         {
             var stack = 0;
-            stack += _emitter.Emit(OpCodeType.Ldstr, importedClass.Token);
+            stack += _emitter.Emit(OpCodeType.Ldstr, importedClass.Module);
+            stack += _emitter.Emit(OpCodeType.Ldstr, importedClass.Name);
             stack += _emitter.Emit(OpCodeType.Ldtoken);
             return stack.AreEqual(1);
         }

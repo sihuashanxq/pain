@@ -1,16 +1,18 @@
 using Pain.Runtime.VM;
 namespace Pain.Runtime.Types
 {
-    [Class(Const.Runtime, Const.Array)]
     public class Array : IObject
     {
-        public IObject[] Items { get; private set; }
+        public static Type Type { get; }
 
-        public static readonly ArrayType Type;
+        public static ModuleToken Token { get; }
+
+        public IObject[] Items { get; private set; }
 
         static Array()
         {
-            Type = new ArrayType(Const.Runtime, Const.Object, Util.ScanFunctions(typeof(Array)));
+            Token = new ModuleToken(Const.Runtime, Const.Array);
+            Type = new ArrayType(Util.ScanFunctions(typeof(Array)));
         }
 
         public Array()
@@ -23,7 +25,7 @@ namespace Pain.Runtime.Types
             return true;
         }
 
-        public RuntimeClass GetClass()
+        public Type GetType(VirtualMachine vm)
         {
             return Type;
         }
@@ -32,7 +34,7 @@ namespace Pain.Runtime.Types
         {
             if (index is String str)
             {
-                return GetClass().GetFunction(vm, this, index)!;
+                return GetType(vm).GetFunction(vm, this, index)!;
             }
 
             if (index is Number idx)
@@ -40,13 +42,13 @@ namespace Pain.Runtime.Types
                 var i = idx.Value;
                 if (i < 0 || i >= Items.Length)
                 {
-                    return Null.Const;
+                    return Null.Value;
                 }
 
-                return Items[(int)i] ?? Null.Const;
+                return Items[(int)i] ?? Null.Value;
             }
 
-            return Null.Const;
+            return Null.Value;
         }
 
         public void SetField(VirtualMachine vm, IObject index, IObject value)
@@ -79,7 +81,7 @@ namespace Pain.Runtime.Types
         [Function(Const.ToStringFunc)]
         public static IObject ToString(IObject[] args)
         {
-            return new Runtime.String($"[{string.Join(", ", (args[0] as Array)?.Items.Select((object i) => i.ToString()))}]");
+            return new String($"[{string.Join(", ", (args[0] as Array)?.Items.Select((object i) => i.ToString()))}]");
         }
 
         [Function(Const.EqualFunc)]
@@ -87,7 +89,7 @@ namespace Pain.Runtime.Types
         {
             if (args == null || args.Length != 2)
             {
-                return Boolean.Flase;
+                return Boolean.False;
             }
 
             if (args[0] == args[1])
@@ -95,7 +97,21 @@ namespace Pain.Runtime.Types
                 return Boolean.True;
             }
 
-            return Boolean.Flase;
+            return Boolean.False;
+        }
+    }
+
+
+    public class ArrayType : Type
+    {
+        public ArrayType(FunctionTable table) : base(Array.Token, Builtin.Object, table)
+        {
+
+        }
+
+        public override IObject CreateInstance()
+        {
+            return new Array();
         }
     }
 }

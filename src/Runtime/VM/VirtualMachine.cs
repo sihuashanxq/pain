@@ -1,4 +1,5 @@
 using Pain.Compilers.CodeGen;
+using Pain.Runtime.Types;
 namespace Pain.Runtime.VM;
 public class VirtualMachine
 {
@@ -130,11 +131,11 @@ public class VirtualMachine
                             ctx.Stack.Push(v1.Euqal(this, v2));
                         }
                         break;
-                        case OpCodeType.Neq:
+                    case OpCodeType.Neq:
                         {
                             var v2 = ctx.Stack.Pop();
                             var v1 = ctx.Stack.Pop();
-                            ctx.Stack.Push(new Boolean(!v1.Euqal(this, v2).ToBoolean(this)));
+                            ctx.Stack.Push(new Types.Boolean(!v1.Euqal(this, v2).ToBoolean(this)));
                         }
                         break;
                     case OpCodeType.Pop:
@@ -163,7 +164,7 @@ public class VirtualMachine
                         break;
                     case OpCodeType.Ldnull:
                         {
-                            ctx.Stack.Push(Null.Const);
+                            ctx.Stack.Push(Null.Value);
                         }
                         break;
                     case OpCodeType.Ldfld:
@@ -177,7 +178,7 @@ public class VirtualMachine
                         {
                             var token = ctx.ReadInt32();
                             var str = _strings.GetString(token);
-                            ctx.Stack.Push(new String(str));
+                            ctx.Stack.Push(new Types.String(str));
                             ctx.IP += 4;
                         }
                         break;
@@ -205,14 +206,16 @@ public class VirtualMachine
                         break;
                     case OpCodeType.Ldtoken:
                         {
-                            var token = ctx.Stack.Pop().ToString()!;
+                            var name = ctx.Stack.Pop().ToString();
+                            var module = ctx.Stack.Pop().ToString();
+                            var token = new ModuleToken(module!, name!);
                             var @class = _classLoader.Load(token);
                             ctx.Stack.Push(@class);
                         }
                         break;
                     case OpCodeType.New:
                         {
-                            var @class = ctx.Stack.Pop() as RuntimeClass;
+                            var @class = ctx.Stack.Pop() as Runtime.Types.Type;
                             ctx.Stack.Push(@class!.CreateInstance());
                         }
                         break;
@@ -278,15 +281,14 @@ public class VirtualMachine
                 }
             }
 
-            return Null.Const;
+            return Null.Value;
         }
     }
 
-    public IObject? Execute(string module, string @class, string function, IObject[] arguments)
+    public IObject? Execute(ModuleToken token, string function, IObject[] arguments)
     {
-        var token = $"{module}.{@class}";
-        var runtimeClass = _classLoader.Load(token);
-        var func = runtimeClass.GetFunction(this, Null.Const, new String(function));
+        var @class = _classLoader.Load(token);
+        var func = @class.GetFunction(this, Null.Value, new Types.String(function));
 
         return Execute(func!, arguments);
     }
