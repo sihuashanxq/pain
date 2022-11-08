@@ -4,7 +4,7 @@ namespace Pain.Runtime.Types
     {
         public const string Number = "Number";
 
-        public const string Runtime = "@Runtime";
+        public const string Runtime = "@runtime.types";
 
         public const string String = "String";
 

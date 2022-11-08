@@ -14,8 +14,8 @@ public class Module
         Classes = new Dictionary<string, Class>();
         Imports = new Dictionary<string, Import>()
         {
-            ["Object"] = new Import("Object", "Object", "@Runtime"),
-            ["Array"] = new Import("Object", "Array", "@Runtime"),
+            ["Object"] = new Import("Object", "Object", "@runtime.types"),
+            ["Array"] = new Import("Object", "Array", "@runtime.types"),
         };
     }
 

@@ -613,8 +613,8 @@ public class Lexer
                 return new Token(TokenType.Or, "||", token.Position);
             case "extends":
                 return new Token(TokenType.Extends, token.Value, token.Position);
-            case "as":
-                return new Token(TokenType.As, token.Value, token.Position);
+            case "native":
+                return new Token(TokenType.Native, token.Value, token.Position);
             case "from":
                 return new Token(TokenType.From, token.Value, token.Position);
             case "fn":

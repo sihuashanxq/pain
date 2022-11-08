@@ -1,7 +1,11 @@
 import {List} from "lib.list"
 import {Console} from "@Runtime.Console"
-class Program{
+class Program {
     fn main(){
-        return ("1"*"1").toString()
+        if new Program()==new Program() {
+            return 1
+        }else{
+            return 2
+        }
     }
 }

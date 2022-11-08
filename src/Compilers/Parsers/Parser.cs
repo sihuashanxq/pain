@@ -294,12 +294,6 @@ public class Parser
             case TokenType.This:
                 Next();
                 return Syntax.MakeThis();
-            case TokenType.Native:
-                Next();
-                return new NameExpression("native");
-            case TokenType.Static:
-                Next();
-                return new NameExpression("static");
             case TokenType.New:
                 return ParseNewExpression();
             case TokenType.Func:
@@ -378,7 +372,7 @@ public class Parser
     {
         ThrowError(!Match(TokenType.New));
         Next();
-        var expr = Parse(null, ParseUnitExpression, ThrowNullError) as CallExpression;
+        var expr = Parse(null, ParseMemberOrCallExpression, ThrowNullError) as CallExpression;
         return Syntax.MakeNew(expr!.Function, expr.Arguments);
     }
 

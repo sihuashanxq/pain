@@ -20,7 +20,6 @@ public enum TokenType
     Module,
     From,
     Class,
-    Static,
     Extends,
     This,
     Super,
