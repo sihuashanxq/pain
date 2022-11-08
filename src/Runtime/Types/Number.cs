@@ -30,6 +30,20 @@ namespace Pain.Runtime.Types
             return Value.ToString();
         }
 
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is Number n)
+            {
+                return n.Value == Value;
+            }
+
+            return false;
+        }
 
         public static bool IsNumber(IObject v2)
         {

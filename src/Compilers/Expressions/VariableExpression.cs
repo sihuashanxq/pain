@@ -4,9 +4,9 @@ public class VariableExpression : Syntax
 {
     public override SyntaxType Type => SyntaxType.Let;
 
-    public Varaible[] Varaibles { get; }
+    public Variable[] Varaibles { get; }
 
-    public VariableExpression(Varaible[] varaibles)
+    public VariableExpression(Variable[] varaibles)
     {
         Varaibles = varaibles;
     }
@@ -22,13 +22,13 @@ public class VariableExpression : Syntax
     }
 }
 
-public class Varaible : ICaptureable
+public class Variable : ICaptureable
 {
     public string Name { get; }
 
     public Syntax Value { get; }
 
-    public Varaible(string name, Syntax value)
+    public Variable(string name, Syntax value)
     {
         Name = name;
         Value = value;

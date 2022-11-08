@@ -96,7 +96,7 @@ public abstract class Syntax
         return new EmptyExpression();
     }
 
-    public static VariableExpression MakeVariable(Varaible[] varaibles)
+    public static VariableExpression MakeVariable(Variable[] varaibles)
     {
         return new VariableExpression(varaibles);
     }

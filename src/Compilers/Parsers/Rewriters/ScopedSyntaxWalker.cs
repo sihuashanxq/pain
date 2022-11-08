@@ -41,7 +41,7 @@ public class Scope
         });
     }
 
-    public void AddVaribale(Varaible var)
+    public void AddVaribale(Variable var)
     {
         Names[var.Name] = var;
     }
@@ -282,6 +282,40 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
         init.New.Accept(this);
         init.Members.Select(i => i.Value.Accept(this));
         return init;
+    }
+
+    protected internal override Syntax VisitTry(TryExpression expr)
+    {
+        using (_scope.Enter())
+        {
+            expr.Try.Accept(this);
+            expr.Catch?.Accept(this);
+            expr.Finally.Accept(this);
+            return expr;
+        }
+    }
+
+    protected internal override Syntax VisitCatch(CatchExpression expr)
+    {
+        using (_scope.Enter())
+        {
+            if (expr.Variable != null)
+            {
+                _scope.AddVaribale(expr.Variable);
+            }
+
+            expr.Block.Accept(this);
+            return expr;
+        }
+    }
+
+    protected internal override Syntax VisitFinally(FinallyExpression expr)
+    {
+        using (_scope.Enter())
+        {
+            expr.Block.Accept(this);
+            return expr;
+        }
     }
 }
 

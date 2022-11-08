@@ -49,4 +49,10 @@ public abstract class SyntaxVisitor<T>
     protected internal abstract T VisitArrayInit(ArrayInitExpression expr);
 
     protected internal abstract T VisitMemberInit(MemberInitExpression expr);
+
+    protected internal abstract T VisitTry(TryExpression expr);
+
+    protected internal abstract T VisitCatch(CatchExpression expr);
+
+    protected internal abstract T VisitFinally(FinallyExpression expr);
 }

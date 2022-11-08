@@ -45,15 +45,38 @@ namespace Pain.Runtime.Types
             return false;
         }
 
-        [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] arguments)
+        [Function("len")]
+        public static IObject Len(IObject[] args)
         {
-            if (arguments == null || arguments.Length == 0)
+            if (args == null || args.Length == 0)
             {
                 throw new ArgumentException();
             }
 
-            return arguments[0];
+            return new Number((args[0] as String).Value.Length);
+        }
+
+        [Function("getChar")]
+        public static IObject GetChar(IObject[] args)
+        {
+            if (args == null || args.Length < 2)
+            {
+                throw new ArgumentException();
+            }
+
+            return new String((args[0] as String).Value[(int)((args[1] as Number)).Value].ToString());
+        }
+
+
+        [Function(Const.ToStringFunc)]
+        public static IObject ToString(IObject[] args)
+        {
+            if (args == null || args.Length == 0)
+            {
+                throw new ArgumentException();
+            }
+
+            return args[0];
         }
 
         [Function(Const.EqualFunc)]

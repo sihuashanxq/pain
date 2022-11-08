@@ -16,6 +16,8 @@ namespace Pain.Runtime.Types
 
         public static ModuleToken Function { get; }
 
+        public static ModuleToken Console { get; }
+
         public static Type NullType { get; }
 
         public static Type ArrayType { get; }
@@ -30,6 +32,8 @@ namespace Pain.Runtime.Types
 
         public static Type FunctionType { get; }
 
+        public static Type ConsoleType { get; }
+
         static Builtin()
         {
             Null = new ModuleToken(Const.Runtime, Const.Null);
@@ -39,12 +43,14 @@ namespace Pain.Runtime.Types
             String = new ModuleToken(Const.Runtime, Const.String);
             Boolean = new ModuleToken(Const.Runtime, Const.Boolean);
             Function = new ModuleToken(Const.Runtime, Const.Function);
+            Console = new ModuleToken(Const.Runtime, "Console");
             NullType = new NullType(Util.ScanFunctions(typeof(Null)));
             ArrayType = new ArrayType(Util.ScanFunctions(typeof(Array)));
             ObjectType = new Type(Object, null, Util.ScanFunctions(typeof(Object)));
             NumberType = new NumberType(Util.ScanFunctions(typeof(Number)));
             StringType = new StringType(Util.ScanFunctions(typeof(String)));
             BooleanType = new BooleanType(Util.ScanFunctions(typeof(Boolean)));
+            ConsoleType = new Type(Console, Object, Util.ScanFunctions(typeof(Console))); 
             FunctionType = new Type(Function, Object, Util.ScanFunctions(typeof(Function)));
         }
 
@@ -66,7 +72,8 @@ namespace Pain.Runtime.Types
                     return BooleanType;
                 case $"{Const.Runtime}.{Const.Function}":
                     return FunctionType;
-
+                case $"{Const.Runtime}.Console":
+                    return ConsoleType;
                 default:
                     return null;
             }

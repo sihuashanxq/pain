@@ -398,7 +398,7 @@ public class Parser
         else
         {
             var functionBody = ParseFunctionBodyExpression();
-            var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
+            var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Variable(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
             if (parameters.Length == 0)
             {
                 parameterInits = Syntax.MakeEmpty();
@@ -414,7 +414,7 @@ public class Parser
         Next();
         var parameters = ParseFunctionParameters();
         var functionBody = ParseFunctionBodyExpression();
-        var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Varaible(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
+        var parameterInits = Syntax.MakeVariable(parameters.Select(i => new Variable(i.Name, Syntax.MakeName(i.Name))).ToArray()) as Syntax;
         if (parameters.Length == 0)
         {
             parameterInits = Syntax.MakeEmpty();
@@ -484,6 +484,8 @@ public class Parser
                     return ParseReturnExpression();
                 case TokenType.Semicolon:
                     return ParseSemicolonExpression();
+                case TokenType.Try:
+                    return ParseTryExpression();
                 case TokenType.EOF:
                     return null!;
                 default:
@@ -512,6 +514,46 @@ public class Parser
         ThrowError(!Match(TokenType.CloseBrace));
         Next();
         return Syntax.MakeBlock(expressions.ToArray());
+    }
+
+    private Syntax ParseTryExpression()
+    {
+        ThrowError(!Match(TokenType.Try));
+        var tryExpr = Parse(Next, ParseBlockExpression, ThrowNullError);
+        var catchExpr = ParseCatchExpression();
+        var finallyExpr = ParseFinallyExpression();
+        return new TryExpression(tryExpr, catchExpr, finallyExpr);
+    }
+
+    private Syntax? ParseCatchExpression()
+    {
+        if (!Match(TokenType.Case))
+        {
+            return null;
+        }
+
+        Next();
+        if (Match(TokenType.Identifier))
+        {
+            var variable = new Variable(_token.Value.ToString()!, null!);
+            Next();
+            return new CatchExpression(variable, Parse(null, ParseBlockExpression, ThrowNullError));
+        }
+
+        return new CatchExpression(null!, Parse(null, ParseBlockExpression, ThrowNullError));
+    }
+
+    private Syntax ParseFinallyExpression()
+    {
+        if (Match(TokenType.Finally))
+        {
+            Next();
+            return new FinallyExpression(Parse(null, ParseBlockExpression, ThrowNullError));
+        }
+        else
+        {
+            return new FinallyExpression(Syntax.MakeBlock());
+        }
     }
 
     private Syntax ParseIfExpression()
@@ -565,7 +607,7 @@ public class Parser
         ThrowError(!Match(TokenType.Let));
         Next();
 
-        var variables = new List<Varaible>();
+        var variables = new List<Variable>();
         for (var comma = false; ; comma = !comma)
         {
             if (comma)
@@ -585,13 +627,13 @@ public class Parser
 
             if (!Match(TokenType.Assign))
             {
-                variables.Add(new Varaible(name, null!));
+                variables.Add(new Variable(name, null!));
             }
             else
             {
                 Next();
                 var value = ParseUnitExpression();
-                variables.Add(new Varaible(name, value));
+                variables.Add(new Variable(name, value));
             }
         }
 

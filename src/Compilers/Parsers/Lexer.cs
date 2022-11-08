@@ -23,7 +23,7 @@ public static class StringExtensions
 
         return ch switch
         {
-            '+' or '-' or '/' or '*' or '%' or '&' or '^' or '|' or '!' or '>' or '<' or '=' or '{' or '}' or '(' or ')' or ';' or '[' or ']' => true,
+            ','or '+' or '-' or '/' or '*' or '%' or '&' or '^' or '|' or '!' or '>' or '<' or '=' or '{' or '}' or '(' or ')' or ';' or '[' or ']' => true,
             _ => false,
         };
     }
@@ -639,6 +639,12 @@ public class Lexer
                 return new Token(TokenType.True, token.Value, token.Position);
             case "false":
                 return new Token(TokenType.False, token.Value, token.Position);
+            case "try":
+                return new Token(TokenType.Try, token.Value, token.Position);
+            case "catch":
+                return new Token(TokenType.Catch, token.Value, token.Position);
+            case "finally":
+                return new Token(TokenType.Finally, token.Value, token.Position);
             default:
                 return token;
         }

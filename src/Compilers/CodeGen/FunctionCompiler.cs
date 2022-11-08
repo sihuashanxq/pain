@@ -510,6 +510,31 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
         return stack.AreEqual(1);
     }
+
+    protected internal override int VisitTry(TryExpression expr)
+    {
+        using (_emitter.Scope())
+        {
+            var cacheLabel = _emitter.CreateLabel("catch");
+            var finallyLabel = _emitter.CreateLabel("finally");
+            var stack = expr.Try.Accept(this);
+            _emitter.BindLabel(cacheLabel);
+            stack += expr.Catch?.Accept(this) ?? 0;
+            _emitter.BindLabel(finallyLabel);
+            stack += expr.Finally.Accept(this);
+            return stack.AreEqual(0);
+        }
+    }
+
+    protected internal override int VisitCatch(CatchExpression expr)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected internal override int VisitFinally(FinallyExpression expr)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 internal static class StackExtensions
@@ -522,6 +547,5 @@ internal static class StackExtensions
         }
 
         throw new Exception($"stack:{stack}!= want:{want}");
-        return stack;
     }
 }

@@ -26,7 +26,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         {
             return _function;
         }
-        
+
         ScopedSyntaxWalker.Walk(_function);
         return Visit(_function) as FunctionExpression;
     }
@@ -213,7 +213,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
 
     protected internal override Syntax VisitVariable(VariableExpression expr)
     {
-        var items = new List<Varaible>();
+        var items = new List<Variable>();
         foreach (var item in expr.Varaibles)
         {
             items.Add(Wrap(item));
@@ -227,15 +227,15 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         return new MemberInitExpression(Syntax.MakeNew(Syntax.MakeName("Object"), Array.Empty<Syntax>()), (new Dictionary<string, Syntax> { [name] = value }));
     }
 
-    private Varaible Wrap(Varaible item)
+    private Variable Wrap(Variable item)
     {
         if (_function.CapturedVariables.Contains(item))
         {
-            return new Varaible(item.Name, Wrap(item.Value?.Accept(this)!, item.Name));
+            return new Variable(item.Name, Wrap(item.Value?.Accept(this)!, item.Name));
         }
         else
         {
-            return new Varaible(item.Name, item.Value?.Accept(this)!);
+            return new Variable(item.Name, item.Value?.Accept(this)!);
         }
     }
 
@@ -289,5 +289,28 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
         }
 
         return Syntax.MakeMemberInit(@new, members);
+    }
+
+    protected internal override Syntax VisitTry(TryExpression expr)
+    {
+        var tryExpr = expr.Try.Accept(this);
+        var catchExpr = expr.Catch?.Accept(this);
+        var finallyExpr = expr.Finally.Accept(this);
+        return new TryExpression(tryExpr, catchExpr, finallyExpr);
+    }
+
+    protected internal override Syntax VisitCatch(CatchExpression expr)
+    {
+        if (expr.Variable != null)
+        {
+            return new CatchExpression(Wrap(expr.Variable), expr.Block.Accept(this));
+        }
+
+        return new CatchExpression(null!, expr.Block.Accept(this));
+    }
+
+    protected internal override Syntax VisitFinally(FinallyExpression expr)
+    {
+        return new FinallyExpression(expr.Block.Accept(this));
     }
 }

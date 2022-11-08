@@ -79,7 +79,10 @@ public enum TokenType
     Or,
     Arrow,
     Continue,
-    As
+    As,
+    Try,
+    Catch,
+    Finally
 }
 
 public static class TokenTypeExtensions
