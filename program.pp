@@ -1,38 +1,52 @@
 import { Console } from "@runtime.types"
 class Program {
     fn main(){
+       let p=new Program()
+       try{
+        p.tryCatch();
+       }catch e{
+            Console.log("main"+e)
+       }
+       try{
+         p.tryCatchThrow();
+       }catch e{
+            Console.log("main "+e)
+       }
+       try{
+         Console.log(p.tryCatchReturn());
+       }catch e{
+            Console.log("main"+e)
+       }
+    }
+    fn tryCatch(){
         try{
-            throw "Exception throwd"
+            throw "try Catch"
         }catch e{
             Console.log(e)
-            return 1
         }
         finally{
-            Console.log("finally")
-        }
-
-        try {
-            throw "Exception 2"
-        }catch e{
-            Console.log(e)
-            throw e
-        }
-        finally{
-            Console.log("finally2")
+            Console.log("finally try Catch")
         }
     }
-
-    fn sum(n,cache){
-        if cache[n]{
-            return cache[n]
+    fn tryCatchThrow(){
+        try{
+            throw "try Catch Throw"
+        }catch e{
+            Console.log(e)
+            throw "rethrow"
         }
-
-        if n>=2 {
-            cache[n-1]=this.sum(n-1,cache)
-            cache[n-2]=this.sum(n-2,cache)
-            return cache[n-1]+cache[n-2]
+        finally{
+            Console.log("finally try Catch Throw")
         }
-
-        return n
+    }
+    fn tryCatchReturn(){
+        try{
+            return "try Catch Return"
+        }catch e{
+            Console.log(e)
+        }
+        finally{
+            Console.log("finally try Catch Return")
+        }
     }
 }
