@@ -11,9 +11,9 @@ public class CompiledFunction
 
     public int MaxSlotSize { get; }
 
-    public Func<IObject[], IObject>? Delegate { get; }
+    public Func<IObject[], bool, IObject>? Delegate { get; }
 
-    public CompiledFunction(string name, bool natvie, byte[] opcodes, int maxSlotSize , MethodInfo methodInfo)
+    public CompiledFunction(string name, bool natvie, byte[] opcodes, int maxSlotSize, MethodInfo methodInfo)
     {
         Name = name;
         OpCodes = opcodes;
@@ -21,7 +21,10 @@ public class CompiledFunction
         MaxSlotSize = maxSlotSize;
         if (methodInfo != null)
         {
-            Delegate = (Func<IObject[], IObject>)methodInfo.CreateDelegate(typeof(Func<IObject[], IObject>));
+            Delegate = (args, thr) =>
+            {
+                return methodInfo.Invoke(null, new object[] { args, false }) as IObject;
+            };
         }
     }
 }

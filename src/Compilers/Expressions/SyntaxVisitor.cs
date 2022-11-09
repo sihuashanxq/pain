@@ -55,4 +55,6 @@ public abstract class SyntaxVisitor<T>
     protected internal abstract T VisitCatch(CatchExpression expr);
 
     protected internal abstract T VisitFinally(FinallyExpression expr);
+
+        protected internal abstract T VisitThrow(ThrowExpression expr);
 }

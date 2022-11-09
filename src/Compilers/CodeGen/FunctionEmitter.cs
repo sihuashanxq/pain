@@ -133,7 +133,7 @@ public class FunctionEmitter
                 stack = 0;
                 break;
             case OpCodeType.Ldtoken:
-                stack=-1;
+                stack = -1;
                 break;
             case OpCodeType.Dup:
             case OpCodeType.Push:
@@ -150,6 +150,30 @@ public class FunctionEmitter
                 {
                     return stack;
                 }
+                break;
+            case OpCodeType.Try:
+                stack = 0;
+                break;
+            case OpCodeType.LdLabel:
+                stack = 1;
+                break;
+            case OpCodeType.EndTry:
+                stack = -1;
+                break;
+            case OpCodeType.Catch:
+                stack = 0;
+                break;
+            case OpCodeType.EndCatch:
+                stack = -1;
+                break;
+            case OpCodeType.Finally:
+                stack = 0;
+                break;
+            case OpCodeType.EndFinally:
+                stack = 0;
+                break;
+            case OpCodeType.Throw:
+                stack = 0;
                 break;
         }
 

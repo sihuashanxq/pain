@@ -26,8 +26,9 @@ namespace Pain.Runtime.Types
             Value = value;
         }
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return Builtin.BooleanType;
         }
 
@@ -36,20 +37,23 @@ namespace Pain.Runtime.Types
             return Value;
         }
 
-        public void SetField(VirtualMachine vm, IObject key, IObject value)
+        public void SetField(VirtualMachine vm, IObject key, IObject value, out bool @throw)
         {
+            @throw = false;
             throw new NotImplementedException();
         }
 
         [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] args)
+        public static IObject ToString(IObject[] args, out bool @throw)
         {
+            @throw = false;
             return new String(args[0].ToString()!);
         }
 
         [Function(Const.EqualFunc)]
-        public static IObject Euqal(IObject[] args)
+        public static IObject Euqal(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;

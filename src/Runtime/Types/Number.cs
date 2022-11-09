@@ -15,13 +15,15 @@ namespace Pain.Runtime.Types
             return Value != 0;
         }
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return Builtin.NumberType;
         }
 
-        public void SetField(VirtualMachine vm, IObject key, IObject value)
+        public void SetField(VirtualMachine vm, IObject key, IObject value, out bool @throw)
         {
+            @throw = false;
             throw new Exception();
         }
 
@@ -51,8 +53,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] args)
+        public static IObject ToString(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length == 0)
             {
                 throw new ArgumentException();
@@ -62,8 +65,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.EqualFunc)]
-        public static IObject Euqal(IObject[] args)
+        public static IObject Euqal(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -78,8 +82,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.LessThanFunc)]
-        public static IObject LessThan(IObject[] args)
+        public static IObject LessThan(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -94,8 +99,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.GreaterThanFunc)]
-        public static IObject GreaterThan(IObject[] args)
+        public static IObject GreaterThan(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -110,8 +116,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.LessThanOrEqualFunc)]
-        public static IObject LessThanOrEqual(IObject[] args)
+        public static IObject LessThanOrEqual(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -131,8 +138,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.GtreaterThanOrEqualFunc)]
-        public static IObject GtreaterThanOrEqual(IObject[] args)
+        public static IObject GtreaterThanOrEqual(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -152,8 +160,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.LeftShiftFunc)]
-        public static IObject LeftShfit(IObject[] args)
+        public static IObject LeftShfit(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return new Number(double.NaN);
@@ -173,8 +182,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.RightShiftFunc)]
-        public static IObject RightShift(IObject[] args)
+        public static IObject RightShift(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return new Number(double.NaN);
@@ -194,8 +204,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.XOrFunc)]
-        public static IObject Xor(IObject[] arguments)
+        public static IObject Xor(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -215,8 +226,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.OrFunc)]
-        public static IObject Or(IObject[] arguments)
+        public static IObject Or(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -236,8 +248,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.NotFunc)]
-        public static IObject Not(IObject[] arguments)
+        public static IObject Not(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 1)
             {
                 return new Number(double.NaN);
@@ -247,8 +260,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.AndFunc)]
-        public static IObject And(IObject[] arguments)
+        public static IObject And(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -268,8 +282,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.AddFunc)]
-        public static IObject Add(IObject[] arguments)
+        public static IObject Add(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -293,8 +308,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.SubFunc)]
-        public static IObject Sub(IObject[] arguments)
+        public static IObject Sub(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -314,8 +330,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.MulFunc)]
-        public static IObject Mul(IObject[] arguments)
+        public static IObject Mul(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -335,8 +352,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.ModFunc)]
-        public static IObject Mod(IObject[] arguments)
+        public static IObject Mod(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -356,8 +374,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.DivFunc)]
-        public static IObject Div(IObject[] arguments)
+        public static IObject Div(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             if (arguments == null || arguments.Length != 2)
             {
                 return new Number(double.NaN);
@@ -377,8 +396,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.CallFunc)]
-        public static IObject Call(IObject[] arguments)
+        public static IObject Call(IObject[] arguments, out bool @throw)
         {
+            @throw = false;
             throw new Exception();
         }
     }

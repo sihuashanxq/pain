@@ -317,6 +317,12 @@ public class ScopedSyntaxWalker : SyntaxVisitor<Syntax>
             return expr;
         }
     }
+
+    protected internal override Syntax VisitThrow(ThrowExpression expr)
+    {
+        expr.Expression.Accept(this);
+        return expr;
+    }
 }
 
 public static class EnumerableExtensions

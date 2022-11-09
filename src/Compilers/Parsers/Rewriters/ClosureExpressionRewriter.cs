@@ -294,7 +294,7 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
     protected internal override Syntax VisitTry(TryExpression expr)
     {
         var tryExpr = expr.Try.Accept(this);
-        var catchExpr = expr.Catch?.Accept(this);
+        var catchExpr = expr.Catch.Accept(this);
         var finallyExpr = expr.Finally.Accept(this);
         return new TryExpression(tryExpr, catchExpr, finallyExpr);
     }
@@ -312,5 +312,10 @@ public class ClosureExpressionRewriter : SyntaxVisitor<Syntax>
     protected internal override Syntax VisitFinally(FinallyExpression expr)
     {
         return new FinallyExpression(expr.Block.Accept(this));
+    }
+
+    protected internal override Syntax VisitThrow(ThrowExpression expr)
+    {
+        return new ThrowExpression(expr.Expression.Accept(this));
     }
 }

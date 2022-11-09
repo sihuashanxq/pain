@@ -25,18 +25,20 @@ namespace Pain.Runtime.Types
             return true;
         }
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return Type;
         }
 
-        public IObject GetField(VirtualMachine vm, IObject index)
+        public IObject GetField(VirtualMachine vm, IObject index, out bool @throw)
         {
             if (index is String str)
             {
-                return GetType(vm).GetFunction(vm, this, index)!;
+                return GetType(vm, out @throw).GetFunction(vm, this, index)!;
             }
 
+            @throw = false;
             if (index is Number idx)
             {
                 var i = idx.Value;
@@ -51,8 +53,9 @@ namespace Pain.Runtime.Types
             return Null.Value;
         }
 
-        public void SetField(VirtualMachine vm, IObject index, IObject value)
+        public void SetField(VirtualMachine vm, IObject index, IObject value, out bool @throw)
         {
+            @throw = false;
             if (index is Number idx)
             {
                 var i = (int)idx.Value;
@@ -73,20 +76,23 @@ namespace Pain.Runtime.Types
         }
 
         [Function("len")]
-        public static IObject Len(IObject[] args)
+        public static IObject Len(IObject[] args, out bool @throw)
         {
+            @throw = false;
             return new Number((args[0] as Array).Items.Length!);
         }
 
         [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] args)
+        public static IObject ToString(IObject[] args, out bool @throw)
         {
+            @throw = false;
             return new String($"[{string.Join(", ", (args[0] as Array)?.Items.Select((object i) => i.ToString()))}]");
         }
 
         [Function(Const.EqualFunc)]
-        public static IObject Euqal(IObject[] args)
+        public static IObject Euqal(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;

@@ -64,5 +64,13 @@ public enum SyntaxType
 
     ArrayInit,
 
-    MemberInit
+    MemberInit,
+
+    Throw,
+
+    Try,
+
+    Catch,
+
+    Finally
 }

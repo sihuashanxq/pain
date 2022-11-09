@@ -20,13 +20,15 @@ namespace Pain.Runtime.Types
             return !string.IsNullOrEmpty(Value);
         }
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return Builtin.StringType;
         }
 
-        public void SetField(VirtualMachine vm, IObject key, IObject value)
+        public void SetField(VirtualMachine vm, IObject key, IObject value, out bool @throw)
         {
+            @throw = false;
             throw new NotImplementedException();
         }
 
@@ -46,8 +48,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function("len")]
-        public static IObject Len(IObject[] args)
+        public static IObject Len(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length == 0)
             {
                 throw new ArgumentException();
@@ -57,8 +60,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function("getChar")]
-        public static IObject GetChar(IObject[] args)
+        public static IObject GetChar(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length < 2)
             {
                 throw new ArgumentException();
@@ -69,8 +73,9 @@ namespace Pain.Runtime.Types
 
 
         [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] args)
+        public static IObject ToString(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length == 0)
             {
                 throw new ArgumentException();
@@ -80,8 +85,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.EqualFunc)]
-        public static IObject Euqal(IObject[] args)
+        public static IObject Euqal(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -101,8 +107,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.AddFunc)]
-        public static IObject Add(IObject[] args)
+        public static IObject Add(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length == 0)
             {
                 return Null.Value;
@@ -122,8 +129,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.LessThanFunc)]
-        public static IObject LessThan(IObject[] args)
+        public static IObject LessThan(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -143,8 +151,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.GreaterThanFunc)]
-        public static IObject GreaterThan(IObject[] args)
+        public static IObject GreaterThan(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -169,8 +178,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.LessThanOrEqualFunc)]
-        public static IObject LessThanOrEqual(IObject[] args)
+        public static IObject LessThanOrEqual(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;
@@ -190,8 +200,9 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.GtreaterThanOrEqualFunc)]
-        public static IObject GtreaterThanOrEqual(IObject[] args)
+        public static IObject GtreaterThanOrEqual(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;

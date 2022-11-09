@@ -82,7 +82,8 @@ public enum TokenType
     As,
     Try,
     Catch,
-    Finally
+    Finally,
+    Throw
 }
 
 public static class TokenTypeExtensions

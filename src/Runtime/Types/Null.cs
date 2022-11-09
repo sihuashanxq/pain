@@ -5,18 +5,20 @@ namespace Pain.Runtime.Types
     {
         public static readonly IObject Value = new Null();
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return Builtin.NullType;
         }
 
-        public IObject GetField(VirtualMachine vm, IObject key)
+        public IObject GetField(VirtualMachine vm, IObject key, out bool @throw)
         {
-            return GetType(vm).GetFunction(vm, this, key)!;
+            return GetType(vm, out @throw).GetFunction(vm, this, key)!;
         }
 
-        public void SetField(VirtualMachine vm, IObject key, IObject value)
+        public void SetField(VirtualMachine vm, IObject key, IObject value, out bool @throw)
         {
+            @throw = false;
             throw new NotImplementedException();
         }
 
@@ -31,14 +33,16 @@ namespace Pain.Runtime.Types
         }
 
         [Function(Const.ToStringFunc)]
-        public static IObject ToString(IObject[] args)
+        public static IObject ToString(IObject[] args, out bool @throw)
         {
+            @throw = false;
             return new String(args[0].ToString()!);
         }
 
         [Function(Const.EqualFunc)]
-        public static IObject Euqal(IObject[] args)
+        public static IObject Euqal(IObject[] args, out bool @throw)
         {
+            @throw = false;
             if (args == null || args.Length != 2)
             {
                 return Boolean.False;

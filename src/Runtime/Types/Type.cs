@@ -46,13 +46,15 @@ namespace Pain.Runtime.Types
             return true;
         }
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return this;
         }
 
-        public void SetField(VirtualMachine vm, IObject key, IObject value)
+        public void SetField(VirtualMachine vm, IObject key, IObject value, out bool @throw)
         {
+            @throw = false;
             throw new NotImplementedException();
         }
     }

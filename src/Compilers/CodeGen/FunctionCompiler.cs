@@ -515,25 +515,70 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     {
         using (_emitter.Scope())
         {
+            var tryEnd = _emitter.CreateLabel("try");
             var cacheLabel = _emitter.CreateLabel("catch");
             var finallyLabel = _emitter.CreateLabel("finally");
-            var stack = expr.Try.Accept(this);
+            var stack = 0;
+            stack += _emitter.Emit(OpCodeType.LdLabel, cacheLabel.Target);
+            stack += _emitter.Emit(OpCodeType.LdLabel, finallyLabel.Target);
+            stack += _emitter.Emit(OpCodeType.Try);
+            stack += expr.Try.Accept(this);
+            stack += _emitter.Emit(OpCodeType.EndTry);
+            stack += _emitter.Emit(OpCodeType.Br, finallyLabel.Target);
             _emitter.BindLabel(cacheLabel);
             stack += expr.Catch?.Accept(this) ?? 0;
             _emitter.BindLabel(finallyLabel);
             stack += expr.Finally.Accept(this);
+            _emitter.BindLabel(tryEnd);
             return stack.AreEqual(0);
         }
     }
 
     protected internal override int VisitCatch(CatchExpression expr)
     {
-        throw new NotImplementedException();
+        using (_emitter.Scope())
+        {
+            var label = _emitter.GetLabel("finally");
+            var stack = 0;
+            stack += _emitter.Emit(OpCodeType.Catch);
+            if (expr.Variable != null)
+            {
+                var variable = _emitter.CreateVariable(expr.Variable.Name);
+                if (expr.Variable.Value != null)
+                {
+                    stack += expr.Variable.Value.Accept(this).AreEqual(1);
+                    stack += _emitter.Emit(OpCodeType.Stloc, variable);
+                }
+            }
+
+            stack += expr.Block.Accept(this);
+            stack += _emitter.Emit(OpCodeType.EndCatch);
+            stack += _emitter.Emit(OpCodeType.Br, label.Target);
+            return stack.AreEqual(0);
+        }
     }
 
     protected internal override int VisitFinally(FinallyExpression expr)
     {
-        throw new NotImplementedException();
+        using (_emitter.Scope())
+        {
+            var label = _emitter.GetLabel("try");
+            var stack = 0;
+            stack += _emitter.Emit(OpCodeType.Finally);
+            stack += expr.Block.Accept(this);
+            stack += _emitter.Emit(OpCodeType.EndFinally);
+            stack += _emitter.Emit(OpCodeType.Br, label.Target);
+            return stack.AreEqual(0);
+        }
+    }
+
+    protected internal override int VisitThrow(ThrowExpression expr)
+    {
+        var varaibale = _emitter.GetVariable("%catch%");
+        var stack = expr.Expression.Accept(this).AreEqual(0);
+        stack += _emitter.Emit(OpCodeType.Ldloc, varaibale);
+        stack += _emitter.Emit(OpCodeType.Throw);
+        return stack.AreEqual(0);
     }
 }
 
@@ -546,6 +591,7 @@ internal static class StackExtensions
             return stack;
         }
 
+        return stack;
         throw new Exception($"stack:{stack}!= want:{want}");
     }
 }

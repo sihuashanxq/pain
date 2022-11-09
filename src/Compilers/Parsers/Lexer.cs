@@ -645,6 +645,8 @@ public class Lexer
                 return new Token(TokenType.Catch, token.Value, token.Position);
             case "finally":
                 return new Token(TokenType.Finally, token.Value, token.Position);
+                case "throw":
+                return new Token(TokenType.Throw,token.Value,token.Position);
             default:
                 return token;
         }

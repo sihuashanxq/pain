@@ -1,8 +1,25 @@
 import { Console } from "@runtime.types"
 class Program {
     fn main(){
-        let p=new Program()
-        Console.log(p.sum(1000,new Object()))
+        try{
+            throw "Exception throwd"
+        }catch e{
+            Console.log(e)
+            return 1
+        }
+        finally{
+            Console.log("finally")
+        }
+
+        try {
+            throw "Exception 2"
+        }catch e{
+            Console.log(e)
+            throw e
+        }
+        finally{
+            Console.log("finally2")
+        }
     }
 
     fn sum(n,cache){

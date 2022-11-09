@@ -13,9 +13,9 @@ namespace Pain.Runtime.Types
             Target = target;
         }
 
-        public IObject Call(VirtualMachine vm, IObject[] arguments)
+        public IObject Call(VirtualMachine vm, IObject[] arguments, out bool @throw)
         {
-            return vm.Execute(this, new[] { Target }.Concat(arguments).ToArray())!;
+            return vm.Execute(this, new[] { Target }.Concat(arguments).ToArray(), out @throw)!;
         }
 
         public bool ToBoolean(VirtualMachine vm)
@@ -23,13 +23,15 @@ namespace Pain.Runtime.Types
             return true;
         }
 
-        public Type GetType(VirtualMachine vm)
+        public Type GetType(VirtualMachine vm, out bool @throw)
         {
+            @throw = false;
             return Builtin.FunctionType;
         }
 
-        public void SetField(VirtualMachine vm, IObject key, IObject value)
+        public void SetField(VirtualMachine vm, IObject key, IObject value, out bool @throw)
         {
+            @throw = false;
             throw new NotImplementedException();
         }
     }

@@ -298,6 +298,8 @@ public class Parser
                 return ParseNewExpression();
             case TokenType.Func:
                 return ParseLocalFunctionExpression();
+            case TokenType.Throw:
+                return ParseThrowExpression();
             case TokenType.OpenParen:
                 Next();
                 return Parse(null, ParseExpression, i =>
@@ -309,6 +311,14 @@ public class Parser
             default:
                 return null!;
         }
+    }
+
+    private Syntax ParseThrowExpression()
+    {
+        ThrowError(!Match(TokenType.Throw));
+        Next();
+        var expr = Parse(null, ParseUnitExpression, ThrowNullError);
+        return new ThrowExpression(new BinaryExpression(Syntax.MakeName("%catch%"), expr, SyntaxType.Assign));
     }
 
     private Syntax ParseMemberExpression(Syntax @object)
@@ -519,28 +529,24 @@ public class Parser
     private Syntax ParseTryExpression()
     {
         ThrowError(!Match(TokenType.Try));
+        var variable = new VariableExpression(new[] { new Variable("%catch%", null!) });
         var tryExpr = Parse(Next, ParseBlockExpression, ThrowNullError);
         var catchExpr = ParseCatchExpression();
         var finallyExpr = ParseFinallyExpression();
-        return new TryExpression(tryExpr, catchExpr, finallyExpr);
+        return Syntax.MakeBlock(variable, new TryExpression(tryExpr, catchExpr, finallyExpr));
     }
 
-    private Syntax? ParseCatchExpression()
+    private Syntax ParseCatchExpression()
     {
-        if (!Match(TokenType.Case))
+        if (!Match(TokenType.Catch))
         {
-            return null;
+            return new CatchExpression(null!, Syntax.MakeBlock(new ThrowExpression(Syntax.MakeName("%catch%"))));
         }
 
         Next();
-        if (Match(TokenType.Identifier))
-        {
-            var variable = new Variable(_token.Value.ToString()!, null!);
-            Next();
-            return new CatchExpression(variable, Parse(null, ParseBlockExpression, ThrowNullError));
-        }
-
-        return new CatchExpression(null!, Parse(null, ParseBlockExpression, ThrowNullError));
+        ThrowError(!Match(TokenType.Identifier));
+        var variable = new Variable(_token.Value.ToString()!, Syntax.MakeName("%catch%"));
+        return new CatchExpression(variable, Parse(Next, ParseBlockExpression, ThrowNullError));
     }
 
     private Syntax ParseFinallyExpression()

@@ -31,7 +31,7 @@ public enum OpCodeType : byte
 
     Eq,
 
-       Neq,
+    Neq,
 
     New,
 
@@ -53,6 +53,8 @@ public enum OpCodeType : byte
 
     Ldnum,
 
+    LdLabel,
+
     Stloc,
 
     Stfld,
@@ -71,5 +73,19 @@ public enum OpCodeType : byte
 
     Dup,
 
-    Swap1_2
+    Swap1_2,
+
+    Try,
+
+    EndTry,
+
+    Catch,
+
+    EndCatch,
+
+    Throw,
+
+    Finally,
+
+    EndFinally
 }
