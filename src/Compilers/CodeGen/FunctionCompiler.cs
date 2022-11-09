@@ -1,4 +1,3 @@
-
 using Pain.Compilers.Expressions;
 using Pain.Runtime;
 namespace Pain.Compilers.CodeGen;
@@ -42,7 +41,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
         if (expr.Type == SyntaxType.Or)
         {
-            using (_emitter.Scope())
+            using(_emitter.Scope())
             {
                 var next = _emitter.CreateLabel(Label.Next);
 
@@ -59,7 +58,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
         if (expr.Type == SyntaxType.And)
         {
-            using (_emitter.Scope())
+            using(_emitter.Scope())
             {
                 var next = _emitter.CreateLabel(Label.Next);
 
@@ -142,7 +141,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal virtual int VisitAssign(BinaryExpression expr)
     {
         var stack = 0;
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             switch (expr.Left.Type)
             {
@@ -171,7 +170,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitBlock(BlockExpression blockExpression)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             var stack = 0;
 
@@ -201,7 +200,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
         switch (constantExpression.Type)
         {
             case SyntaxType.ConstString:
-                stack += _emitter.Emit(OpCodeType.Ldstr, constantExpression.Value.ToString()!);
+                stack += _emitter.Emit(OpCodeType.Ldstr, constantExpression.Value.ToString() !);
                 break;
             case SyntaxType.ConstNumber:
                 stack += _emitter.Emit(OpCodeType.Ldnum, Convert.ToDouble(constantExpression.Value));
@@ -250,7 +249,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitFor(ForExpression forExpression)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             var end = _emitter.CreateLabel(Label.Break);
             var next = _emitter.CreateLabel(Label.Continue);
@@ -277,11 +276,13 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitFunction(FunctionExpression functionExpression)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
+            var variable = _emitter.CreateVariable("%return%");
+            var label = _emitter.CreateLabel("%return%");
             var stack = functionExpression.Body.Accept(this);
-            stack += _emitter.Emit(OpCodeType.Pop, stack);
-            stack += _emitter.Emit(OpCodeType.Ldnull);
+            _emitter.BindLabel(label);
+            stack += _emitter.Emit(OpCodeType.Ldloc, variable);
             stack += _emitter.Emit(OpCodeType.Ret);
             return stack.AreEqual(0);
         }
@@ -289,7 +290,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitIf(IfExpression ifExpression)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             var stack = 0;
             var ifEnd = _emitter.CreateLabel(Label.End);
@@ -308,7 +309,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             stack += _emitter.Emit(OpCodeType.Brtrue, ifTrue.Target);
             stack += _emitter.Emit(OpCodeType.Br, ifFalse.Target);
 
-            using (_emitter.Scope())
+            using(_emitter.Scope())
             {
                 _emitter.BindLabel(ifTrue);
 
@@ -319,7 +320,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
             if (ifExpression.IfFalse != null)
             {
-                using (_emitter.Scope())
+                using(_emitter.Scope())
                 {
                     _emitter.BindLabel(ifFalse);
 
@@ -406,16 +407,27 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
     protected internal override int VisitReturn(ReturnExpression expr)
     {
         var stack = 0;
-
+        var variable = _emitter.GetVariable("%return%");
+        var funcEnd = _emitter.GetLabel("%return%");
+        var finnalyBegin = _emitter.GetLabel("beginFinally");
+        var catchBegin = _emitter.GetLabel("beginCatch");
+        var tryBegin = _emitter.GetLabel("beginTry");
         if (expr.Value != null)
         {
             stack = expr.Value.Accept(this).AreEqual(1);
-            stack += _emitter.Emit(OpCodeType.Ret);
+            stack += _emitter.Emit(OpCodeType.Stloc, variable);
+
         }
-        else
+
+        if (finnalyBegin != null)
         {
-            stack += _emitter.Emit(OpCodeType.Ldnull);
-            stack += _emitter.Emit(OpCodeType.Ret);
+            stack += _emitter.Emit(OpCodeType.Br, funcEnd.Target);
+        }
+
+        if (catchBegin != null || tryBegin != null)
+        {
+            stack+=_emitter.Emit(OpCodeType.Leave,funcEnd.Target);
+            stack+=_emitter.Emit(OpCodeType.Br,_emitter.GetLabel("finally").Target);
         }
 
         return stack.AreEqual(0);
@@ -513,22 +525,29 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitTry(TryExpression expr)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             var tryEnd = _emitter.CreateLabel("try");
             var cacheLabel = _emitter.CreateLabel("catch");
             var finallyLabel = _emitter.CreateLabel("finally");
             var stack = 0;
+            _emitter.CreateLabel("beginTry");
             stack += _emitter.Emit(OpCodeType.LdLabel, cacheLabel.Target);
             stack += _emitter.Emit(OpCodeType.LdLabel, finallyLabel.Target);
             stack += _emitter.Emit(OpCodeType.Try);
             stack += expr.Try.Accept(this);
             stack += _emitter.Emit(OpCodeType.EndTry);
+            _emitter.CreateLabel("endTry");
             stack += _emitter.Emit(OpCodeType.Br, finallyLabel.Target);
             _emitter.BindLabel(cacheLabel);
+            _emitter.CreateLabel("beginCatch");
+            _emitter.CreateLabel("endCatch");
             stack += expr.Catch?.Accept(this) ?? 0;
+            _emitter.CreateLabel("endCatch");
+            _emitter.CreateLabel("beginFinally");
             _emitter.BindLabel(finallyLabel);
             stack += expr.Finally.Accept(this);
+            _emitter.CreateLabel("endFinally");
             _emitter.BindLabel(tryEnd);
             return stack.AreEqual(0);
         }
@@ -536,7 +555,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitCatch(CatchExpression expr)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             var label = _emitter.GetLabel("finally");
             var stack = 0;
@@ -546,7 +565,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                 var variable = _emitter.CreateVariable(expr.Variable.Name);
                 if (expr.Variable.Value != null)
                 {
-                    stack += expr.Variable.Value.Accept(this).AreEqual(1);
+                    //stack += expr.Variable.Value.Accept(this).AreEqual(1);
                     stack += _emitter.Emit(OpCodeType.Stloc, variable);
                 }
             }
@@ -560,7 +579,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitFinally(FinallyExpression expr)
     {
-        using (_emitter.Scope())
+        using(_emitter.Scope())
         {
             var label = _emitter.GetLabel("try");
             var stack = 0;

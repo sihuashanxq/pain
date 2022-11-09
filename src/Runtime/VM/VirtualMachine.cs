@@ -24,12 +24,12 @@ public class VirtualMachine
             return function.Func.Delegate(arguments, false);
         }
 
-        using (_stack.Push(function, arguments))
+        using(_stack.Push(function, arguments))
         {
             var ctx = _stack.Current!;
             while (ctx.CanExecution())
             {
-                var opCodeType = (OpCodeType)ctx.ReadByte();
+                var opCodeType = (OpCodeType) ctx.ReadByte();
                 ctx.IP++;
                 switch (opCodeType)
                 {
@@ -474,7 +474,18 @@ public class VirtualMachine
                             var value = func.Call(this, args, out @throw);
                             if (@throw)
                             {
-
+                                if (ctx.Exception == null)
+                                {
+                                    return value;
+                                }
+                                else
+                                {
+                                    ctx.Exception.Throw = true;
+                                    ctx.Exception.Value = value;
+                                    ctx.Stack.Push(ctx.Exception.Value);
+                                    ctx.IP = ctx.Exception.Catch;
+                                    break;
+                                }
                             }
                             ctx.Stack.Push(value!);
                             ctx.IP += 4;
@@ -501,29 +512,30 @@ public class VirtualMachine
                         }
                         break;
                     case OpCodeType.Try:
-                        var f = (int)(ctx.Stack.Pop() as Number).Value;
-                        var c = (int)(ctx.Stack.Pop() as Number).Value;
+                        var f = (int) (ctx.Stack.Pop() as Number).Value;
+                        var c = (int) (ctx.Stack.Pop() as Number).Value;
                         ctx.Exceptions.Push(new ExceptionMachineState()
                         {
                             State = State.Try,
-                            Catch = c,
-                            Finally = f
+                                Catch = c,
+                                Finally = f
                         });
                         break;
                     case OpCodeType.EndTry:
                         ctx.Exception!.State = State.EndTry;
                         break;
                     case OpCodeType.Catch:
-                        @throw = false;
-                        ctx.Exception!.Value = Null.Value;
-                        ctx.Exception!.Throw = false;
                         ctx.Exception!.State = State.Catch;
                         break;
                     case OpCodeType.EndCatch:
+                        @throw = false;
+                        ctx.Exception!.Value = Null.Value;
+                        ctx.Exception!.Throw = false;
                         ctx.Exception!.State = State.EndCatch;
                         break;
                     case OpCodeType.Throw:
                         @throw = true;
+                        var vV = ctx.Stack.Peek();
                         if (ctx.Exception == null)
                         {
                             return ctx.Stack.Pop();
@@ -533,8 +545,9 @@ public class VirtualMachine
                         {
                             @throw = false;
                             ctx.Exception!.Value = ctx.Stack.Pop();
-                            ctx.Exception!.Throw = true;
+                            ctx.Exception!.Throw = false;
                             ctx.IP = ctx.Exception.Catch;
+                            ctx.Stack.Push(ctx.Exception.Value);
                         }
                         else if (ctx.Exception.State == State.Catch)
                         {
@@ -558,6 +571,19 @@ public class VirtualMachine
                         {
                             @throw = true;
                             return ex.Value;
+                        }
+                        else
+                        {
+                            if (ctx.Exception != null && ctx.Exception.Leave != -1)
+                            {
+                                ctx.IP = ctx.Exception.Leave;
+                            }
+                        }
+                        break;
+                    case OpCodeType.Leave:
+                        {
+                            ctx.Exception.Leave = ctx.ReadInt32();
+                            ctx.IP += 4;
                         }
                         break;
                 }
@@ -679,6 +705,8 @@ internal class ExceptionMachineState
     public int Catch;
 
     public int Finally;
+
+    public int Leave = -1;
 
     public State State = State.None;
 }

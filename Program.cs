@@ -20,7 +20,7 @@ namespace Pain
             }
             else
             {
-                Console.WriteLine("No Exception:{0}", v.ToString());
+           
             }
         }
     }

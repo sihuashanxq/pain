@@ -87,5 +87,7 @@ public enum OpCodeType : byte
 
     Finally,
 
-    EndFinally
+    EndFinally,
+
+    Leave
 }

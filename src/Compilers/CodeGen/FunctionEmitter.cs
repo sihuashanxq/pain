@@ -34,7 +34,7 @@ public class FunctionEmitter
 
     public Label GetLabel(string name)
     {
-        return _scope.GetLabel(name)!;
+        return _scope.GetLabel(name) !;
     }
 
     public Label CreateLabel(string name)
@@ -70,12 +70,12 @@ public class FunctionEmitter
 
     public Variable CreateVariable(string name)
     {
-        return _scope.CreateVariable(name)!;
+        return _scope.CreateVariable(name) !;
     }
 
     public Variable GetVariable(string name)
     {
-        return _scope.GetVariable(name)!;
+        return _scope.GetVariable(name) !;
     }
 
     public Variable GetOrCreateVariable(string name)
@@ -122,7 +122,7 @@ public class FunctionEmitter
                 stack = -3;
                 break;
             case OpCodeType.Call:
-                stack = -(operand as Operand<int>)!.Value;
+                stack = -(operand as Operand<int>) !.Value;
                 break;
             case OpCodeType.New:
                 stack = 0;
@@ -145,7 +145,7 @@ public class FunctionEmitter
                 stack = 1;
                 break;
             case OpCodeType.Pop:
-                stack = -(int)(operand!.GetValue());
+                stack = -(int) (operand!.GetValue());
                 if (stack == 0)
                 {
                     return stack;
@@ -174,6 +174,9 @@ public class FunctionEmitter
                 break;
             case OpCodeType.Throw:
                 stack = 0;
+                break;
+            case OpCodeType.Leave:
+                stack += 0;
                 break;
         }
 
@@ -210,7 +213,7 @@ public class FunctionEmitter
 
     public byte[] GetBuffer()
     {
-        using (var mem = new MemoryStream())
+        using(var mem = new MemoryStream())
         {
             foreach (var opCode in _codes)
             {
