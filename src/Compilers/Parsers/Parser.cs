@@ -318,7 +318,7 @@ public class Parser
         ThrowError(!Match(TokenType.Throw));
         Next();
         var expr = Parse(null, ParseUnitExpression, ThrowNullError);
-        return new ThrowExpression(new BinaryExpression(Syntax.MakeName("%catch%"), expr, SyntaxType.Assign));
+        return new ThrowExpression(expr);
     }
 
     private Syntax ParseMemberExpression(Syntax @object)
@@ -529,11 +529,10 @@ public class Parser
     private Syntax ParseTryExpression()
     {
         ThrowError(!Match(TokenType.Try));
-        var variable = new VariableExpression(new[] { new Variable("%catch%", null!) });
         var tryExpr = Parse(Next, ParseBlockExpression, ThrowNullError);
         var catchExpr = ParseCatchExpression();
         var finallyExpr = ParseFinallyExpression();
-        return Syntax.MakeBlock(variable, new TryExpression(tryExpr, catchExpr, finallyExpr));
+        return Syntax.MakeBlock(new TryExpression(tryExpr, catchExpr, finallyExpr));
     }
 
     private Syntax ParseCatchExpression()

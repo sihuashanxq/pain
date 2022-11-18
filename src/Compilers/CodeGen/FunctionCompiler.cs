@@ -51,7 +51,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                 stack += _emitter.Emit(OpCodeType.Pop, 1);
                 stack += expr.Right.Accept(this);
 
-                _emitter.BindLabel(next);
+                _emitter.Bind(next);
                 return stack;
             }
         }
@@ -68,7 +68,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
                 stack += _emitter.Emit(OpCodeType.Pop, 1);
                 stack += expr.Right.Accept(this);
 
-                _emitter.BindLabel(next);
+                _emitter.Bind(next);
                 return stack;
             }
         }
@@ -255,7 +255,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             var next = _emitter.CreateLabel(Label.Continue);
             var begin = _emitter.CreateLabel(Label.Begin);
             var stack = forExpression.Initializers.Sum(item => item.Accept(this)).AreEqual(0);
-            _emitter.BindLabel(begin);
+            _emitter.Bind(begin);
 
             if (forExpression.Test != null)
             {
@@ -264,11 +264,11 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             }
 
             stack += forExpression.Body.Accept(this);
-            _emitter.BindLabel(next);
+            _emitter.Bind(next);
 
             stack += forExpression.Iterators.Sum(item => item.Accept(this)).AreEqual(0);
             stack += _emitter.Emit(OpCodeType.Br, begin.Target);
-            _emitter.BindLabel(end);
+            _emitter.Bind(end);
 
             return stack.AreEqual(0);
         }
@@ -281,7 +281,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             var variable = _emitter.CreateVariable("%return%");
             var label = _emitter.CreateLabel("%return%");
             var stack = functionExpression.Body.Accept(this);
-            _emitter.BindLabel(label);
+            _emitter.Bind(label);
             stack += _emitter.Emit(OpCodeType.Ldloc, variable);
             stack += _emitter.Emit(OpCodeType.Ret);
             return stack.AreEqual(0);
@@ -311,7 +311,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
             using(_emitter.Scope())
             {
-                _emitter.BindLabel(ifTrue);
+                _emitter.Bind(ifTrue);
 
                 stack += ifExpression.IfTrue.Accept(this);
                 stack += _emitter.Emit(OpCodeType.Pop, stack);
@@ -322,7 +322,7 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             {
                 using(_emitter.Scope())
                 {
-                    _emitter.BindLabel(ifFalse);
+                    _emitter.Bind(ifFalse);
 
                     stack += ifExpression.IfFalse.Accept(this);
                     stack += _emitter.Emit(OpCodeType.Pop, stack);
@@ -331,10 +331,10 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             }
             else
             {
-                _emitter.BindLabel(ifFalse);
+                _emitter.Bind(ifFalse);
             }
 
-            _emitter.BindLabel(ifEnd);
+            _emitter.Bind(ifEnd);
             return stack.AreEqual(0);
         }
     }
@@ -539,16 +539,16 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
             stack += _emitter.Emit(OpCodeType.EndTry);
             _emitter.CreateLabel("endTry");
             stack += _emitter.Emit(OpCodeType.Br, finallyLabel.Target);
-            _emitter.BindLabel(cacheLabel);
+            _emitter.Bind(cacheLabel);
             _emitter.CreateLabel("beginCatch");
             _emitter.CreateLabel("endCatch");
             stack += expr.Catch?.Accept(this) ?? 0;
             _emitter.CreateLabel("endCatch");
             _emitter.CreateLabel("beginFinally");
-            _emitter.BindLabel(finallyLabel);
+            _emitter.Bind(finallyLabel);
             stack += expr.Finally.Accept(this);
             _emitter.CreateLabel("endFinally");
-            _emitter.BindLabel(tryEnd);
+            _emitter.Bind(tryEnd);
             return stack.AreEqual(0);
         }
     }
@@ -593,11 +593,9 @@ public class FunctionCompiler : Expressions.SyntaxVisitor<int>
 
     protected internal override int VisitThrow(ThrowExpression expr)
     {
-        var varaibale = _emitter.GetVariable("%catch%");
         var stack = expr.Expression.Accept(this).AreEqual(0);
-        stack += _emitter.Emit(OpCodeType.Ldloc, varaibale);
         stack += _emitter.Emit(OpCodeType.Throw);
-        return stack.AreEqual(0);
+        return stack.AreEqual(1);
     }
 }
 

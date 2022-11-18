@@ -58,7 +58,7 @@ public class FunctionEmitter
         BindLabel(label, target);
     }
 
-    public void BindLabel(Label label)
+    public void Bind(Label label)
     {
         BindLabel(label, _offset);
     }

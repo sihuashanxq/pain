@@ -45,7 +45,7 @@ public class Object : IObject
     public static IObject Is(IObject[] arguments, out bool @throw)
     {
         @throw = false;
-        if (arguments[0].GetType() == arguments[1].GetType())
+        if (arguments[0].GetType(null, out @throw) == arguments[1].GetType(null, out @throw))
         {
             return Boolean.True;
         }
